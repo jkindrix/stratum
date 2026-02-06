@@ -64,7 +64,7 @@ function getScaleDegree(pc: number, tonic: number, scale: readonly number[]): nu
   return idx >= 0 ? idx + 1 : null;
 }
 
-function chordQualityFromSymbol(symbol: string): string {
+export function chordQualityFromSymbol(symbol: string): string {
   const s = symbol.toLowerCase();
   if (s.includes('dim')) return 'diminished';
   if (s.includes('aug')) return 'augmented';

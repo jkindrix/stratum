@@ -34,11 +34,11 @@ export type {
   KeyDetectionOptions,
   WindowedKeyResult,
 } from './key-detection.js';
-export { detectKey, detectKeyWindowed } from './key-detection.js';
+export { detectKey, detectKeyWindowed, keyName, pcDistribution } from './key-detection.js';
 
 // Enhanced Roman numeral analysis
 export type { RomanNumeralKey, EnhancedRomanNumeral } from './enhanced-roman.js';
-export { enhancedRomanNumeral, functionalHarmonyScore } from './enhanced-roman.js';
+export { enhancedRomanNumeral, functionalHarmonyScore, chordQualityFromSymbol } from './enhanced-roman.js';
 
 // Neo-Riemannian transforms
 export type { Triad, NRTOperation } from './neo-riemannian.js';

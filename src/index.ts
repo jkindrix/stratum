@@ -181,9 +181,12 @@ export {
   // Key detection
   detectKey,
   detectKeyWindowed,
+  keyName,
+  pcDistribution,
   // Enhanced Roman numeral analysis
   enhancedRomanNumeral,
   functionalHarmonyScore,
+  chordQualityFromSymbol,
   // Neo-Riemannian transforms
   nrtTransform,
   classifyNRT,

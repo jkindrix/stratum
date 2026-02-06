@@ -79,7 +79,7 @@ const FLAT_MINOR_TONICS = new Set([0, 1, 3, 5, 7, 8, 10]); // C, Db, Eb, F, G, A
 
 // ---- Internal Helpers ----
 
-function keyName(tonic: number, mode: 'major' | 'minor'): string {
+export function keyName(tonic: number, mode: 'major' | 'minor'): string {
   const useFlats = mode === 'major'
     ? FLAT_MAJOR_TONICS.has(tonic)
     : FLAT_MINOR_TONICS.has(tonic);
@@ -116,7 +116,7 @@ function resolveProfile(opt: KeyDetectionOptions['profile']): KeyProfile {
   return opt;
 }
 
-function pcDistribution(events: readonly NoteEvent[], weightByDuration: boolean): number[] {
+export function pcDistribution(events: readonly NoteEvent[], weightByDuration: boolean): number[] {
   const dist = new Array<number>(12).fill(0);
   for (const e of events) {
     const pc = e.pitch.pitchClass;
