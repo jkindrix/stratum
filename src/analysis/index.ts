@@ -25,3 +25,13 @@ export {
   eventDensityCurve,
   registralEnvelope,
 } from './structural.js';
+
+// Key detection
+export type {
+  KeyProfile,
+  KeyCandidate,
+  KeyDetectionResult,
+  KeyDetectionOptions,
+  WindowedKeyResult,
+} from './key-detection.js';
+export { detectKey, detectKeyWindowed } from './key-detection.js';

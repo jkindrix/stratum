@@ -58,3 +58,26 @@ export {
   frequencyFromTuning,
   nearestStep,
 } from './tuning.js';
+
+// PCS similarity measures
+export {
+  icvsim,
+  angleSimilarity,
+  pcSetCosine,
+  zRelation,
+  earthMoversDistance,
+} from './similarity.js';
+
+// Cent/ratio/EDO conversion utilities
+export {
+  centsBetween,
+  centsToRatio,
+  ratioToCents,
+  edoStepToCents,
+  centsToEdoStep,
+  ratioToEdoStep,
+} from './cents.js';
+
+// Pitch spelling
+export type { SpelledPitch, SpellingKeyContext } from './spelling.js';
+export { spellPitch, spellPitchSequence } from './spelling.js';

@@ -16,3 +16,7 @@ export {
   findTensionValleys,
   classifyTensionProfile,
 } from './tension.js';
+
+// TIV (Tonal Interval Vectors via DFT)
+export type { TonalIntervalVector, DFTComponents } from './tiv.js';
+export { chromaVector, tiv, tivDistance, tivConsonance, dftCoefficients } from './tiv.js';

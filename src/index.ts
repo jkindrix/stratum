@@ -31,7 +31,7 @@ export {
 } from './core/index.js';
 
 // Pitch analysis
-export type { ForteEntry, Scale, Chord } from './pitch/index.js';
+export type { ForteEntry, Scale, Chord, SpelledPitch, SpellingKeyContext } from './pitch/index.js';
 export {
   normalizePc,
   pitchFromPcOctave,
@@ -73,6 +73,22 @@ export {
   centsDeviation,
   frequencyFromTuning,
   nearestStep,
+  // PCS similarity
+  icvsim,
+  angleSimilarity,
+  pcSetCosine,
+  zRelation,
+  earthMoversDistance,
+  // Cent/ratio/EDO conversions
+  centsBetween,
+  centsToRatio,
+  ratioToCents,
+  edoStepToCents,
+  centsToEdoStep,
+  ratioToEdoStep,
+  // Pitch spelling
+  spellPitch,
+  spellPitchSequence,
 } from './pitch/index.js';
 
 // Time analysis
@@ -91,7 +107,7 @@ export {
 } from './time/index.js';
 
 // Tension analysis
-export type { TensionWeights, TensionOptions, TensionPoint, TensionCurve, TensionProfile } from './tension/index.js';
+export type { TensionWeights, TensionOptions, TensionPoint, TensionCurve, TensionProfile, TonalIntervalVector, DFTComponents } from './tension/index.js';
 export {
   roughness,
   roughnessFromMidi,
@@ -102,6 +118,12 @@ export {
   findTensionPeaks,
   findTensionValleys,
   classifyTensionProfile,
+  // TIV / DFT
+  chromaVector,
+  tiv,
+  tivDistance,
+  tivConsonance,
+  dftCoefficients,
 } from './tension/index.js';
 
 // I/O
@@ -121,6 +143,11 @@ export type {
   PitchRange,
   CurvePoint,
   EnvelopePoint,
+  KeyProfile,
+  KeyCandidate,
+  KeyDetectionResult,
+  KeyDetectionOptions,
+  WindowedKeyResult,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -136,4 +163,7 @@ export {
   segmentByPattern,
   eventDensityCurve,
   registralEnvelope,
+  // Key detection
+  detectKey,
+  detectKeyWindowed,
 } from './analysis/index.js';
