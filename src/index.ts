@@ -107,7 +107,7 @@ export {
 } from './time/index.js';
 
 // Tension analysis
-export type { TensionWeights, TensionOptions, TensionPoint, TensionCurve, TensionProfile, TonalIntervalVector, DFTComponents, TPSKey, TPSChord, SpiralPoint } from './tension/index.js';
+export type { TensionWeights, TensionOptions, TensionPoint, TensionCurve, TensionProfile, TonalIntervalVector, DFTComponents, TPSKey, TPSChord, SpiralPoint, ScoreTensionPoint, ScoreTensionOptions } from './tension/index.js';
 export {
   roughness,
   roughnessFromMidi,
@@ -135,6 +135,11 @@ export {
   cloudDiameter,
   cloudMomentum,
   tensileStrain,
+  // Score-level tension curves
+  scoreTension,
+  tpsTensionCurve,
+  spiralTensionCurve,
+  tivTensionCurve,
 } from './tension/index.js';
 
 // I/O
@@ -163,6 +168,21 @@ export type {
   EnhancedRomanNumeral,
   Triad,
   NRTOperation,
+  // Self-similarity
+  SimilarityMatrix,
+  NoveltyPoint,
+  FeatureExtractor,
+  // Serial
+  TwelveToneRow,
+  TwelveToneMatrix,
+  RowForm,
+  // Stats
+  MarkovChain,
+  ZipfResult,
+  // Chord-scale
+  ToneClassification,
+  ScaleTone,
+  ChordScaleMatch,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -178,6 +198,11 @@ export {
   segmentByPattern,
   eventDensityCurve,
   registralEnvelope,
+  // Self-similarity & novelty
+  chromaticFeature,
+  selfSimilarityMatrix,
+  noveltyDetection,
+  noveltyPeaks,
   // Key detection
   detectKey,
   detectKeyWindowed,
@@ -197,4 +222,24 @@ export {
   hexatonicPole,
   weitzmannRegion,
   triadPitchClasses,
+  // Twelve-tone serial
+  createRow,
+  twelvetoneMatrix,
+  getRowForm,
+  rowMultiply,
+  rowRotate,
+  combinatoriality,
+  invariantPcs,
+  // Statistical analysis
+  shannonEntropy,
+  rhythmicEntropy,
+  zipfDistribution,
+  markovTransition,
+  markovGenerate,
+  ngramCounts,
+  // Chord-scale theory
+  chordScaleMatch,
+  classifyTones,
+  availableTensions,
+  avoidNotes,
 } from './analysis/index.js';

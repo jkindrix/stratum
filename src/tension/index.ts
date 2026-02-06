@@ -34,3 +34,12 @@ export {
   cloudMomentum,
   tensileStrain,
 } from './spiral-array.js';
+
+// Score-level tension curves
+export type { ScoreTensionPoint, ScoreTensionOptions } from './score-tension.js';
+export {
+  scoreTension,
+  tpsTensionCurve,
+  spiralTensionCurve,
+  tivTensionCurve,
+} from './score-tension.js';

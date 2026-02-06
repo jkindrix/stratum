@@ -16,6 +16,10 @@ import {
   segmentByRests,
   eventDensityCurve,
   registralEnvelope,
+  chromaticFeature,
+  selfSimilarityMatrix,
+  noveltyDetection,
+  noveltyPeaks,
 } from '../src/index.js';
 import type { NoteEvent } from '../src/index.js';
 
@@ -220,5 +224,160 @@ describe('Structural Analysis', () => {
     expect(env.length).toBeGreaterThan(0);
     expect(env[0]!.low).toBe(48);
     expect(env[0]!.high).toBe(72);
+  });
+});
+
+describe('Self-Similarity Matrix & Novelty Detection', () => {
+  it('chromaticFeature returns 12-element normalized vector', () => {
+    const events = [makeNote(60, 0, 480), makeNote(64, 0, 480), makeNote(67, 0, 480)];
+    const feature = chromaticFeature(events);
+    expect(feature).toHaveLength(12);
+    // Should be normalized
+    let sum = 0;
+    for (let i = 0; i < 12; i++) sum += feature[i]!;
+    expect(sum).toBeCloseTo(1.0, 5);
+  });
+
+  it('chromaticFeature returns zeros for empty events', () => {
+    const feature = chromaticFeature([]);
+    expect(feature).toHaveLength(12);
+    expect(feature.every(v => v === 0)).toBe(true);
+  });
+
+  it('selfSimilarityMatrix builds a square matrix', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    // 4 quarter notes
+    addNote(score, p, { midi: 60, onset: 0, duration: 480 });
+    addNote(score, p, { midi: 64, onset: 480, duration: 480 });
+    addNote(score, p, { midi: 67, onset: 960, duration: 480 });
+    addNote(score, p, { midi: 60, onset: 1440, duration: 480 });
+
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    expect(ssm.size).toBeGreaterThan(0);
+    expect(ssm.data).toHaveLength(ssm.size);
+    for (const row of ssm.data) {
+      expect(row).toHaveLength(ssm.size);
+    }
+  });
+
+  it('diagonal of SSM is all 1s (self-similarity)', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    addNote(score, p, { midi: 60, onset: 0, duration: 480 });
+    addNote(score, p, { midi: 64, onset: 480, duration: 480 });
+    addNote(score, p, { midi: 67, onset: 960, duration: 480 });
+
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    for (let i = 0; i < ssm.size; i++) {
+      expect(ssm.data[i]![i]).toBeCloseTo(1.0, 5);
+    }
+  });
+
+  it('SSM values are between 0 and 1', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    addNote(score, p, { midi: 60, onset: 0, duration: 480 });
+    addNote(score, p, { midi: 72, onset: 480, duration: 480 });
+
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    for (const row of ssm.data) {
+      for (const val of row) {
+        expect(val).toBeGreaterThanOrEqual(0);
+        expect(val).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it('SSM is frozen', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    addNote(score, p, { midi: 60, onset: 0, duration: 480 });
+    addNote(score, p, { midi: 64, onset: 480, duration: 480 });
+
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    expect(Object.isFrozen(ssm)).toBe(true);
+    expect(Object.isFrozen(ssm.data)).toBe(true);
+  });
+
+  it('throws RangeError for invalid windowSize/hopSize', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    addNote(score, p, { midi: 60, onset: 0, duration: 480 });
+
+    expect(() => selfSimilarityMatrix(score, 0, 480)).toThrow(RangeError);
+    expect(() => selfSimilarityMatrix(score, 480, -1)).toThrow(RangeError);
+  });
+
+  it('returns empty SSM for empty score', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    addPart(score, { name: 'Piano' });
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    expect(ssm.size).toBe(0);
+    expect(ssm.data).toHaveLength(0);
+  });
+
+  it('noveltyDetection produces a curve from SSM', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    // Section A: C major chords
+    for (let i = 0; i < 4; i++) {
+      addNote(score, p, { midi: 60, onset: i * 480, duration: 480 });
+      addNote(score, p, { midi: 64, onset: i * 480, duration: 480 });
+      addNote(score, p, { midi: 67, onset: i * 480, duration: 480 });
+    }
+    // Section B: different chords
+    for (let i = 4; i < 8; i++) {
+      addNote(score, p, { midi: 65, onset: i * 480, duration: 480 });
+      addNote(score, p, { midi: 69, onset: i * 480, duration: 480 });
+      addNote(score, p, { midi: 72, onset: i * 480, duration: 480 });
+    }
+
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    const novelty = noveltyDetection(ssm, 2);
+    expect(novelty.length).toBe(ssm.size);
+    expect(novelty[0]!.tick).toBe(0);
+  });
+
+  it('noveltyDetection returns frozen array', () => {
+    const score = createScore({ ticksPerQuarter: 480 });
+    const p = addPart(score, { name: 'Piano' });
+    addNote(score, p, { midi: 60, onset: 0, duration: 480 });
+    addNote(score, p, { midi: 64, onset: 480, duration: 480 });
+
+    const ssm = selfSimilarityMatrix(score, 480, 480);
+    const novelty = noveltyDetection(ssm);
+    expect(Object.isFrozen(novelty)).toBe(true);
+  });
+
+  it('noveltyPeaks finds local maxima above threshold', () => {
+    // Create synthetic novelty curve
+    const curve = [
+      { tick: 0, value: 0.1 },
+      { tick: 480, value: 0.5 },
+      { tick: 960, value: 0.2 },
+      { tick: 1440, value: 0.9 },
+      { tick: 1920, value: 0.3 },
+    ].map(p => Object.freeze(p));
+
+    const peaks = noveltyPeaks(curve, 0.3);
+    // Should find peaks at tick 480 (0.5 > 0.1 and > 0.2) and tick 1440 (0.9 > 0.2 and > 0.3)
+    expect(peaks.length).toBe(2);
+    expect(peaks[0]!.tick).toBe(480);
+    expect(peaks[1]!.tick).toBe(1440);
+  });
+
+  it('noveltyPeaks returns frozen array', () => {
+    const curve = [
+      Object.freeze({ tick: 0, value: 0.1 }),
+      Object.freeze({ tick: 480, value: 0.5 }),
+      Object.freeze({ tick: 960, value: 0.2 }),
+    ];
+    const peaks = noveltyPeaks(curve, 0.3);
+    expect(Object.isFrozen(peaks)).toBe(true);
+  });
+
+  it('noveltyPeaks returns empty for empty input', () => {
+    expect(noveltyPeaks([])).toHaveLength(0);
   });
 });

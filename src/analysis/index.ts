@@ -18,12 +18,22 @@ export {
 } from './melodic.js';
 
 // Structural analysis
-export type { CurvePoint, EnvelopePoint } from './structural.js';
+export type {
+  CurvePoint,
+  EnvelopePoint,
+  SimilarityMatrix,
+  NoveltyPoint,
+  FeatureExtractor,
+} from './structural.js';
 export {
   segmentByRests,
   segmentByPattern,
   eventDensityCurve,
   registralEnvelope,
+  chromaticFeature,
+  selfSimilarityMatrix,
+  noveltyDetection,
+  noveltyPeaks,
 } from './structural.js';
 
 // Key detection
@@ -53,3 +63,35 @@ export {
   weitzmannRegion,
   triadPitchClasses,
 } from './neo-riemannian.js';
+
+// Twelve-tone serial operations
+export type { TwelveToneRow, TwelveToneMatrix, RowForm } from './serial.js';
+export {
+  createRow,
+  twelvetoneMatrix,
+  getRowForm,
+  rowMultiply,
+  rowRotate,
+  combinatoriality,
+  invariantPcs,
+} from './serial.js';
+
+// Statistical analysis
+export type { MarkovChain, ZipfResult } from './stats.js';
+export {
+  shannonEntropy,
+  rhythmicEntropy,
+  zipfDistribution,
+  markovTransition,
+  markovGenerate,
+  ngramCounts,
+} from './stats.js';
+
+// Chord-scale theory
+export type { ToneClassification, ScaleTone, ChordScaleMatch } from './chord-scale.js';
+export {
+  chordScaleMatch,
+  classifyTones,
+  availableTensions,
+  avoidNotes,
+} from './chord-scale.js';

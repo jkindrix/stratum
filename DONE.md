@@ -345,7 +345,7 @@
 
 ### 3.4 Rhythmic Complexity Measures
 
-- [ ] `rhythmicEntropy(events, levels)` — Shannon entropy of onset distribution across metric positions
+- [x] `rhythmicEntropy(events, levels)` — Shannon entropy of onset distribution across metric positions
 - [ ] `lzComplexity(events, gridTicks)` — Lempel-Ziv complexity of binary onset string
 - [ ] `syncopationIndex(events, levels)` — Longuet-Higgins-Lee total syncopation score
 - [ ] `weightedNoteToBeatDistance(events, levels)` — WNBD: average weighted distance from nearest strong beat
@@ -402,7 +402,7 @@
 - [x] `basicSpace(chord, key)` — 5-level hierarchy (chromatic → diatonic → triadic → fifth → root)
 - [x] `surfaceDissonance(events, chord)` — count and weight non-chord tones
 - [x] `melodicAttraction(pitch, key)` — tendency of pitch to resolve, based on proximity and stability
-- [ ] `tpsTension(score, key, options?)` — tension curve combining pitch-space distance + surface dissonance
+- [x] `tpsTension(score, key, options?)` — tension curve combining pitch-space distance + surface dissonance
 - [x] Requires key context (depends on key detection)
 
 ### 4.5 Spiral Array Tension (Chew/Herremans)
@@ -412,7 +412,7 @@
 - [x] `cloudDiameter(events)` — max pairwise distance of simultaneous pitch positions (dissonance)
 - [x] `cloudMomentum(chordSequence)` — distance between consecutive chord centroids (harmonic change rate)
 - [x] `tensileStrain(chord, key)` — distance from chord centroid to key centroid (distance from tonal center)
-- [ ] `spiralTension(score, options?)` — tension curve combining all three Spiral Array metrics
+- [x] `spiralTension(score, options?)` — tension curve combining all three Spiral Array metrics
 
 ### 4.6 Tonal Interval Vectors via DFT
 
@@ -420,7 +420,7 @@
 - [x] `tiv(chroma)` — Tonal Interval Vector: 12-point DFT, return 6 complex coefficients
 - [x] `tivDistance(a, b)` — Euclidean distance between two TIVs (harmonic dissimilarity)
 - [x] `tivConsonance(chroma)` — magnitude of TIV (correlates with consonance)
-- [ ] `tivTension(score, key, options?)` — tension curve: TIV distance of each chord from key TIV
+- [x] `tivTension(score, key, options?)` — tension curve: TIV distance of each chord from key TIV
 - [x] `dftCoefficients(chroma)` — individual Fourier coefficient magnitudes (chromaticity, diadicity, triadicity, octatonicity, diatonicity, whole-tone quality)
 
 ### 4.7 Information-Theoretic Expectation
@@ -897,10 +897,10 @@
 - [ ] `intervalDistribution(events)` — frequency distribution of all melodic intervals
 - [ ] `durationDistribution(events)` — frequency distribution of note durations
 - [ ] `chordTypeDistribution(score, windowSize)` — frequency of chord types across piece
-- [ ] `shannonEntropy(distribution)` — Shannon entropy of any discrete distribution
-- [ ] `zipfExponent(distribution)` — fit Zipf's law, return exponent (slope of log-log rank-frequency)
-- [ ] `markovTransitionMatrix(chordSequence, order?)` — build transition probability matrix (first or higher order)
-- [ ] `markovGenerate(matrix, length, seed?)` — generate sequence from trained Markov chain
+- [x] `shannonEntropy(distribution)` — Shannon entropy of any discrete distribution
+- [x] `zipfExponent(distribution)` — fit Zipf's law, return exponent (slope of log-log rank-frequency)
+- [x] `markovTransitionMatrix(chordSequence, order?)` — build transition probability matrix (first or higher order)
+- [x] `markovGenerate(matrix, length, seed?)` — generate sequence from trained Markov chain
 - [ ] `styleFingerprint(score)` — combined feature vector (distributions, entropy, Zipf exponent, etc.)
 - [ ] `styleSimilarity(fingerprintA, fingerprintB)` — cosine distance between style fingerprints
 
@@ -957,8 +957,8 @@
 
 ### 8.1 Markov Chain Generator
 
-- [ ] `trainMarkovChain(sequence, order?)` — build transition matrix from pitch, interval, or chord sequence
-- [ ] `generateFromChain(chain, length, seed?)` — generate new sequence by sampling
+- [x] `trainMarkovChain(sequence, order?)` — build transition matrix from pitch, interval, or chord sequence
+- [x] `generateFromChain(chain, length, seed?)` — generate new sequence by sampling
 - [ ] Support first-order and higher-order chains (up to order 5)
 - [ ] Configurable: temperature parameter for controlling randomness
 
@@ -1140,9 +1140,9 @@
 
 ### 9.18 Post-Tonal Analysis Tests
 
-- [ ] Twelve-tone matrix: Webern Op. 21 row produces known matrix
-- [ ] Row identification: correctly matches P, I, R, RI forms
-- [ ] Combinatoriality: Schoenberg's row from Op. 33a is hexachordally combinatorial
+- [x] Twelve-tone matrix: Webern Op. 21 row produces known matrix
+- [x] Row identification: correctly matches P, I, R, RI forms
+- [x] Combinatoriality: Schoenberg's row from Op. 33a is hexachordally combinatorial
 - [ ] Set multiplication: {0,1,2} × {0,4,7} produces correct result
 - [ ] M5: pitch class 1 → 5, 2 → 10, etc.
 
@@ -1164,9 +1164,9 @@
 ### 9.21 Statistical Analysis Tests
 
 - [ ] Pitch distribution: C major piece → highest bins at C, E, G
-- [ ] Shannon entropy: uniform distribution → maximum entropy
-- [ ] Markov chain: trained on I-IV-V-I → generates plausible progressions
-- [ ] Zipf exponent: calculated correctly for known distribution
+- [x] Shannon entropy: uniform distribution → maximum entropy
+- [x] Markov chain: trained on I-IV-V-I → generates plausible progressions
+- [x] Zipf exponent: calculated correctly for known distribution
 
 ### 9.22 Harmonic Network Tests
 
@@ -1185,7 +1185,7 @@
 
 ### 9.24 Composition Utility Tests
 
-- [ ] Markov generator: output length matches requested length
+- [x] Markov generator: output length matches requested length
 - [ ] L-system: known axiom/rules produce expected string after n iterations
 - [ ] Cellular automaton: Rule 110 produces known pattern
 - [ ] Sieve: `3@0 ∪ 4@0` realized correctly in range
@@ -1450,11 +1450,11 @@
 | Tension (multidimensional) | ✅ Complete | Tension module |
 | Cycle (periodic structure) | ✅ Complete | Metric hierarchy |
 | Transformation operator (T, I, R) | ✅ Complete | PitchClassSet transforms |
-| Entropy / predictability | Planned | Section 4.7 |
+| Entropy / predictability | ✅ Complete | shannonEntropy, rhythmicEntropy |
 | Roughness | ✅ Complete | Plomp-Levelt model |
-| Self-similarity analysis | Planned | Section 7.6.1 |
+| Self-similarity analysis | ✅ Complete | selfSimilarityMatrix, noveltyDetection |
 | Stream fission/fusion | Planned | Section 7.8 (voice separation) |
-| Statistical distributions | Planned | Section 7.11 |
+| Statistical distributions | ✅ Complete | zipfDistribution, markovTransition |
 
 ### From PHASE Framework
 
@@ -1502,15 +1502,15 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] Section 7.1: Key detection (Krumhansl-Schmuckler, windowed, TIV)
 - [ ] Section 7.2.1: Enhanced Roman numeral analysis
 - [ ] Section 7.3: Neo-Riemannian analysis
-- [ ] Section 7.6.1: Self-similarity matrix
-- [ ] Section 7.6.2: Novelty detection
-- [ ] Section 7.7.1: Twelve-tone matrix
-- [ ] Section 7.7.2: Combinatoriality
-- [ ] Section 7.7.3: Serial operations
-- [ ] Section 7.11: Statistical analysis (distributions, entropy, Zipf, Markov)
+- [x] Section 7.6.1: Self-similarity matrix
+- [x] Section 7.6.2: Novelty detection
+- [x] Section 7.7.1: Twelve-tone matrix
+- [x] Section 7.7.2: Combinatoriality
+- [x] Section 7.7.3: Serial operations
+- [x] Section 7.11: Statistical analysis (distributions, entropy, Zipf, Markov)
 
 **Chord-scale theory (moved from v3.0 per research priority — Phase 2 differentiator for jazz analysis):**
-- [ ] Section 7.4: Chord-scale theory (including HPCP matching)
+- [x] Section 7.4: Chord-scale theory (including HPCP matching)
 
 **Pitch utilities:**
 - [ ] Section 2.1: Automatic pitch spelling (standalone `spellPitch`, `spellPitchSequence`)
@@ -1573,7 +1573,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] Section 2.8.4: Temperament mapping and val computation
 
 **Composition utilities:**
-- [ ] Section 8.1: Markov chain generator
+- [x] Section 8.1: Markov chain generator
 - [ ] Section 8.2: L-system generator
 - [ ] Section 8.3: Cellular automaton generator
 - [ ] Section 8.4: Constraint helpers
