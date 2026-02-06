@@ -44,11 +44,11 @@ export type {
   KeyDetectionOptions,
   WindowedKeyResult,
 } from './key-detection.js';
-export { detectKey, detectKeyWindowed, keyName, pcDistribution } from './key-detection.js';
+export { detectKey, detectKeyWindowed, detectKeyTIV, keyName, pcDistribution } from './key-detection.js';
 
 // Enhanced Roman numeral analysis
-export type { RomanNumeralKey, EnhancedRomanNumeral } from './enhanced-roman.js';
-export { enhancedRomanNumeral, functionalHarmonyScore, chordQualityFromSymbol } from './enhanced-roman.js';
+export type { RomanNumeralKey, EnhancedRomanNumeral, ModulationPoint } from './enhanced-roman.js';
+export { enhancedRomanNumeral, functionalHarmonyScore, chordQualityFromSymbol, detectModulations } from './enhanced-roman.js';
 
 // Neo-Riemannian transforms
 export type { Triad, NRTOperation } from './neo-riemannian.js';
@@ -88,10 +88,14 @@ export {
 } from './stats.js';
 
 // Chord-scale theory
-export type { ToneClassification, ScaleTone, ChordScaleMatch } from './chord-scale.js';
+export type { ToneClassification, ScaleTone, ChordScaleMatch, NoteHarmonyClassification } from './chord-scale.js';
 export {
   chordScaleMatch,
   classifyTones,
   availableTensions,
   avoidNotes,
+  hpcp,
+  chordScaleScore,
+  bestChordScale,
+  analyzeOverHarmony,
 } from './chord-scale.js';

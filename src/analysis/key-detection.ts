@@ -3,6 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { Score, NoteEvent } from '../core/types.js';
+import { tiv, tivDistance } from '../tension/tiv.js';
 
 /** Key profile weights for correlation-based key detection. */
 export interface KeyProfile {
@@ -249,4 +250,64 @@ export function detectKeyWindowed(
   }
 
   return results;
+}
+
+/**
+ * Detect the most likely key of a score using Tonal Interval Vector distance.
+ *
+ * Computes a TIV from the observed pitch-class distribution and compares it
+ * against TIVs derived from major/minor key profiles for all 12 tonics.
+ * Similarity is computed as 1 / (1 + distance), yielding scores in [0, 1].
+ *
+ * @param score - The score to analyze.
+ * @param options - Detection options (profile choice, duration weighting).
+ * @returns Key detection result with best match and all 24 ranked candidates.
+ * @throws {Error} If the score contains no note events.
+ *
+ * @example
+ * ```ts
+ * const result = detectKeyTIV(score);
+ * console.log(result.best.name); // "C major"
+ * ```
+ */
+export function detectKeyTIV(score: Score, options?: KeyDetectionOptions): KeyDetectionResult {
+  const events = score.parts.flatMap(p => p.events);
+  if (events.length === 0) {
+    throw new Error('Cannot detect key: score contains no note events');
+  }
+
+  const profile = resolveProfile(options?.profile);
+  const weightByDuration = options?.weightByDuration ?? true;
+  const dist = pcDistribution(events, weightByDuration);
+
+  const observedTIV = tiv(dist);
+  const candidates: KeyCandidate[] = [];
+
+  for (let tonic = 0; tonic < 12; tonic++) {
+    for (const mode of ['major', 'minor'] as const) {
+      const profileWeights = mode === 'major' ? profile.major : profile.minor;
+      // Place profile weights at correct pitch-class positions
+      const placed = new Array<number>(12).fill(0);
+      for (let i = 0; i < 12; i++) {
+        placed[(i + tonic) % 12] = profileWeights[i] ?? 0;
+      }
+      const candidateTIV = tiv(placed);
+      const dist = tivDistance(observedTIV, candidateTIV);
+      const similarity = 1 / (1 + dist);
+
+      candidates.push({
+        tonic,
+        mode,
+        correlation: similarity,
+        name: keyName(tonic, mode),
+      });
+    }
+  }
+
+  candidates.sort((a, b) => b.correlation - a.correlation);
+
+  return Object.freeze({
+    best: candidates[0]!,
+    candidates: Object.freeze(candidates),
+  });
 }

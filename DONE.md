@@ -276,12 +276,12 @@
 
 #### 2.8.1 Scala File Support
 
-- [ ] `parseScl(text)` — parse .scl file (description, note count, degree lines as ratios or cents)
-- [ ] `parseSclKbm(text)` — parse .kbm keyboard mapping file (range, middle note, reference frequency)
-- [ ] `tuningFromScl(scl, kbm?)` — construct TuningSystem from Scala data
-- [ ] `sclToString(tuning)` — serialize a tuning to .scl format
-- [ ] `kbmToString(mapping)` — serialize a keyboard mapping to .kbm format
-- [ ] Support ratio notation (e.g., `3/2`, `5/4`) and cent notation (e.g., `701.955`)
+- [x] `parseScl(text)` — parse .scl file (description, note count, degree lines as ratios or cents)
+- [x] `parseKbm(text)` — parse .kbm keyboard mapping file (range, middle note, reference frequency)
+- [x] `tuningFromScl(scl, kbm?)` — construct TuningSystem from Scala data
+- [x] `sclToString(tuning)` — serialize a tuning to .scl format
+- [x] `kbmToString(mapping)` — serialize a keyboard mapping to .kbm format
+- [x] Support ratio notation (e.g., `3/2`, `5/4`) and cent notation (e.g., `701.955`)
 
 #### 2.8.2 Rank-2 Temperaments and MOS Scales
 
@@ -537,10 +537,10 @@
 
 ### 5.8 Scala Tuning File I/O
 
-- [ ] `parseScl(text)` — (covered in 2.8.1, listed here for I/O completeness)
-- [ ] `parseSclKbm(text)` — (covered in 2.8.1)
-- [ ] `sclToString(tuning)` — (covered in 2.8.1)
-- [ ] `kbmToString(mapping)` — (covered in 2.8.1)
+- [x] `parseScl(text)` — (covered in 2.8.1, listed here for I/O completeness)
+- [x] `parseKbm(text)` — (covered in 2.8.1)
+- [x] `sclToString(tuning)` — (covered in 2.8.1)
+- [x] `kbmToString(mapping)` — (covered in 2.8.1)
 
 ### 5.9 Analysis Result Export
 
@@ -735,7 +735,7 @@
 - [x] Correlate against major and minor key profiles (Krumhansl-Kessler or Temperley)
 - [x] Return ranked list of candidate keys with correlation scores
 - [x] `detectKeyWindowed(score, windowSize, options?)` — key detection per time window (modulation tracking)
-- [ ] `detectKeyTIV(score)` — alternative key detection via Tonal Interval Vector distance
+- [x] `detectKeyTIV(score)` — alternative key detection via Tonal Interval Vector distance
 - [x] Support custom key profiles (user-supplied templates)
 
 ### 7.2 Harmonic Analysis
@@ -753,7 +753,7 @@
 - [x] Support applied/secondary chords (V7/IV, viio/V, etc.)
 - [x] Support borrowed chords (modal mixture: bVII in major, IV in minor, etc.)
 - [x] Support inversion figures: I6, V64, V43, V42, etc.
-- [ ] Modulation detection: identify pivot chords and key changes
+- [x] Modulation detection: identify pivot chords and key changes
 - [x] `functionalHarmonyScore(chord, key)` — 0-100 score of harmonic function strength
 - [x] Handle diminished seventh and augmented chords in context
 
@@ -774,11 +774,11 @@
 - [ ] `chordScaleMap` — database mapping chord types to compatible scales
 - [ ] `availableScales(chord)` — return all compatible scales for a given chord
 - [ ] `classifyTones(scale, chord)` — for each scale degree: chord tone, available tension, or avoid note
-- [ ] `analyzeOverHarmony(melody, chords)` — classify each melodic note relative to underlying chord-scale
+- [x] `analyzeOverHarmony(melody, chords)` — classify each melodic note relative to underlying chord-scale
 - [ ] Built-in mappings for: major 7, dominant 7, minor 7, half-dim 7, diminished 7, altered, lydian dominant, and common jazz voicings
-- [ ] `hpcp(events)` — Harmonic Pitch Class Profile: weighted 12-element chroma vector from sounding events
-- [ ] `chordScaleScore(hpcp, scaleTemplate)` — cosine similarity or KL divergence between HPCP and chord-scale template
-- [ ] `bestChordScale(hpcp, chord)` — return highest-scoring compatible scale for observed pitch content
+- [x] `hpcp(events)` — Harmonic Pitch Class Profile: weighted 12-element chroma vector from sounding events
+- [x] `chordScaleScore(hpcp, scaleTemplate)` — cosine similarity or KL divergence between HPCP and chord-scale template
+- [x] `bestChordScale(hpcp, chord)` — return highest-scoring compatible scale for observed pitch content
 
 ### 7.5 Melodic Analysis
 
@@ -1041,8 +1041,8 @@
 
 ### 9.5 Scala / Rank-2 / Monzo Tests
 
-- [ ] Parse known .scl files (12-TET, Werckmeister III, Kirnberger III)
-- [ ] Round-trip: tuning → .scl string → parse → same tuning
+- [x] Parse known .scl files (12-TET, Werckmeister III, Kirnberger III)
+- [x] Round-trip: tuning → .scl string → parse → same tuning
 - [ ] MOS: meantone[7] = 5L 2s (diatonic), meantone[12] = 7L 5s (chromatic)
 - [ ] Monzo: `[0, 1, 0]` (ratio 3/1) → ~1901.955 cents
 - [ ] Monzo arithmetic: `3/2 * 5/4 = 15/8`
@@ -1088,8 +1088,8 @@
 - [ ] Kern: spine path operators (split/merge) handled correctly
 - [ ] ABC: parse a simple folk tune, verify pitch and duration
 - [ ] ABC: multi-voice ABC parsed into separate parts
-- [ ] Scala: parse .scl with ratios, verify cent values
-- [ ] Scala: parse .scl with cent values directly
+- [x] Scala: parse .scl with ratios, verify cent values
+- [x] Scala: parse .scl with cent values directly
 
 ### 9.12 JAMS / RomanText Export Tests
 
@@ -1111,7 +1111,7 @@
 - [x] Neapolitan: Db major in C major → bII
 - [x] Borrowed chord: Bb major in C major → bVII
 - [x] Inversion: C/E → I6
-- [ ] Modulation detection: pivot chord identified
+- [x] Modulation detection: pivot chord identified
 
 ### 9.15 Neo-Riemannian Tests
 
@@ -1436,8 +1436,8 @@
 | Interval structure | ✅ Complete | PitchClassSet |
 | Voice-leading distance | ✅ Complete | Voice leading module |
 | Forte catalog | ✅ Complete | Complete 220-entry catalog |
-| Neo-Riemannian transforms | Planned | Section 7.3 |
-| Tonnetz representation | Planned | Section 6.3 |
+| Neo-Riemannian transforms | ✅ Complete | Section 7.3 |
+| Tonnetz representation | ✅ Complete | Data model done; SVG viz separate |
 | Geometric voice leading | Planned | Section 2.6.1 |
 
 ### From Flux Framework
@@ -1466,9 +1466,9 @@
 | Hierarchical prediction | Planned | Section 4.7 (information-theoretic) |
 | Anticipation / prediction error | Planned | Section 4.7 |
 | Swing ratio parameter | ✅ Complete | Rhythmic utility |
-| Tonal Pitch Space tension | Planned | Section 4.4 |
-| Spiral Array tension | Planned | Section 4.5 |
-| TIV tension | Planned | Section 4.6 |
+| Tonal Pitch Space tension | ✅ Complete | Section 4.4 |
+| Spiral Array tension | ✅ Complete | Section 4.5 |
+| TIV tension | ✅ Complete | Section 4.6 |
 
 ### From COHERE Framework
 
@@ -1495,13 +1495,13 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 ### v2.0 — Research-Grade Analysis
 
 **New analysis capabilities:**
-- [ ] Section 2.4: Pitch-class set similarity (IcVSIM, ANGLE, cosine, Z-relation)
-- [ ] Section 4.4: Lerdahl TPS tension
-- [ ] Section 4.5: Spiral Array tension
-- [ ] Section 4.6: Tonal Interval Vectors via DFT
-- [ ] Section 7.1: Key detection (Krumhansl-Schmuckler, windowed, TIV)
-- [ ] Section 7.2.1: Enhanced Roman numeral analysis
-- [ ] Section 7.3: Neo-Riemannian analysis
+- [x] Section 2.4: Pitch-class set similarity (IcVSIM, ANGLE, cosine, Z-relation)
+- [x] Section 4.4: Lerdahl TPS tension
+- [x] Section 4.5: Spiral Array tension
+- [x] Section 4.6: Tonal Interval Vectors via DFT
+- [x] Section 7.1: Key detection (Krumhansl-Schmuckler, windowed, TIV)
+- [x] Section 7.2.1: Enhanced Roman numeral analysis
+- [x] Section 7.3: Neo-Riemannian analysis
 - [x] Section 7.6.1: Self-similarity matrix
 - [x] Section 7.6.2: Novelty detection
 - [x] Section 7.7.1: Twelve-tone matrix
@@ -1513,9 +1513,9 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 7.4: Chord-scale theory (including HPCP matching)
 
 **Pitch utilities:**
-- [ ] Section 2.1: Automatic pitch spelling (standalone `spellPitch`, `spellPitchSequence`)
-- [ ] Section 2.4: Earth Mover's Distance for pitch-class distributions
-- [ ] Section 2.8: Cent/ratio/EDO step conversion utilities
+- [x] Section 2.1: Automatic pitch spelling (standalone `spellPitch`, `spellPitchSequence`)
+- [x] Section 2.4: Earth Mover's Distance for pitch-class distributions
+- [x] Section 2.8: Cent/ratio/EDO step conversion utilities
 
 **Format support:**
 - [ ] Section 5.4: MusicXML import
@@ -1530,7 +1530,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] Section 6.8: Pitch-class distribution chart
 
 **Tuning:**
-- [ ] Section 2.8.1: Scala .scl/.kbm support
+- [x] Section 2.8.1: Scala .scl/.kbm support
 
 **Tests and docs:**
 - [ ] All Section 9.3-9.18 tests passing
@@ -1631,12 +1631,12 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 |---------|------|------|------|
 | 1. Core Data Model | ✅ 100% | — | — |
 | 2. Pitch Module (2.1-2.3, 2.5-2.8) | ✅ 100% | — | — |
-| 2.1 Pitch Spelling | — | 0% | — |
-| 2.4 PCS Similarity + EMD | — | 0% | — |
+| 2.1 Pitch Spelling | — | ✅ 100% | — |
+| 2.4 PCS Similarity + EMD | — | ✅ 100% | — |
 | 2.6.1 Geometric Voice Leading | — | — | 0% |
 | 2.6.2 Parsimonious Voice Leading | — | — | 0% |
-| 2.8 Cent/Ratio/EDO Utilities | — | 0% | — |
-| 2.8.1 Scala Support | — | 0% | — |
+| 2.8 Cent/Ratio/EDO Utilities | — | ✅ 100% | — |
+| 2.8.1 Scala Support | — | ✅ 100% | — |
 | 2.8.2 Rank-2 / MOS | — | — | 0% |
 | 2.8.3 Monzo Arithmetic | — | — | 0% |
 | 2.8.4 Temperament Mapping | — | — | 0% |
@@ -1644,15 +1644,15 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 3.4 Rhythmic Complexity | — | — | 0% |
 | 3.5 GTTM-Inspired | — | — | 0% |
 | 4. Tension Module (4.1-4.3) | ✅ 100% | — | — |
-| 4.4 Lerdahl TPS | — | 0% | — |
-| 4.5 Spiral Array | — | 0% | — |
-| 4.6 TIV / DFT | — | 0% | — |
+| 4.4 Lerdahl TPS | — | ✅ 100% | — |
+| 4.5 Spiral Array | — | ✅ 100% | — |
+| 4.6 TIV / DFT | — | ✅ 100% | — |
 | 4.7 Information-Theoretic | — | — | 0% |
 | 5. I/O Module (5.1-5.3) | ✅ 100% | — | — |
 | 5.4-5.5 MusicXML | — | 0% | — |
 | 5.6 Humdrum kern | — | — | 0% |
 | 5.7 ABC Notation | — | — | 0% |
-| 5.8 Scala I/O | — | 0% | — |
+| 5.8 Scala I/O | — | ✅ 100% | — |
 | 5.9 JAMS / RomanText | — | 0% | — |
 | 5.10 MEI Import | — | — | 0% |
 | 5.11 LilyPond Export | — | — | 0% |
@@ -1667,17 +1667,17 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 6.11 Form Diagram | — | — | 0% |
 | 6.12 Pitch-Space Plots | — | — | 0% |
 | 7. Analysis (7.2, 7.5-7.6) | ✅ 100% | — | — |
-| 7.1 Key Detection | — | 0% | — |
-| 7.2.1 Enhanced Roman Numerals | — | 0% | — |
-| 7.3 Neo-Riemannian | — | 0% | — |
-| 7.4 Chord-Scale Theory | — | 0% | — |
-| 7.6.1-7.6.2 SSM / Novelty | — | 0% | — |
+| 7.1 Key Detection | — | ✅ 100% | — |
+| 7.2.1 Enhanced Roman Numerals | — | ✅ 100% | — |
+| 7.3 Neo-Riemannian | — | ✅ 100% | — |
+| 7.4 Chord-Scale Theory | — | ✅ 100% | — |
+| 7.6.1-7.6.2 SSM / Novelty | — | ✅ 100% | — |
 | 7.6.3 SIA/SIATEC | — | — | 0% |
-| 7.7 Post-Tonal | — | 0% | — |
+| 7.7 Post-Tonal | — | ✅ 100% | — |
 | 7.8 Voice Separation | — | — | 0% |
 | 7.9 Counterpoint | — | — | 0% |
 | 7.10 Textural Analysis | — | — | 0% |
-| 7.11 Statistical Analysis | — | 0% | — |
+| 7.11 Statistical Analysis | — | ✅ 100% | — |
 | 7.12 Harmonic Networks | — | — | 0% |
 | 7.13 Corpus Tools | — | — | 0% |
 | 7.14 Evaluation Metrics | — | — | 0% |

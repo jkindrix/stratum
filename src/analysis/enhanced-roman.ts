@@ -11,6 +11,8 @@
 // - Functional harmony scoring
 
 import type { ChordLabel } from './harmonic.js';
+import { detectKeyWindowed } from './key-detection.js';
+import type { Score } from '../core/types.js';
 
 /** Key context for enhanced Roman numeral analysis. */
 export interface RomanNumeralKey {
@@ -386,4 +388,127 @@ export function enhancedRomanNumeral(
     borrowed,
     functionScore: functionalHarmonyScore(chord, key),
   };
+}
+
+// ---- Modulation Detection ----
+
+/** A detected modulation point with pivot chord analysis. */
+export interface ModulationPoint {
+  /** Chord index at modulation. */
+  readonly index: number;
+  /** Key before the modulation. */
+  readonly fromKey: RomanNumeralKey;
+  /** Key after the modulation. */
+  readonly toKey: RomanNumeralKey;
+  /** The pivot chord. */
+  readonly pivotChord: ChordLabel;
+  /** Roman numeral analysis of the pivot chord in both keys. */
+  readonly pivotAnalysis: {
+    readonly inOldKey: string;
+    readonly inNewKey: string;
+  };
+}
+
+/**
+ * Detect modulations in a score based on windowed key detection.
+ *
+ * Runs windowed key detection to identify key changes, then finds pivot chords
+ * at each modulation boundary — chords that function well in both the departing
+ * and arriving keys.
+ *
+ * @param score - The score to analyze.
+ * @param chords - Array of chords with onset times.
+ * @param options - Window size and key profile options.
+ * @returns Frozen array of modulation points.
+ */
+export function detectModulations(
+  score: Score,
+  chords: readonly { readonly chord: ChordLabel; readonly onset: number }[],
+  options?: {
+    readonly windowSize?: number;
+    readonly profile?: 'krumhansl' | 'temperley';
+  },
+): readonly ModulationPoint[] {
+  if (chords.length === 0) return Object.freeze([]);
+
+  const windowSize = options?.windowSize ?? score.settings.ticksPerQuarter * 4;
+  const profile = options?.profile;
+
+  let windows;
+  try {
+    windows = detectKeyWindowed(score, windowSize, { profile });
+  } catch {
+    return Object.freeze([]);
+  }
+
+  if (windows.length < 2) return Object.freeze([]);
+
+  const modulations: ModulationPoint[] = [];
+
+  for (let w = 1; w < windows.length; w++) {
+    const prev = windows[w - 1]!;
+    const curr = windows[w]!;
+
+    const prevBest = prev.result.best;
+    const currBest = curr.result.best;
+
+    // Skip if same key
+    if (prevBest.tonic === currBest.tonic && prevBest.mode === currBest.mode) continue;
+
+    const fromKey: RomanNumeralKey = { tonic: prevBest.tonic, mode: prevBest.mode };
+    const toKey: RomanNumeralKey = { tonic: currBest.tonic, mode: currBest.mode };
+
+    // Find chords near the boundary
+    const boundary = curr.startTick;
+    const boundaryChords = chords
+      .map((c, i) => ({ ...c, index: i }))
+      .filter(c => c.onset >= prev.startTick && c.onset < curr.endTick);
+
+    if (boundaryChords.length === 0) continue;
+
+    // Find the best pivot chord: highest combined function score in both keys
+    let bestPivot = boundaryChords[0]!;
+    let bestCombined = -1;
+
+    for (const bc of boundaryChords) {
+      const oldScore = functionalHarmonyScore(bc.chord, fromKey);
+      const newScore = functionalHarmonyScore(bc.chord, toKey);
+      // Both must have at least moderate function (40+)
+      if (oldScore >= 40 && newScore >= 40) {
+        const combined = oldScore + newScore;
+        if (combined > bestCombined) {
+          bestCombined = combined;
+          bestPivot = bc;
+        }
+      }
+    }
+
+    // If no strong pivot found, use chord nearest to boundary
+    if (bestCombined < 0) {
+      let minDist = Infinity;
+      for (const bc of boundaryChords) {
+        const dist = Math.abs(bc.onset - boundary);
+        if (dist < minDist) {
+          minDist = dist;
+          bestPivot = bc;
+        }
+      }
+    }
+
+    const oldAnalysis = enhancedRomanNumeral(bestPivot.chord, fromKey);
+    const newAnalysis = enhancedRomanNumeral(bestPivot.chord, toKey);
+
+    modulations.push(Object.freeze({
+      index: bestPivot.index,
+      fromKey: Object.freeze(fromKey),
+      toKey: Object.freeze(toKey),
+      pivotChord: bestPivot.chord,
+      pivotAnalysis: Object.freeze({
+        inOldKey: oldAnalysis.numeral,
+        inNewKey: newAnalysis.numeral,
+      }),
+    }));
+  }
+
+  return Object.freeze(modulations);
 }

@@ -5,6 +5,7 @@ import {
   addNote,
   detectKey,
   detectKeyWindowed,
+  detectKeyTIV,
 } from '../src/index.js';
 import type { Score } from '../src/index.js';
 
@@ -193,6 +194,84 @@ describe('Key Detection', () => {
       const score = createScore();
       addPart(score, { name: 'Empty' });
       expect(() => detectKeyWindowed(score, 960)).toThrow('no note events');
+    });
+  });
+
+  describe('detectKeyTIV', () => {
+    it('detects C major from C major scale', () => {
+      const score = buildScaleScore([60, 62, 64, 65, 67, 69, 71]);
+      const result = detectKeyTIV(score);
+      expect(result.best.tonic).toBe(0);
+      expect(result.best.mode).toBe('major');
+      expect(result.best.name).toBe('C major');
+    });
+
+    it('detects A minor from A minor melody (tonic-weighted)', () => {
+      // A B C D E F G A A (tonic repeated for weight)
+      const score = buildScaleScore([69, 71, 72, 74, 76, 77, 79, 69, 69]);
+      const result = detectKeyTIV(score);
+      expect(result.best.tonic).toBe(9);
+      expect(result.best.mode).toBe('minor');
+    });
+
+    it('detects G major from G major scale', () => {
+      const score = buildScaleScore([67, 69, 71, 72, 74, 76, 78]);
+      const result = detectKeyTIV(score);
+      expect(result.best.tonic).toBe(7);
+      expect(result.best.mode).toBe('major');
+    });
+
+    it('returns 24 candidates sorted descending', () => {
+      const score = buildScaleScore([60, 62, 64, 65, 67, 69, 71]);
+      const result = detectKeyTIV(score);
+      expect(result.candidates).toHaveLength(24);
+      for (let i = 1; i < result.candidates.length; i++) {
+        expect(result.candidates[i]!.correlation)
+          .toBeLessThanOrEqual(result.candidates[i - 1]!.correlation);
+      }
+    });
+
+    it('correlation values in [0, 1]', () => {
+      const score = buildScaleScore([60, 62, 64, 65, 67, 69, 71]);
+      const result = detectKeyTIV(score);
+      for (const c of result.candidates) {
+        expect(c.correlation).toBeGreaterThanOrEqual(0);
+        expect(c.correlation).toBeLessThanOrEqual(1);
+      }
+    });
+
+    it('throws on empty score', () => {
+      const score = createScore();
+      addPart(score, { name: 'Empty' });
+      expect(() => detectKeyTIV(score)).toThrow('no note events');
+    });
+
+    it('works with Temperley profile', () => {
+      const score = buildScaleScore([60, 62, 64, 65, 67, 69, 71]);
+      const result = detectKeyTIV(score, { profile: 'temperley' });
+      expect(result.best.tonic).toBe(0);
+      expect(result.best.mode).toBe('major');
+    });
+
+    it('supports weightByDuration option', () => {
+      const score = buildScaleScore([60, 62, 64, 65, 67, 69, 71]);
+      const result = detectKeyTIV(score, { weightByDuration: false });
+      // With equal durations, TIV may prefer relative minor — just verify it runs
+      // and produces a valid result in the correct key family (C major or A minor)
+      expect(result.candidates).toHaveLength(24);
+      const bestTonic = result.best.tonic;
+      const bestMode = result.best.mode;
+      // C major (0) or A minor (9) are both valid for equal-weight C major scale
+      expect([0, 9]).toContain(bestTonic);
+      if (bestTonic === 0) expect(bestMode).toBe('major');
+      if (bestTonic === 9) expect(bestMode).toBe('minor');
+    });
+
+    it('returns frozen result', () => {
+      const score = buildScaleScore([60, 62, 64, 65, 67, 69, 71]);
+      const result = detectKeyTIV(score);
+      expect(Object.isFrozen(result)).toBe(true);
+      expect(Object.isFrozen(result.candidates)).toBe(true);
     });
   });
 });

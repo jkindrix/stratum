@@ -6,6 +6,7 @@ import type { Scale } from '../pitch/scales.js';
 import { SCALE_CATALOG } from '../pitch/scales.js';
 import { normalizePc } from '../pitch/pitch-class.js';
 import type { ChordLabel } from './harmonic.js';
+import type { NoteEvent } from '../core/types.js';
 
 /** Classification of a scale tone relative to a chord. */
 export type ToneClassification = 'chord' | 'tension' | 'avoid';
@@ -213,4 +214,161 @@ export function chordScaleMatch(
   matches.sort((a, b) => b.compatibility - a.compatibility);
 
   return Object.freeze(matches);
+}
+
+// ---- Extended chord-scale analysis ----
+
+/** Classification of a note event in a harmonic context. */
+export interface NoteHarmonyClassification {
+  /** The classified note event. */
+  readonly event: NoteEvent;
+  /** Classification relative to the active chord. */
+  readonly classification: ToneClassification;
+}
+
+/**
+ * Compute a duration-weighted Harmonic Pitch-Class Profile from note events.
+ *
+ * Returns a 12-element array normalized to sum=1. If events is empty,
+ * returns all zeros.
+ *
+ * @param events - Note events to analyze.
+ * @returns Frozen 12-element pitch-class profile.
+ */
+export function hpcp(events: readonly NoteEvent[]): readonly number[] {
+  const profile = new Array<number>(12).fill(0);
+  let total = 0;
+
+  for (const e of events) {
+    const pc = e.pitch.pitchClass;
+    profile[pc] = (profile[pc] ?? 0) + e.duration;
+    total += e.duration;
+  }
+
+  if (total > 0) {
+    for (let i = 0; i < 12; i++) {
+      profile[i] = (profile[i] ?? 0) / total;
+    }
+  }
+
+  return Object.freeze(profile);
+}
+
+/**
+ * Compute cosine similarity between an observed HPCP and a binary scale template.
+ *
+ * @param profile - 12-element pitch-class profile.
+ * @param scale - Scale to compare against.
+ * @param root - Root pitch class (0-11).
+ * @returns Cosine similarity in [0, 1].
+ * @throws {RangeError} If profile.length !== 12.
+ */
+export function chordScaleScore(profile: readonly number[], scale: Scale, root: number): number {
+  if (profile.length !== 12) {
+    throw new RangeError(`profile must have 12 elements (got ${profile.length})`);
+  }
+
+  const pcs = scaleDegreePcs(scale, root);
+  const template = new Array<number>(12).fill(0);
+  for (const pc of pcs) {
+    template[pc] = 1;
+  }
+
+  // Cosine similarity
+  let dot = 0;
+  let normA = 0;
+  let normB = 0;
+  for (let i = 0; i < 12; i++) {
+    const a = profile[i] ?? 0;
+    const b = template[i] ?? 0;
+    dot += a * b;
+    normA += a * a;
+    normB += b * b;
+  }
+
+  const denom = Math.sqrt(normA) * Math.sqrt(normB);
+  return denom === 0 ? 0 : dot / denom;
+}
+
+/**
+ * Find the best chord-scale match for a chord, ranked by observed HPCP similarity.
+ *
+ * Gets compatible scales via `chordScaleMatch`, then re-ranks them by cosine
+ * similarity with the given pitch-class profile.
+ *
+ * @param profile - 12-element pitch-class profile.
+ * @param chord - The chord to find scales for.
+ * @param root - Optional root pitch class constraint (0-11).
+ * @returns Best match, or null if no compatible scales found.
+ * @throws {RangeError} If profile.length !== 12.
+ */
+export function bestChordScale(
+  profile: readonly number[],
+  chord: ChordLabel,
+  root?: number,
+): ChordScaleMatch | null {
+  if (profile.length !== 12) {
+    throw new RangeError(`profile must have 12 elements (got ${profile.length})`);
+  }
+
+  const matches = chordScaleMatch(chord, root);
+  if (matches.length === 0) return null;
+
+  let best = matches[0]!;
+  let bestScore = chordScaleScore(profile, best.scale, best.root);
+
+  for (let i = 1; i < matches.length; i++) {
+    const m = matches[i]!;
+    const s = chordScaleScore(profile, m.scale, m.root);
+    if (s > bestScore) {
+      bestScore = s;
+      best = m;
+    }
+  }
+
+  return best;
+}
+
+/**
+ * Classify each note event's pitch class relative to the active chord in a harmonic context.
+ *
+ * For each event, finds the chord active at that onset and classifies the note
+ * via `classifyTones`. If no chord is active or the PC is not in the scale,
+ * defaults to 'tension'.
+ *
+ * @param events - Note events to classify.
+ * @param chords - Chords with onset and duration times.
+ * @param scale - Scale context for classification.
+ * @param scaleRoot - Root pitch class of the scale (0-11).
+ * @returns Frozen array of NoteHarmonyClassification.
+ */
+export function analyzeOverHarmony(
+  events: readonly NoteEvent[],
+  chords: readonly { readonly chord: ChordLabel; readonly onset: number; readonly duration: number }[],
+  scale: Scale,
+  scaleRoot: number,
+): readonly NoteHarmonyClassification[] {
+  const results: NoteHarmonyClassification[] = [];
+
+  for (const event of events) {
+    // Find the chord active at this event's onset
+    const activeChord = chords.find(
+      c => event.onset >= c.onset && event.onset < c.onset + c.duration,
+    );
+
+    let classification: ToneClassification = 'tension'; // default
+
+    if (activeChord) {
+      const tones = classifyTones(activeChord.chord, scale, scaleRoot);
+      const pc = normalizePc(event.pitch.pitchClass);
+      const match = tones.find(t => t.pc === pc);
+      if (match) {
+        classification = match.classification;
+      }
+    }
+
+    results.push(Object.freeze({ event, classification }));
+  }
+
+  return Object.freeze(results);
 }

@@ -143,8 +143,8 @@ export {
 } from './tension/index.js';
 
 // I/O
-export type { ScoreJSON } from './io/index.js';
-export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON } from './io/index.js';
+export type { ScoreJSON, SclDegree, SclData, KbmData } from './io/index.js';
+export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON, parseScl, parseKbm, tuningFromScl, sclToString, kbmToString } from './io/index.js';
 
 // Rendering
 export type { RenderOptions, TensionRenderOptions, OverlayOptions } from './render/index.js';
@@ -183,6 +183,9 @@ export type {
   ToneClassification,
   ScaleTone,
   ChordScaleMatch,
+  NoteHarmonyClassification,
+  // Modulation
+  ModulationPoint,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -206,12 +209,14 @@ export {
   // Key detection
   detectKey,
   detectKeyWindowed,
+  detectKeyTIV,
   keyName,
   pcDistribution,
   // Enhanced Roman numeral analysis
   enhancedRomanNumeral,
   functionalHarmonyScore,
   chordQualityFromSymbol,
+  detectModulations,
   // Neo-Riemannian transforms
   nrtTransform,
   classifyNRT,
@@ -242,4 +247,8 @@ export {
   classifyTones,
   availableTensions,
   avoidNotes,
+  hpcp,
+  chordScaleScore,
+  bestChordScale,
+  analyzeOverHarmony,
 } from './analysis/index.js';
