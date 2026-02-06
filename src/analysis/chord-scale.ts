@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { Scale } from '../pitch/scales.js';
-import { SCALE_CATALOG, CHORD_CATALOG } from '../pitch/scales.js';
+import { SCALE_CATALOG } from '../pitch/scales.js';
 import { normalizePc } from '../pitch/pitch-class.js';
 import type { ChordLabel } from './harmonic.js';
 
