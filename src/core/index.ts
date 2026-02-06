@@ -1,0 +1,30 @@
+export type {
+  Articulation,
+  DynamicMarking,
+  Pitch,
+  NoteEvent,
+  TimeSignature,
+  TempoMark,
+  KeyCenter,
+  Part,
+  TuningSystem,
+  ScoreSettings,
+  Score,
+} from './types.js';
+
+export {
+  createScore,
+  pitchFromMidi,
+  addPart,
+  removePart,
+  addNote,
+  removeNote,
+  getAllEvents,
+  getEventsAtTick,
+  getEventsInRange,
+  tickToSeconds,
+  secondsToTick,
+  getScoreDuration,
+  cloneScore,
+  mergeScores,
+} from './score.js';
