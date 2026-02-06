@@ -107,7 +107,7 @@ export {
 } from './time/index.js';
 
 // Tension analysis
-export type { TensionWeights, TensionOptions, TensionPoint, TensionCurve, TensionProfile, TonalIntervalVector, DFTComponents } from './tension/index.js';
+export type { TensionWeights, TensionOptions, TensionPoint, TensionCurve, TensionProfile, TonalIntervalVector, DFTComponents, TPSKey, TPSChord, SpiralPoint } from './tension/index.js';
 export {
   roughness,
   roughnessFromMidi,
@@ -118,12 +118,23 @@ export {
   findTensionPeaks,
   findTensionValleys,
   classifyTensionProfile,
+  // Tonal Pitch Space
+  basicSpace,
+  tpsDistance,
+  surfaceDissonance,
+  melodicAttraction,
   // TIV / DFT
   chromaVector,
   tiv,
   tivDistance,
   tivConsonance,
   dftCoefficients,
+  // Spiral Array
+  spiralArrayPosition,
+  centerOfEffect,
+  cloudDiameter,
+  cloudMomentum,
+  tensileStrain,
 } from './tension/index.js';
 
 // I/O
@@ -148,6 +159,10 @@ export type {
   KeyDetectionResult,
   KeyDetectionOptions,
   WindowedKeyResult,
+  RomanNumeralKey,
+  EnhancedRomanNumeral,
+  Triad,
+  NRTOperation,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -166,4 +181,17 @@ export {
   // Key detection
   detectKey,
   detectKeyWindowed,
+  // Enhanced Roman numeral analysis
+  enhancedRomanNumeral,
+  functionalHarmonyScore,
+  // Neo-Riemannian transforms
+  nrtTransform,
+  classifyNRT,
+  nrtCompound,
+  nrtPath,
+  hexatonicCycle,
+  octatonicCycle,
+  hexatonicPole,
+  weitzmannRegion,
+  triadPitchClasses,
 } from './analysis/index.js';

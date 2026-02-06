@@ -145,8 +145,8 @@
 - [x] `pitchClassFlatName(pc)` — flat name (C, Db, D, ...)
 - [x] `pitchName(pitch)` — full name with octave (C4, F#5)
 - [x] `parsePitchName(name)` — string to Pitch (C4, Bb3, F#5)
-- [ ] `spellPitch(midiNote, key?)` — automatic pitch spelling: select correct enharmonic name based on key context (e.g., MIDI 61 → C# in A major, Db in Ab major)
-- [ ] `spellPitchSequence(midiNotes, key?)` — spell a melody with minimal accidentals and context-aware enharmonic selection
+- [x] `spellPitch(midiNote, key?)` — automatic pitch spelling: select correct enharmonic name based on key context (e.g., MIDI 61 → C# in A major, Db in Ab major)
+- [x] `spellPitchSequence(midiNotes, key?)` — spell a melody with minimal accidentals and context-aware enharmonic selection
 - [ ] Support enharmonic preference rules: diatonic spelling, minimal accidentals, directional consistency
 
 ### 2.2 Intervals
@@ -179,11 +179,11 @@
 
 ### 2.4 Pitch-Class Set Similarity
 
-- [ ] `icvsim(a, b)` — interval-class vector similarity (correlation coefficient between ICVs)
-- [ ] `angleSimilarity(a, b)` — angle between ICVs as 6D vectors
-- [ ] `pcSetCosine(a, b)` — cosine similarity between pitch-class distributions
-- [ ] `zRelation(a, b)` — detect Z-related sets (same ICV, different prime form)
-- [ ] `earthMoversDistance(a, b)` — Earth Mover's Distance between pitch-class distributions (optimal transport cost on the chroma circle)
+- [x] `icvsim(a, b)` — interval-class vector similarity (correlation coefficient between ICVs)
+- [x] `angleSimilarity(a, b)` — angle between ICVs as 6D vectors
+- [x] `pcSetCosine(a, b)` — cosine similarity between pitch-class distributions
+- [x] `zRelation(a, b)` — detect Z-related sets (same ICV, different prime form)
+- [x] `earthMoversDistance(a, b)` — Earth Mover's Distance between pitch-class distributions (optimal transport cost on the chroma circle)
 - [ ] Support configurable ground distance (circular semitone distance on pitch-class ring)
 
 ### 2.5 Forte Catalog
@@ -267,12 +267,12 @@
 - [x] `centsDeviation(tuning, step)` — deviation from 12-TET in cents
 - [x] `frequencyFromTuning(tuning, step, octave, refHz?)` — frequency lookup
 - [x] `nearestStep(tuning, frequencyHz)` — snap frequency to nearest tuning step
-- [ ] `centsBetween(freqA, freqB)` — interval size in cents between two frequencies
-- [ ] `centsToRatio(cents)` — convert cents to frequency ratio
-- [ ] `ratioToCents(ratio)` — convert frequency ratio to cents
-- [ ] `edoStepToCents(step, divisions)` — convert EDO step number to cents (e.g., step 7 of 12-EDO → 700 cents)
-- [ ] `centsToEdoStep(cents, divisions)` — nearest EDO step for a given cent value
-- [ ] `ratioToEdoStep(ratio, divisions)` — nearest EDO step for a just ratio
+- [x] `centsBetween(freqA, freqB)` — interval size in cents between two frequencies
+- [x] `centsToRatio(cents)` — convert cents to frequency ratio
+- [x] `ratioToCents(ratio)` — convert frequency ratio to cents
+- [x] `edoStepToCents(step, divisions)` — convert EDO step number to cents (e.g., step 7 of 12-EDO → 700 cents)
+- [x] `centsToEdoStep(cents, divisions)` — nearest EDO step for a given cent value
+- [x] `ratioToEdoStep(ratio, divisions)` — nearest EDO step for a just ratio
 
 #### 2.8.1 Scala File Support
 
@@ -398,30 +398,30 @@
 
 ### 4.4 Tonal Pitch Space Tension (Lerdahl)
 
-- [ ] `tpsDistance(chordA, keyA, chordB, keyB)` — pitch-space distance via basic space comparison
-- [ ] `basicSpace(chord, key)` — 5-level hierarchy (chromatic → diatonic → triadic → fifth → root)
-- [ ] `surfaceDissonance(events, chord)` — count and weight non-chord tones
-- [ ] `melodicAttraction(pitch, key)` — tendency of pitch to resolve, based on proximity and stability
+- [x] `tpsDistance(chordA, keyA, chordB, keyB)` — pitch-space distance via basic space comparison
+- [x] `basicSpace(chord, key)` — 5-level hierarchy (chromatic → diatonic → triadic → fifth → root)
+- [x] `surfaceDissonance(events, chord)` — count and weight non-chord tones
+- [x] `melodicAttraction(pitch, key)` — tendency of pitch to resolve, based on proximity and stability
 - [ ] `tpsTension(score, key, options?)` — tension curve combining pitch-space distance + surface dissonance
-- [ ] Requires key context (depends on key detection)
+- [x] Requires key context (depends on key detection)
 
 ### 4.5 Spiral Array Tension (Chew/Herremans)
 
-- [ ] `spiralArrayPosition(pc)` — map pitch class to 3D helix point
-- [ ] `centerOfEffect(pcs, weights?)` — weighted centroid of pitch positions in Spiral Array
-- [ ] `cloudDiameter(events)` — max pairwise distance of simultaneous pitch positions (dissonance)
-- [ ] `cloudMomentum(chordSequence)` — distance between consecutive chord centroids (harmonic change rate)
-- [ ] `tensileStrain(chord, key)` — distance from chord centroid to key centroid (distance from tonal center)
+- [x] `spiralArrayPosition(pc)` — map pitch class to 3D helix point
+- [x] `centerOfEffect(pcs, weights?)` — weighted centroid of pitch positions in Spiral Array
+- [x] `cloudDiameter(events)` — max pairwise distance of simultaneous pitch positions (dissonance)
+- [x] `cloudMomentum(chordSequence)` — distance between consecutive chord centroids (harmonic change rate)
+- [x] `tensileStrain(chord, key)` — distance from chord centroid to key centroid (distance from tonal center)
 - [ ] `spiralTension(score, options?)` — tension curve combining all three Spiral Array metrics
 
 ### 4.6 Tonal Interval Vectors via DFT
 
-- [ ] `chromaVector(events)` — 12-element pitch-class distribution from a set of events
-- [ ] `tiv(chroma)` — Tonal Interval Vector: 12-point DFT, return 6 complex coefficients
-- [ ] `tivDistance(a, b)` — Euclidean distance between two TIVs (harmonic dissimilarity)
-- [ ] `tivConsonance(chroma)` — magnitude of TIV (correlates with consonance)
+- [x] `chromaVector(events)` — 12-element pitch-class distribution from a set of events
+- [x] `tiv(chroma)` — Tonal Interval Vector: 12-point DFT, return 6 complex coefficients
+- [x] `tivDistance(a, b)` — Euclidean distance between two TIVs (harmonic dissimilarity)
+- [x] `tivConsonance(chroma)` — magnitude of TIV (correlates with consonance)
 - [ ] `tivTension(score, key, options?)` — tension curve: TIV distance of each chord from key TIV
-- [ ] `dftCoefficients(chroma)` — individual Fourier coefficient magnitudes (chromaticity, diadicity, triadicity, octatonicity, diatonicity, whole-tone quality)
+- [x] `dftCoefficients(chroma)` — individual Fourier coefficient magnitudes (chromaticity, diadicity, triadicity, octatonicity, diatonicity, whole-tone quality)
 
 ### 4.7 Information-Theoretic Expectation
 
@@ -730,13 +730,13 @@
 
 ### 7.1 Key Detection
 
-- [ ] `detectKey(score, options?)` — determine most likely key (Krumhansl-Schmuckler algorithm)
-- [ ] Compute pitch-class distribution from events
-- [ ] Correlate against major and minor key profiles (Krumhansl-Kessler or Temperley)
-- [ ] Return ranked list of candidate keys with correlation scores
-- [ ] `detectKeyWindowed(score, windowSize, options?)` — key detection per time window (modulation tracking)
+- [x] `detectKey(score, options?)` — determine most likely key (Krumhansl-Schmuckler algorithm)
+- [x] Compute pitch-class distribution from events
+- [x] Correlate against major and minor key profiles (Krumhansl-Kessler or Temperley)
+- [x] Return ranked list of candidate keys with correlation scores
+- [x] `detectKeyWindowed(score, windowSize, options?)` — key detection per time window (modulation tracking)
 - [ ] `detectKeyTIV(score)` — alternative key detection via Tonal Interval Vector distance
-- [ ] Support custom key profiles (user-supplied templates)
+- [x] Support custom key profiles (user-supplied templates)
 
 ### 7.2 Harmonic Analysis
 
@@ -747,26 +747,26 @@
 
 #### 7.2.1 Enhanced Roman Numeral Analysis
 
-- [ ] Support secondary dominants: V/V, V/ii, V/vi, etc.
-- [ ] Support Neapolitan chord (bII)
-- [ ] Support augmented sixth chords (Italian, French, German)
-- [ ] Support applied/secondary chords (V7/IV, viio/V, etc.)
-- [ ] Support borrowed chords (modal mixture: bVII in major, IV in minor, etc.)
-- [ ] Support inversion figures: I6, V64, V43, V42, etc.
+- [x] Support secondary dominants: V/V, V/ii, V/vi, etc.
+- [x] Support Neapolitan chord (bII)
+- [x] Support augmented sixth chords (Italian, French, German)
+- [x] Support applied/secondary chords (V7/IV, viio/V, etc.)
+- [x] Support borrowed chords (modal mixture: bVII in major, IV in minor, etc.)
+- [x] Support inversion figures: I6, V64, V43, V42, etc.
 - [ ] Modulation detection: identify pivot chords and key changes
-- [ ] `functionalHarmonyScore(chord, key)` — 0-100 score of harmonic function strength
-- [ ] Handle diminished seventh and augmented chords in context
+- [x] `functionalHarmonyScore(chord, key)` — 0-100 score of harmonic function strength
+- [x] Handle diminished seventh and augmented chords in context
 
 ### 7.3 Neo-Riemannian Analysis
 
-- [ ] `nrtTransform(triad, operation)` — apply P, L, or R to a major/minor triad
-- [ ] `classifyNRT(from, to)` — given two triads, determine which NRT operation(s) connect them
-- [ ] `nrtPath(from, to)` — shortest sequence of PLR operations between two triads (BFS on 24-node graph)
-- [ ] `nrtCompound(triad, operations)` — apply compound transformation (e.g., "PL", "LPR")
-- [ ] `hexatonicCycle(startTriad)` — generate 6-triad hexatonic cycle (PLPLPL)
-- [ ] `octatonicCycle(startTriad)` — generate 8-triad octatonic cycle (PRPRPR)
-- [ ] `hexatonicPole(triad)` — return the maximally distant triad (3 PL operations)
-- [ ] `weitzmannRegion(augTriad)` — return the 6 triads connected to an augmented triad via single semitone moves
+- [x] `nrtTransform(triad, operation)` — apply P, L, or R to a major/minor triad
+- [x] `classifyNRT(from, to)` — given two triads, determine which NRT operation(s) connect them
+- [x] `nrtPath(from, to)` — shortest sequence of PLR operations between two triads (BFS on 24-node graph)
+- [x] `nrtCompound(triad, operations)` — apply compound transformation (e.g., "PL", "LPR")
+- [x] `hexatonicCycle(startTriad)` — generate 6-triad hexatonic cycle (PLPLPL)
+- [x] `octatonicCycle(startTriad)` — generate 8-triad octatonic cycle (PRPRPR)
+- [x] `hexatonicPole(triad)` — return the maximally distant triad (3 PL operations)
+- [x] `weitzmannRegion(augTriad)` — return the 6 triads connected to an augmented triad via single semitone moves
 - [ ] Support extension to seventh chords (P7, L7, R7 operations)
 
 ### 7.4 Chord-Scale Theory
@@ -1028,10 +1028,10 @@
 
 ### 9.3 Pitch-Class Set Similarity Tests
 
-- [ ] IcVSIM: identical sets yield 1.0, maximally different sets yield low score
-- [ ] ANGLE: known set pairs produce expected angles
-- [ ] Z-related sets: detect known Z-pairs (e.g., 4-Z15 and 4-Z29)
-- [ ] Cosine similarity: parallel distributions yield 1.0, orthogonal yield 0.0
+- [x] IcVSIM: identical sets yield 1.0, maximally different sets yield low score
+- [x] ANGLE: known set pairs produce expected angles
+- [x] Z-related sets: detect known Z-pairs (e.g., 4-Z15 and 4-Z29)
+- [x] Cosine similarity: parallel distributions yield 1.0, orthogonal yield 0.0
 
 ### 9.4 Geometric Voice Leading Tests
 
@@ -1060,10 +1060,10 @@
 
 ### 9.8 Tonal Tension Model Tests
 
-- [ ] TPS distance: I to V < I to bVI in C major
-- [ ] Spiral Array: cloud diameter of major triad < diminished 7th
-- [ ] TIV: consonance of major triad > consonance of semitone cluster
-- [ ] TIV key detection: C major scale → C major key
+- [x] TPS distance: I to V < I to bVI in C major
+- [x] Spiral Array: cloud diameter of major triad < diminished 7th
+- [x] TIV: consonance of major triad > consonance of semitone cluster
+- [x] TIV key detection: C major scale → C major key
 
 ### 9.9 Information-Theoretic Tests
 
@@ -1100,28 +1100,28 @@
 
 ### 9.13 Key Detection Tests
 
-- [ ] C major scale → detects C major
-- [ ] A minor scale → detects A minor
-- [ ] Chromatic passage → ambiguous result with low confidence
-- [ ] Windowed detection: modulating piece → key changes at correct positions
+- [x] C major scale → detects C major
+- [x] A minor scale → detects A minor
+- [x] Chromatic passage → ambiguous result with low confidence
+- [x] Windowed detection: modulating piece → key changes at correct positions
 
 ### 9.14 Enhanced Roman Numeral Tests
 
-- [ ] Secondary dominant: G7 in C major → V7/V (not V7)... wait, G7 IS V7 in C major. D7 → V7/V
-- [ ] Neapolitan: Db major in C major → bII
-- [ ] Borrowed chord: Bb major in C major → bVII
-- [ ] Inversion: C/E → I6
+- [x] Secondary dominant: G7 in C major → V7/V (not V7)... wait, G7 IS V7 in C major. D7 → V7/V
+- [x] Neapolitan: Db major in C major → bII
+- [x] Borrowed chord: Bb major in C major → bVII
+- [x] Inversion: C/E → I6
 - [ ] Modulation detection: pivot chord identified
 
 ### 9.15 Neo-Riemannian Tests
 
-- [ ] P: C major → C minor (and reverse)
-- [ ] L: C major → E minor (and reverse)
-- [ ] R: C major → A minor (and reverse)
-- [ ] Compound: PL(C major) → Ab major
-- [ ] Path: C major to F# minor → shortest PLR path
-- [ ] Hexatonic cycle: 6 triads, returns to start
-- [ ] Hexatonic pole: C major → Ab minor (maximally distant)
+- [x] P: C major → C minor (and reverse)
+- [x] L: C major → E minor (and reverse)
+- [x] R: C major → A minor (and reverse)
+- [x] Compound: PL(C major) → Ab major
+- [x] Path: C major to F# minor → shortest PLR path
+- [x] Hexatonic cycle: 6 triads, returns to start
+- [x] Hexatonic pole: C major → Ab minor (maximally distant)
 
 ### 9.16 Chord-Scale Theory Tests
 
@@ -1193,23 +1193,23 @@
 
 ### 9.25 Pitch Spelling Tests
 
-- [ ] `spellPitch`: MIDI 61 in A major → C#, in Ab major → Db
-- [ ] `spellPitchSequence`: ascending chromatic scale uses sharps, descending uses flats
-- [ ] Context-aware: sequence in key of G → F# preferred over Gb
+- [x] `spellPitch`: MIDI 61 in A major → C#, in Ab major → Db
+- [x] `spellPitchSequence`: ascending chromatic scale uses sharps, descending uses flats
+- [x] Context-aware: sequence in key of G → F# preferred over Gb
 
 ### 9.26 Earth Mover's Distance Tests
 
-- [ ] EMD: identical distributions → 0
-- [ ] EMD: maximally different distributions → large positive value
-- [ ] EMD: single semitone shift → proportional to displacement
-- [ ] Circular distance: C vs. F# maximally distant on chroma ring
+- [x] EMD: identical distributions → 0
+- [x] EMD: maximally different distributions → large positive value
+- [x] EMD: single semitone shift → proportional to displacement
+- [x] Circular distance: C vs. F# maximally distant on chroma ring
 
 ### 9.27 Cent/Ratio/EDO Conversion Tests
 
-- [ ] `ratioToCents(3/2)` → ~701.955 cents
-- [ ] `centsToRatio(1200)` → 2.0
-- [ ] `edoStepToCents(7, 12)` → 700 cents
-- [ ] Round-trip: cents → ratio → cents preserves value
+- [x] `ratioToCents(3/2)` → ~701.955 cents
+- [x] `centsToRatio(1200)` → 2.0
+- [x] `edoStepToCents(7, 12)` → 700 cents
+- [x] Round-trip: cents → ratio → cents preserves value
 
 ### 9.28 Temperament Mapping Tests
 

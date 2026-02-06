@@ -35,3 +35,21 @@ export type {
   WindowedKeyResult,
 } from './key-detection.js';
 export { detectKey, detectKeyWindowed } from './key-detection.js';
+
+// Enhanced Roman numeral analysis
+export type { RomanNumeralKey, EnhancedRomanNumeral } from './enhanced-roman.js';
+export { enhancedRomanNumeral, functionalHarmonyScore } from './enhanced-roman.js';
+
+// Neo-Riemannian transforms
+export type { Triad, NRTOperation } from './neo-riemannian.js';
+export {
+  nrtTransform,
+  classifyNRT,
+  nrtCompound,
+  nrtPath,
+  hexatonicCycle,
+  octatonicCycle,
+  hexatonicPole,
+  weitzmannRegion,
+  triadPitchClasses,
+} from './neo-riemannian.js';
