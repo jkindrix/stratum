@@ -51,6 +51,9 @@ function getScalePcs(key: TPSKey): Set<number> {
  * @returns 12-element basic space array.
  */
 export function basicSpace(chord: TPSChord, key: TPSKey): readonly number[] {
+  if (!Number.isInteger(key.tonic) || key.tonic < 0 || key.tonic > 11) {
+    throw new RangeError(`key tonic must be an integer 0-11 (got ${key.tonic})`);
+  }
   const space = new Array<number>(12).fill(0);
   const scalePcs = getScalePcs(key);
   const chordPcs = new Set(chord.pcs);

@@ -131,11 +131,11 @@ export function zRelation(a: PitchClassSet, b: PitchClassSet): boolean {
  */
 export function earthMoversDistance(a: readonly number[], b: readonly number[]): number {
   if (a.length !== 12 || b.length !== 12) {
-    throw new Error('Both distributions must have exactly 12 elements');
+    throw new RangeError('Both distributions must have exactly 12 elements');
   }
   for (let i = 0; i < 12; i++) {
     if (a[i]! < 0 || b[i]! < 0) {
-      throw new Error('Distribution values must be non-negative');
+      throw new RangeError('Distribution values must be non-negative');
     }
   }
 
@@ -145,7 +145,7 @@ export function earthMoversDistance(a: readonly number[], b: readonly number[]):
 
   if (sumA === 0 && sumB === 0) return 0;
   if (sumA === 0 || sumB === 0) {
-    throw new Error('Cannot compute EMD when one distribution sums to zero');
+    throw new RangeError('Cannot compute EMD when one distribution sums to zero');
   }
 
   const normA = a.map(v => v / sumA);

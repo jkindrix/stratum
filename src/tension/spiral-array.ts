@@ -75,6 +75,9 @@ function weightedCentroid(points: SpiralPoint[], weights: number[]): SpiralPoint
  * @returns 3D point on the Spiral Array helix.
  */
 export function spiralArrayPosition(pc: number): SpiralPoint {
+  if (!Number.isInteger(pc) || pc < 0 || pc > 11) {
+    throw new RangeError(`pitch class must be an integer 0-11 (got ${pc})`);
+  }
   return helixPoint(fifthPosition(pc));
 }
 

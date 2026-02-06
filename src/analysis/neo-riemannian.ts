@@ -38,26 +38,25 @@ function triadName(t: Triad): string {
  */
 export function nrtTransform(triad: Triad, operation: NRTOperation): Triad {
   const { root, quality } = triad;
+  if (!Number.isInteger(root) || root < 0 || root > 11) {
+    throw new RangeError(`triad root must be an integer 0-11 (got ${root})`);
+  }
 
   switch (operation) {
     case 'P':
-      return { root, quality: quality === 'major' ? 'minor' : 'major' };
+      return Object.freeze({ root, quality: quality === 'major' ? 'minor' : 'major' } as const);
 
     case 'L':
       if (quality === 'major') {
-        // Root moves down semitone → minor triad on (root+4)%12
-        return { root: (root + 4) % 12, quality: 'minor' };
+        return Object.freeze({ root: (root + 4) % 12, quality: 'minor' } as const);
       }
-      // Fifth moves up semitone → major triad on (root+8)%12
-      return { root: (root + 8) % 12, quality: 'major' };
+      return Object.freeze({ root: (root + 8) % 12, quality: 'major' } as const);
 
     case 'R':
       if (quality === 'major') {
-        // Fifth moves up whole step → minor triad on (root+9)%12
-        return { root: (root + 9) % 12, quality: 'minor' };
+        return Object.freeze({ root: (root + 9) % 12, quality: 'minor' } as const);
       }
-      // Root moves down whole step → major triad on (root+3)%12
-      return { root: (root + 3) % 12, quality: 'major' };
+      return Object.freeze({ root: (root + 3) % 12, quality: 'major' } as const);
   }
 }
 
@@ -158,7 +157,7 @@ export function nrtPath(from: Triad, to: Triad): NRTOperation[] {
  * @param startTriad - Starting triad (major or minor).
  * @returns Array of 6 triads forming the hexatonic cycle.
  */
-export function hexatonicCycle(startTriad: Triad): Triad[] {
+export function hexatonicCycle(startTriad: Triad): readonly Triad[] {
   const cycle: Triad[] = [startTriad];
   let current = startTriad;
 
@@ -168,7 +167,7 @@ export function hexatonicCycle(startTriad: Triad): Triad[] {
     cycle.push(current);
   }
 
-  return cycle;
+  return Object.freeze(cycle);
 }
 
 /**
@@ -180,7 +179,7 @@ export function hexatonicCycle(startTriad: Triad): Triad[] {
  * @param startTriad - Starting triad (major or minor).
  * @returns Array of 8 triads forming the octatonic cycle.
  */
-export function octatonicCycle(startTriad: Triad): Triad[] {
+export function octatonicCycle(startTriad: Triad): readonly Triad[] {
   const cycle: Triad[] = [startTriad];
   let current = startTriad;
 
@@ -190,7 +189,7 @@ export function octatonicCycle(startTriad: Triad): Triad[] {
     cycle.push(current);
   }
 
-  return cycle;
+  return Object.freeze(cycle);
 }
 
 /**
@@ -218,7 +217,7 @@ export function hexatonicPole(triad: Triad): Triad {
  * @returns Array of 6 triads in the Weitzmann region.
  * @throws {Error} If input is not a valid augmented triad (3 PCs, each 4 semitones apart).
  */
-export function weitzmannRegion(augTriad: readonly number[]): Triad[] {
+export function weitzmannRegion(augTriad: readonly number[]): readonly Triad[] {
   if (augTriad.length !== 3) {
     throw new Error('Augmented triad must contain exactly 3 pitch classes');
   }
@@ -248,7 +247,7 @@ export function weitzmannRegion(augTriad: readonly number[]): Triad[] {
     if (downTriad) triads.push(downTriad);
   }
 
-  return triads;
+  return Object.freeze(triads);
 }
 
 /**
@@ -268,10 +267,10 @@ function identifyTriadFromPcs(pcs: number[]): Triad | null {
     ints.sort((a, b) => a - b);
 
     if (ints[0] === 4 && ints[1] === 7) {
-      return { root, quality: 'major' };
+      return Object.freeze({ root, quality: 'major' as const });
     }
     if (ints[0] === 3 && ints[1] === 7) {
-      return { root, quality: 'minor' };
+      return Object.freeze({ root, quality: 'minor' as const });
     }
   }
 

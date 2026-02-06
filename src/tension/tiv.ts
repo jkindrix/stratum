@@ -77,7 +77,13 @@ export function chromaVector(events: readonly NoteEvent[]): number[] {
  */
 export function tiv(chroma: readonly number[]): TonalIntervalVector {
   if (chroma.length !== 12) {
-    throw new Error(`chroma must have 12 elements (got ${chroma.length})`);
+    throw new RangeError(`chroma must have 12 elements (got ${chroma.length})`);
+  }
+  for (let i = 0; i < 12; i++) {
+    const v = chroma[i]!;
+    if (!Number.isFinite(v) || v < 0) {
+      throw new RangeError(`chroma values must be finite and non-negative (got ${v} at index ${i})`);
+    }
   }
 
   const coefficients: [number, number][] = [];
@@ -104,7 +110,7 @@ export function tiv(chroma: readonly number[]): TonalIntervalVector {
   const energy = Math.sqrt(energySq);
 
   return {
-    coefficients: coefficients.map(c => Object.freeze(c) as readonly [number, number]),
+    coefficients: Object.freeze(coefficients.map(c => Object.freeze(c) as readonly [number, number])),
     magnitudes: Object.freeze(magnitudes),
     energy,
   };
