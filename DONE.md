@@ -477,39 +477,39 @@
 
 ### 5.4 MusicXML Import
 
-- [ ] Parse MusicXML 4.0 (.musicxml, .xml) files
+- [x] Parse MusicXML 4.0 (.musicxml, .xml) files
 - [ ] Parse compressed MusicXML (.mxl) containers
-- [ ] Extract: notes (pitch, duration, onset, voice, staff)
-- [ ] Extract: rests
-- [ ] Extract: time signatures
-- [ ] Extract: key signatures
-- [ ] Extract: tempo markings (metronome marks)
-- [ ] Extract: part names and instruments
-- [ ] Extract: dynamics (pp, p, mp, mf, f, ff)
-- [ ] Extract: articulations (staccato, tenuto, accent, marcato, fermata)
-- [ ] Extract: slurs and ties (distinguish tied notes from slurred phrases)
-- [ ] Extract: measure numbers and barlines
-- [ ] Handle: multiple voices per staff
-- [ ] Handle: transposing instruments (concert pitch conversion)
+- [x] Extract: notes (pitch, duration, onset, voice, staff)
+- [x] Extract: rests
+- [x] Extract: time signatures
+- [x] Extract: key signatures
+- [x] Extract: tempo markings (metronome marks)
+- [x] Extract: part names and instruments
+- [x] Extract: dynamics (pp, p, mp, mf, f, ff)
+- [x] Extract: articulations (staccato, tenuto, accent, marcato, fermata)
+- [x] Extract: slurs and ties (distinguish tied notes from slurred phrases)
+- [x] Extract: measure numbers and barlines
+- [x] Handle: multiple voices per staff
+- [x] Handle: transposing instruments (concert pitch conversion)
 - [ ] Handle: repeat barlines and da capo/dal segno (expand repeats to linear form)
-- [ ] Handle: grace notes (as zero-duration or short-duration events)
-- [ ] Handle: tuplets (correct duration calculation)
-- [ ] Handle: pickup measures (incomplete first measures)
-- [ ] Graceful handling of partial/non-conformant files (best-effort with warnings)
+- [x] Handle: grace notes (as zero-duration or short-duration events)
+- [x] Handle: tuplets (correct duration calculation)
+- [x] Handle: pickup measures (incomplete first measures)
+- [x] Graceful handling of partial/non-conformant files (best-effort with warnings)
 
 ### 5.5 MusicXML Export
 
-- [ ] `scoreToMusicXML(score, options?)` — generate MusicXML 4.0 string
-- [ ] Export: notes with pitch spelling (enharmonic selection)
-- [ ] Export: rests
-- [ ] Export: time signatures
-- [ ] Export: key signatures
-- [ ] Export: tempo markings
-- [ ] Export: part names and instrument assignments
-- [ ] Export: dynamics and articulations
-- [ ] Export: measure structure (barlines, numbers)
-- [ ] Valid against MusicXML 4.0 XSD schema
-- [ ] Round-trip fidelity: export → import preserves core musical data
+- [x] `scoreToMusicXML(score, options?)` — generate MusicXML 4.0 string
+- [x] Export: notes with pitch spelling (enharmonic selection)
+- [x] Export: rests
+- [x] Export: time signatures
+- [x] Export: key signatures
+- [x] Export: tempo markings
+- [x] Export: part names and instrument assignments
+- [x] Export: dynamics and articulations
+- [x] Export: measure structure (barlines, numbers)
+- [x] Valid against MusicXML 4.0 XSD schema
+- [x] Round-trip fidelity: export → import preserves core musical data
 
 ### 5.6 Humdrum \*\*kern Import
 
@@ -767,7 +767,7 @@
 - [x] `octatonicCycle(startTriad)` — generate 8-triad octatonic cycle (PRPRPR)
 - [x] `hexatonicPole(triad)` — return the maximally distant triad (3 PL operations)
 - [x] `weitzmannRegion(augTriad)` — return the 6 triads connected to an augmented triad via single semitone moves
-- [ ] Support extension to seventh chords (P7, L7, R7 operations)
+- [x] Support extension to seventh chords (P7, L7, R7 operations)
 
 ### 7.4 Chord-Scale Theory
 

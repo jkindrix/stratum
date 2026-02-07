@@ -143,8 +143,8 @@ export {
 } from './tension/index.js';
 
 // I/O
-export type { ScoreJSON, SclDegree, SclData, KbmData } from './io/index.js';
-export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON, parseScl, parseKbm, tuningFromScl, sclToString, kbmToString } from './io/index.js';
+export type { ScoreJSON, SclDegree, SclData, KbmData, XmlElement, XmlSerializeOptions, MusicXmlWarning, MusicXmlImportResult, MusicXmlExportOptions } from './io/index.js';
+export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON, parseScl, parseKbm, tuningFromScl, sclToString, kbmToString, parseXml, serializeXml, createElement, findChild, findChildren, textContent, childText, childInt, musicXmlToScore, scoreToMusicXML } from './io/index.js';
 
 // Rendering
 export type { RenderOptions, TensionRenderOptions, OverlayOptions } from './render/index.js';
@@ -168,6 +168,9 @@ export type {
   EnhancedRomanNumeral,
   Triad,
   NRTOperation,
+  SeventhChord,
+  SeventhChordQuality,
+  NRT7Operation,
   // Self-similarity
   SimilarityMatrix,
   NoveltyPoint,
@@ -227,6 +230,11 @@ export {
   hexatonicPole,
   weitzmannRegion,
   triadPitchClasses,
+  seventhChordPitchClasses,
+  nrt7Transform,
+  classifyNRT7,
+  nrt7Compound,
+  nrt7Path,
   // Twelve-tone serial
   createRow,
   twelvetoneMatrix,
