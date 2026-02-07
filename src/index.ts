@@ -212,6 +212,7 @@ export type {
   SimilarityMatrix,
   NoveltyPoint,
   FeatureExtractor,
+  StructuralBoundary,
   // Serial
   TwelveToneRow,
   TwelveToneMatrix,
@@ -256,6 +257,17 @@ export type {
   EvalKey,
   Segment,
   OverlapResult,
+  // SIA/SIATEC
+  MusicPoint,
+  TranslationVector,
+  SIAPattern,
+  TEC,
+  CosiatecResult,
+  // Information-theoretic expectation
+  Viewpoint,
+  MarkovModel,
+  ICPoint,
+  EntropyPoint,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -276,6 +288,8 @@ export {
   selfSimilarityMatrix,
   noveltyDetection,
   noveltyPeaks,
+  multiScaleNovelty,
+  findStructuralBoundaries,
   // Key detection
   detectKey,
   detectKeyWindowed,
@@ -357,6 +371,25 @@ export {
   segmentationPrecisionRecall,
   voiceSeparationAccuracy,
   overlapRatio,
+  // SIA/SIATEC
+  pointSetRepresentation,
+  sia,
+  siatec,
+  cosiatec,
+  compressionRatio,
+  // Information-theoretic expectation
+  VIEWPOINT_PITCH,
+  VIEWPOINT_MIDI,
+  VIEWPOINT_INTERVAL,
+  VIEWPOINT_CONTOUR,
+  VIEWPOINT_DURATION,
+  viewpointScaleDegree,
+  buildMarkovModel,
+  informationContent,
+  contextEntropy,
+  surpriseCurve,
+  entropyCurve,
+  combineModels,
 } from './analysis/index.js';
 
 // Composition

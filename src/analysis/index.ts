@@ -24,6 +24,7 @@ export type {
   SimilarityMatrix,
   NoveltyPoint,
   FeatureExtractor,
+  StructuralBoundary,
 } from './structural.js';
 export {
   segmentByRests,
@@ -34,6 +35,8 @@ export {
   selfSimilarityMatrix,
   noveltyDetection,
   noveltyPeaks,
+  multiScaleNovelty,
+  findStructuralBoundaries,
 } from './structural.js';
 
 // Key detection
@@ -156,3 +159,24 @@ export {
   voiceSeparationAccuracy,
   overlapRatio,
 } from './evaluation.js';
+
+// SIA/SIATEC repetition discovery
+export type { MusicPoint, TranslationVector, SIAPattern, TEC, CosiatecResult } from './sia.js';
+export { pointSetRepresentation, sia, siatec, cosiatec, compressionRatio } from './sia.js';
+
+// Information-theoretic expectation
+export type { Viewpoint, MarkovModel, ICPoint, EntropyPoint } from './expectation.js';
+export {
+  VIEWPOINT_PITCH,
+  VIEWPOINT_MIDI,
+  VIEWPOINT_INTERVAL,
+  VIEWPOINT_CONTOUR,
+  VIEWPOINT_DURATION,
+  viewpointScaleDegree,
+  buildMarkovModel,
+  informationContent,
+  contextEntropy,
+  surpriseCurve,
+  entropyCurve,
+  combineModels,
+} from './expectation.js';

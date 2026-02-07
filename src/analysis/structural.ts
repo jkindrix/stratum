@@ -391,3 +391,114 @@ export function noveltyPeaks(
 
   return Object.freeze(peaks);
 }
+
+// ---------------------------------------------------------------------------
+// Multi-Scale Novelty & Structural Boundary Detection
+// ---------------------------------------------------------------------------
+
+/** A structural boundary detected via novelty analysis. */
+export interface StructuralBoundary {
+  readonly tick: number;
+  readonly confidence: number;  // 0-1, normalized novelty relative to max
+}
+
+/**
+ * Combine novelty curves at multiple kernel sizes for robust boundary detection.
+ * Averages normalized novelty values at each position across all kernel sizes.
+ *
+ * @param ssm - A SimilarityMatrix.
+ * @param kernelSizes - Kernel half-widths to combine (default: [2, 4, 8, 16]).
+ * @returns Frozen array of NoveltyPoint with averaged multi-scale values.
+ */
+export function multiScaleNovelty(
+  ssm: SimilarityMatrix,
+  kernelSizes?: readonly number[],
+): readonly NoveltyPoint[] {
+  if (ssm.size === 0) return Object.freeze([]);
+
+  const sizes = kernelSizes ?? [2, 4, 8, 16];
+  if (sizes.length === 0) return Object.freeze([]);
+
+  // Compute novelty curve at each scale
+  const curves: (readonly NoveltyPoint[])[] = [];
+  for (const k of sizes) {
+    curves.push(noveltyDetection(ssm, k));
+  }
+
+  // Find length (should all be equal = ssm.size)
+  const len = curves[0]!.length;
+
+  // Normalize each curve to [0,1] then average
+  const normalizedSums = new Array<number>(len).fill(0);
+  for (const curve of curves) {
+    let maxVal = 0;
+    for (const p of curve) {
+      if (p.value > maxVal) maxVal = p.value;
+    }
+    const scale = maxVal > 0 ? 1 / maxVal : 0;
+    for (let i = 0; i < curve.length; i++) {
+      normalizedSums[i] = (normalizedSums[i] ?? 0) + (curve[i]?.value ?? 0) * scale;
+    }
+  }
+
+  const numScales = curves.length;
+  const result: NoveltyPoint[] = [];
+  for (let i = 0; i < len; i++) {
+    result.push(Object.freeze({
+      tick: curves[0]![i]!.tick,
+      value: (normalizedSums[i] ?? 0) / numScales,
+    }));
+  }
+
+  return Object.freeze(result);
+}
+
+/**
+ * High-level structural boundary detection pipeline.
+ * Computes SSM → multi-scale novelty → peak picking → confidence-scored boundaries.
+ *
+ * @param score - The score to analyze.
+ * @param options - Optional parameters.
+ * @returns Frozen array of StructuralBoundary with confidence scores.
+ */
+export function findStructuralBoundaries(
+  score: Score,
+  options?: {
+    windowSize?: number;
+    hopSize?: number;
+    kernelSizes?: readonly number[];
+    threshold?: number;
+    extractor?: FeatureExtractor;
+  },
+): readonly StructuralBoundary[] {
+  const tpq = score.settings.ticksPerQuarter;
+  const windowSize = options?.windowSize ?? tpq * 4;
+  const hopSize = options?.hopSize ?? tpq;
+  const kernelSizes = options?.kernelSizes;
+  const threshold = options?.threshold;
+  const extractor = options?.extractor;
+
+  const ssm = selfSimilarityMatrix(score, windowSize, hopSize, extractor);
+  if (ssm.size === 0) return Object.freeze([]);
+
+  const novelty = multiScaleNovelty(ssm, kernelSizes);
+  const peaks = noveltyPeaks(novelty, threshold);
+
+  if (peaks.length === 0) return Object.freeze([]);
+
+  // Find max value for confidence normalization
+  let maxValue = 0;
+  for (const p of peaks) {
+    if (p.value > maxValue) maxValue = p.value;
+  }
+
+  const boundaries: StructuralBoundary[] = [];
+  for (const p of peaks) {
+    boundaries.push(Object.freeze({
+      tick: p.tick,
+      confidence: maxValue > 0 ? p.value / maxValue : 0,
+    }));
+  }
+
+  return Object.freeze(boundaries);
+}

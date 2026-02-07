@@ -425,13 +425,13 @@
 
 ### 4.7 Information-Theoretic Expectation
 
-- [ ] `buildMarkovModel(events, order?, viewpoint?)` — variable-order Markov model from note sequence
-- [ ] `informationContent(event, model, context)` — `-log₂(P(event|context))` surprise in bits
-- [ ] `contextEntropy(model, context)` — Shannon entropy of predictive distribution (uncertainty)
-- [ ] `surpriseCurve(events, model)` — per-event IC curve over a sequence
-- [ ] `entropyCurve(events, model)` — per-event entropy curve
-- [ ] Multiple viewpoints: pitch, interval, contour, scale degree, duration
-- [ ] Short-term (piece-specific) and long-term (corpus-trained) model combination
+- [x] `buildMarkovModel(events, order?, viewpoint?)` — variable-order Markov model from note sequence
+- [x] `informationContent(event, model, context)` — `-log₂(P(event|context))` surprise in bits
+- [x] `contextEntropy(model, context)` — Shannon entropy of predictive distribution (uncertainty)
+- [x] `surpriseCurve(events, model)` — per-event IC curve over a sequence
+- [x] `entropyCurve(events, model)` — per-event entropy curve
+- [x] Multiple viewpoints: pitch, interval, contour, scale degree, duration
+- [x] Short-term (piece-specific) and long-term (corpus-trained) model combination
 
 ---
 
@@ -805,18 +805,18 @@
 
 #### 7.6.2 Novelty Detection
 
-- [ ] `noveltyFunction(ssm, kernelSize?)` — Foote's checkerboard kernel novelty detection
-- [ ] `multiScaleNovelty(ssm, kernelSizes)` — combine novelty at multiple scales
-- [ ] `findStructuralBoundaries(novelty, threshold?)` — peak-pick novelty function to identify section boundaries
-- [ ] Return boundaries with confidence scores
+- [x] `noveltyFunction(ssm, kernelSize?)` — Foote's checkerboard kernel novelty detection
+- [x] `multiScaleNovelty(ssm, kernelSizes)` — combine novelty at multiple scales
+- [x] `findStructuralBoundaries(novelty, threshold?)` — peak-pick novelty function to identify section boundaries
+- [x] Return boundaries with confidence scores
 
 #### 7.6.3 Repetition Pattern Discovery (SIA/SIATEC)
 
-- [ ] `pointSetRepresentation(events)` — represent events as points in (onset, pitch) space
-- [ ] `sia(pointSet)` — discover all maximal translatable patterns (O(n² log n))
-- [ ] `siatec(pointSet)` — find all translation equivalence classes (all occurrences of each pattern)
-- [ ] `cosiatec(pointSet)` — greedy cover: iteratively select best TEC, remove points, repeat
-- [ ] `compressionRatio(pointSet)` — measure structural repetitiveness
+- [x] `pointSetRepresentation(events)` — represent events as points in (onset, pitch) space
+- [x] `sia(pointSet)` — discover all maximal translatable patterns (O(n² log n))
+- [x] `siatec(pointSet)` — find all translation equivalence classes (all occurrences of each pattern)
+- [x] `cosiatec(pointSet)` — greedy cover: iteratively select best TEC, remove points, repeat
+- [x] `compressionRatio(pointSet)` — measure structural repetitiveness
 - [ ] Support additional dimensions: duration, velocity
 
 ### 7.7 Post-Tonal Analysis
@@ -959,7 +959,7 @@
 
 - [x] `trainMarkovChain(sequence, order?)` — build transition matrix from pitch, interval, or chord sequence
 - [x] `generateFromChain(chain, length, seed?)` — generate new sequence by sampling
-- [ ] Support first-order and higher-order chains (up to order 5)
+- [x] Support first-order and higher-order chains (up to order 5)
 - [x] Configurable: temperature parameter for controlling randomness
 
 ### 8.2 L-System Music Generator
@@ -1067,10 +1067,10 @@
 
 ### 9.9 Information-Theoretic Tests
 
-- [ ] Repeated note sequence: low IC (predictable)
-- [ ] Random sequence: high IC
-- [ ] Entropy decreases as context grows (more certainty)
-- [ ] Surprise curve peaks on chromatic alterations
+- [x] Repeated note sequence: low IC (predictable)
+- [x] Random sequence: high IC
+- [x] Entropy decreases as context grows (more certainty)
+- [x] Surprise curve peaks on chromatic alterations
 
 ### 9.10 MusicXML I/O Tests
 
@@ -1132,11 +1132,11 @@
 
 ### 9.17 Self-Similarity / Novelty / SIA Tests
 
-- [ ] SSM: identical sections → high diagonal blocks
-- [ ] SSM: transposed section → off-diagonal stripe (with transposition invariance)
-- [ ] Novelty: AABB form → boundary detected between A and B sections
-- [ ] SIA: repeated motive found at all occurrences
-- [ ] COSIATEC: compression ratio < 1.0 for piece with repetition
+- [x] SSM: identical sections → high diagonal blocks
+- [x] SSM: transposed section → off-diagonal stripe (with transposition invariance)
+- [x] Novelty: AABB form → boundary detected between A and B sections
+- [x] SIA: repeated motive found at all occurrences
+- [x] COSIATEC: compression ratio < 1.0 for piece with repetition
 
 ### 9.18 Post-Tonal Analysis Tests
 
@@ -1641,13 +1641,13 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 2.8.3 Monzo Arithmetic | — | — | 0% |
 | 2.8.4 Temperament Mapping | — | — | 0% |
 | 3. Time Module (3.1-3.3) | ✅ 100% | — | — |
-| 3.4 Rhythmic Complexity | — | — | 0% |
-| 3.5 GTTM-Inspired | — | — | 0% |
+| 3.4 Rhythmic Complexity | — | — | ✅ 100% |
+| 3.5 GTTM-Inspired | — | — | ✅ 100% |
 | 4. Tension Module (4.1-4.3) | ✅ 100% | — | — |
 | 4.4 Lerdahl TPS | — | ✅ 100% | — |
 | 4.5 Spiral Array | — | ✅ 100% | — |
 | 4.6 TIV / DFT | — | ✅ 100% | — |
-| 4.7 Information-Theoretic | — | — | 0% |
+| 4.7 Information-Theoretic | — | — | ✅ 100% |
 | 5. I/O Module (5.1-5.3) | ✅ 100% | — | — |
 | 5.4-5.5 MusicXML | — | ✅ 100% | — |
 | 5.6 Humdrum kern | — | — | ✅ 100% |
@@ -1672,7 +1672,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 7.3 Neo-Riemannian | — | ✅ 100% | — |
 | 7.4 Chord-Scale Theory | — | ✅ 100% | — |
 | 7.6.1-7.6.2 SSM / Novelty | — | ✅ 100% | — |
-| 7.6.3 SIA/SIATEC | — | — | 0% |
+| 7.6.3 SIA/SIATEC | — | — | ✅ 100% |
 | 7.7 Post-Tonal | — | ✅ 100% | — |
 | 7.8 Voice Separation | — | ✅ 100% | — |
 | 7.9 Counterpoint | — | ✅ 100% | — |
@@ -1683,8 +1683,8 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 7.14 Evaluation Metrics | — | ✅ 100% | — |
 | 7.15 Figured Bass | — | — | 0% |
 | 7.16 Klumpenhouwer / GIS | — | — | 0% |
-| 8. Composition Utilities (8.1-8.5) | — | — | 0% |
-| 8.6 Stochastic Generators | — | — | 0% |
+| 8. Composition Utilities (8.1-8.5) | — | — | ✅ 100% |
+| 8.6 Stochastic Generators | — | — | ✅ 100% |
 | 9. Testing | ✅ 100% | Grows with features | Grows with features |
 | 10. Documentation | ✅ 100% | Grows with features | Grows with features |
 | 11. Build & Packaging | ✅ 100% | Minor updates | Minor updates |
