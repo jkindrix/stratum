@@ -51,7 +51,7 @@ export type { RomanNumeralKey, EnhancedRomanNumeral, ModulationPoint } from './e
 export { enhancedRomanNumeral, functionalHarmonyScore, chordQualityFromSymbol, detectModulations } from './enhanced-roman.js';
 
 // Neo-Riemannian transforms
-export type { Triad, NRTOperation } from './neo-riemannian.js';
+export type { Triad, NRTOperation, SeventhChord, SeventhChordQuality, NRT7Operation } from './neo-riemannian.js';
 export {
   nrtTransform,
   classifyNRT,
@@ -62,6 +62,11 @@ export {
   hexatonicPole,
   weitzmannRegion,
   triadPitchClasses,
+  seventhChordPitchClasses,
+  nrt7Transform,
+  classifyNRT7,
+  nrt7Compound,
+  nrt7Path,
 } from './neo-riemannian.js';
 
 // Twelve-tone serial operations

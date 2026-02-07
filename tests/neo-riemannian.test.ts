@@ -9,8 +9,13 @@ import {
   hexatonicPole,
   weitzmannRegion,
   triadPitchClasses,
+  seventhChordPitchClasses,
+  nrt7Transform,
+  classifyNRT7,
+  nrt7Compound,
+  nrt7Path,
 } from '../src/index.js';
-import type { Triad, NRTOperation } from '../src/index.js';
+import type { Triad, NRTOperation, SeventhChord, SeventhChordQuality, NRT7Operation } from '../src/index.js';
 
 const Cmaj: Triad = { root: 0, quality: 'major' };
 const Cmin: Triad = { root: 0, quality: 'minor' };
@@ -307,6 +312,301 @@ describe('Neo-Riemannian Transforms', () => {
 
     it('A minor → [9, 0, 4]', () => {
       expect(triadPitchClasses(Amin)).toEqual([9, 0, 4]);
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Seventh-Chord NRT Tests
+// ---------------------------------------------------------------------------
+
+const ALL_7TH_QUALITIES: SeventhChordQuality[] = ['maj7', 'min7', 'dom7', 'hdim7', 'dim7', 'minMaj7'];
+
+function seventh(root: number, quality: SeventhChordQuality): SeventhChord {
+  return { root, quality };
+}
+
+describe('Seventh-Chord NRT', () => {
+  // ---- seventhChordPitchClasses ----
+
+  describe('seventhChordPitchClasses', () => {
+    it('C maj7 → [0, 4, 7, 11]', () => {
+      expect(seventhChordPitchClasses(seventh(0, 'maj7'))).toEqual([0, 4, 7, 11]);
+    });
+
+    it('C min7 → [0, 3, 7, 10]', () => {
+      expect(seventhChordPitchClasses(seventh(0, 'min7'))).toEqual([0, 3, 7, 10]);
+    });
+
+    it('C dom7 → [0, 4, 7, 10]', () => {
+      expect(seventhChordPitchClasses(seventh(0, 'dom7'))).toEqual([0, 4, 7, 10]);
+    });
+
+    it('C hdim7 → [0, 3, 6, 10]', () => {
+      expect(seventhChordPitchClasses(seventh(0, 'hdim7'))).toEqual([0, 3, 6, 10]);
+    });
+
+    it('C dim7 → [0, 3, 6, 9]', () => {
+      expect(seventhChordPitchClasses(seventh(0, 'dim7'))).toEqual([0, 3, 6, 9]);
+    });
+
+    it('C minMaj7 → [0, 3, 7, 11]', () => {
+      expect(seventhChordPitchClasses(seventh(0, 'minMaj7'))).toEqual([0, 3, 7, 11]);
+    });
+
+    it('non-zero root wraps correctly (G dom7 → [7, 11, 2, 5])', () => {
+      expect(seventhChordPitchClasses(seventh(7, 'dom7'))).toEqual([7, 11, 2, 5]);
+    });
+
+    it('throws RangeError for root out of range', () => {
+      expect(() => seventhChordPitchClasses(seventh(-1, 'maj7'))).toThrow(RangeError);
+      expect(() => seventhChordPitchClasses(seventh(12, 'maj7'))).toThrow(RangeError);
+    });
+  });
+
+  // ---- nrt7Transform — P7 ----
+
+  describe('nrt7Transform — P7', () => {
+    it('dom7 → min7', () => {
+      const result = nrt7Transform(seventh(0, 'dom7'), 'P7');
+      expect(result).toEqual({ root: 0, quality: 'min7' });
+    });
+
+    it('min7 → dom7', () => {
+      const result = nrt7Transform(seventh(0, 'min7'), 'P7');
+      expect(result).toEqual({ root: 0, quality: 'dom7' });
+    });
+
+    it('maj7 → minMaj7', () => {
+      const result = nrt7Transform(seventh(0, 'maj7'), 'P7');
+      expect(result).toEqual({ root: 0, quality: 'minMaj7' });
+    });
+
+    it('minMaj7 → maj7', () => {
+      const result = nrt7Transform(seventh(0, 'minMaj7'), 'P7');
+      expect(result).toEqual({ root: 0, quality: 'maj7' });
+    });
+
+    it('returns null for hdim7', () => {
+      expect(nrt7Transform(seventh(0, 'hdim7'), 'P7')).toBeNull();
+    });
+
+    it('returns null for dim7', () => {
+      expect(nrt7Transform(seventh(0, 'dim7'), 'P7')).toBeNull();
+    });
+  });
+
+  // ---- nrt7Transform — L7 ----
+
+  describe('nrt7Transform — L7', () => {
+    it('dom7 → maj7', () => {
+      const result = nrt7Transform(seventh(0, 'dom7'), 'L7');
+      expect(result).toEqual({ root: 0, quality: 'maj7' });
+    });
+
+    it('maj7 → dom7', () => {
+      const result = nrt7Transform(seventh(0, 'maj7'), 'L7');
+      expect(result).toEqual({ root: 0, quality: 'dom7' });
+    });
+
+    it('min7 → minMaj7', () => {
+      const result = nrt7Transform(seventh(0, 'min7'), 'L7');
+      expect(result).toEqual({ root: 0, quality: 'minMaj7' });
+    });
+
+    it('minMaj7 → min7', () => {
+      const result = nrt7Transform(seventh(0, 'minMaj7'), 'L7');
+      expect(result).toEqual({ root: 0, quality: 'min7' });
+    });
+
+    it('hdim7 → dim7', () => {
+      const result = nrt7Transform(seventh(0, 'hdim7'), 'L7');
+      expect(result).toEqual({ root: 0, quality: 'dim7' });
+    });
+
+    it('dim7 → hdim7', () => {
+      const result = nrt7Transform(seventh(0, 'dim7'), 'L7');
+      expect(result).toEqual({ root: 0, quality: 'hdim7' });
+    });
+  });
+
+  // ---- nrt7Transform — R7 ----
+
+  describe('nrt7Transform — R7', () => {
+    it('min7 → hdim7', () => {
+      const result = nrt7Transform(seventh(0, 'min7'), 'R7');
+      expect(result).toEqual({ root: 0, quality: 'hdim7' });
+    });
+
+    it('hdim7 → min7', () => {
+      const result = nrt7Transform(seventh(0, 'hdim7'), 'R7');
+      expect(result).toEqual({ root: 0, quality: 'min7' });
+    });
+
+    it('returns null for dom7', () => {
+      expect(nrt7Transform(seventh(0, 'dom7'), 'R7')).toBeNull();
+    });
+
+    it('returns null for maj7', () => {
+      expect(nrt7Transform(seventh(0, 'maj7'), 'R7')).toBeNull();
+    });
+  });
+
+  // ---- nrt7Transform — properties ----
+
+  describe('nrt7Transform — properties', () => {
+    it('P7 is an involution', () => {
+      const start = seventh(5, 'dom7');
+      const mid = nrt7Transform(start, 'P7')!;
+      const back = nrt7Transform(mid, 'P7')!;
+      expect(back.root).toBe(start.root);
+      expect(back.quality).toBe(start.quality);
+    });
+
+    it('L7 is an involution', () => {
+      const start = seventh(3, 'min7');
+      const mid = nrt7Transform(start, 'L7')!;
+      const back = nrt7Transform(mid, 'L7')!;
+      expect(back.root).toBe(start.root);
+      expect(back.quality).toBe(start.quality);
+    });
+
+    it('R7 is an involution', () => {
+      const start = seventh(9, 'min7');
+      const mid = nrt7Transform(start, 'R7')!;
+      const back = nrt7Transform(mid, 'R7')!;
+      expect(back.root).toBe(start.root);
+      expect(back.quality).toBe(start.quality);
+    });
+
+    it('result is frozen', () => {
+      const result = nrt7Transform(seventh(0, 'dom7'), 'P7')!;
+      expect(Object.isFrozen(result)).toBe(true);
+    });
+  });
+
+  // ---- classifyNRT7 ----
+
+  describe('classifyNRT7', () => {
+    it('dom7 → min7 = P7', () => {
+      expect(classifyNRT7(seventh(0, 'dom7'), seventh(0, 'min7'))).toBe('P7');
+    });
+
+    it('dom7 → maj7 = L7', () => {
+      expect(classifyNRT7(seventh(0, 'dom7'), seventh(0, 'maj7'))).toBe('L7');
+    });
+
+    it('min7 → hdim7 = R7', () => {
+      expect(classifyNRT7(seventh(0, 'min7'), seventh(0, 'hdim7'))).toBe('R7');
+    });
+
+    it('non-adjacent same root returns null', () => {
+      expect(classifyNRT7(seventh(0, 'dom7'), seventh(0, 'dim7'))).toBeNull();
+    });
+
+    it('different roots returns null', () => {
+      expect(classifyNRT7(seventh(0, 'dom7'), seventh(5, 'dom7'))).toBeNull();
+    });
+  });
+
+  // ---- nrt7Compound ----
+
+  describe('nrt7Compound', () => {
+    it('P7L7 chain: dom7 → min7 → minMaj7', () => {
+      const result = nrt7Compound(seventh(0, 'dom7'), 'P7L7');
+      expect(result).toEqual({ root: 0, quality: 'minMaj7' });
+    });
+
+    it('empty string returns input chord unchanged', () => {
+      const input = seventh(0, 'dom7');
+      const result = nrt7Compound(input, '');
+      expect(result).toEqual(input);
+    });
+
+    it('returns null when a step is undefined', () => {
+      // dom7 → R7 is undefined
+      const result = nrt7Compound(seventh(0, 'dom7'), 'R7');
+      expect(result).toBeNull();
+    });
+
+    it('throws Error on invalid token', () => {
+      expect(() => nrt7Compound(seventh(0, 'dom7'), 'P7XL7')).toThrow(Error);
+    });
+
+    it('multi-step chain: dom7 → P7 → min7 → R7 → hdim7 → L7 → dim7', () => {
+      const result = nrt7Compound(seventh(0, 'dom7'), 'P7R7L7');
+      expect(result).toEqual({ root: 0, quality: 'dim7' });
+    });
+
+    it('throws on bare P/L/R without 7 suffix', () => {
+      expect(() => nrt7Compound(seventh(0, 'dom7'), 'PL')).toThrow(Error);
+    });
+  });
+
+  // ---- nrt7Path ----
+
+  describe('nrt7Path', () => {
+    it('identical chords → empty array', () => {
+      expect(nrt7Path(seventh(0, 'dom7'), seventh(0, 'dom7'))).toEqual([]);
+    });
+
+    it('direct P7 neighbor: dom7 → min7', () => {
+      const path = nrt7Path(seventh(0, 'dom7'), seventh(0, 'min7'));
+      expect(path).toEqual(['P7']);
+    });
+
+    it('direct L7 neighbor: dom7 → maj7', () => {
+      const path = nrt7Path(seventh(0, 'dom7'), seventh(0, 'maj7'));
+      expect(path).toEqual(['L7']);
+    });
+
+    it('direct R7 neighbor: min7 → hdim7', () => {
+      const path = nrt7Path(seventh(0, 'min7'), seventh(0, 'hdim7'));
+      expect(path).toEqual(['R7']);
+    });
+
+    it('2-step path: dom7 → minMaj7 (P7L7)', () => {
+      const path = nrt7Path(seventh(0, 'dom7'), seventh(0, 'minMaj7'));
+      expect(path).toHaveLength(2);
+      // Verify path works
+      const result = nrt7Compound(seventh(0, 'dom7'), path.join(''));
+      expect(result).toEqual({ root: 0, quality: 'minMaj7' });
+    });
+
+    it('max distance ≤ 4 for any pair within same root', () => {
+      for (const q1 of ALL_7TH_QUALITIES) {
+        for (const q2 of ALL_7TH_QUALITIES) {
+          const path = nrt7Path(seventh(0, q1), seventh(0, q2));
+          expect(path.length).toBeLessThanOrEqual(4);
+        }
+      }
+    });
+
+    it('different roots → empty array', () => {
+      expect(nrt7Path(seventh(0, 'dom7'), seventh(5, 'dom7'))).toEqual([]);
+    });
+
+    it('non-C root works correctly', () => {
+      const path = nrt7Path(seventh(7, 'dom7'), seventh(7, 'min7'));
+      expect(path).toEqual(['P7']);
+    });
+  });
+
+  // ---- Exhaustive reachability ----
+
+  describe('exhaustive reachability', () => {
+    it('all 30 quality pairs at root 0 are reachable via nrt7Path + nrt7Compound', () => {
+      for (const q1 of ALL_7TH_QUALITIES) {
+        for (const q2 of ALL_7TH_QUALITIES) {
+          if (q1 === q2) continue;
+          const from = seventh(0, q1);
+          const to = seventh(0, q2);
+          const path = nrt7Path(from, to);
+          expect(path.length).toBeGreaterThan(0);
+          const result = nrt7Compound(from, path.join(''));
+          expect(result).toEqual({ root: 0, quality: q2 });
+        }
+      }
     });
   });
 });

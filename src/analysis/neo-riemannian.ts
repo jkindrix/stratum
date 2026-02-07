@@ -287,3 +287,183 @@ export function triadPitchClasses(triad: Triad): readonly [number, number, numbe
   const third = triad.quality === 'major' ? 4 : 3;
   return [triad.root, (triad.root + third) % 12, (triad.root + 7) % 12];
 }
+
+// ---------------------------------------------------------------------------
+// Seventh-Chord Neo-Riemannian Transforms (P7, L7, R7)
+// ---------------------------------------------------------------------------
+
+/** Seventh-chord quality. */
+export type SeventhChordQuality = 'maj7' | 'min7' | 'dom7' | 'hdim7' | 'dim7' | 'minMaj7';
+
+/** A seventh chord identified by root pitch class and quality. */
+export interface SeventhChord {
+  /** Root pitch class (0-11). */
+  readonly root: number;
+  /** Seventh-chord quality. */
+  readonly quality: SeventhChordQuality;
+}
+
+/** A single seventh-chord Neo-Riemannian operation. */
+export type NRT7Operation = 'P7' | 'L7' | 'R7';
+
+// ---- Interval templates per quality ----
+
+const SEVENTH_INTERVALS: Record<SeventhChordQuality, readonly [number, number, number, number]> = {
+  maj7:    [0, 4, 7, 11],
+  min7:    [0, 3, 7, 10],
+  dom7:    [0, 4, 7, 10],
+  hdim7:   [0, 3, 6, 10],
+  dim7:    [0, 3, 6,  9],
+  minMaj7: [0, 3, 7, 11],
+};
+
+// ---- Single-semitone voice-leading transition table ----
+// P7 moves the 3rd ±1: dom7↔min7, maj7↔minMaj7
+// L7 moves the 7th ±1: dom7↔maj7, min7↔minMaj7, hdim7↔dim7
+// R7 moves the 5th ±1: min7↔hdim7
+
+const NRT7_TRANSITIONS: Record<NRT7Operation, Partial<Record<SeventhChordQuality, SeventhChordQuality>>> = {
+  P7: { dom7: 'min7', min7: 'dom7', maj7: 'minMaj7', minMaj7: 'maj7' },
+  L7: { dom7: 'maj7', maj7: 'dom7', min7: 'minMaj7', minMaj7: 'min7', hdim7: 'dim7', dim7: 'hdim7' },
+  R7: { min7: 'hdim7', hdim7: 'min7' },
+};
+
+// ---- Private helper ----
+
+function seventhChordKey(c: SeventhChord): string {
+  return `${c.root}_${c.quality}`;
+}
+
+function validateSeventhRoot(root: number): void {
+  if (!Number.isInteger(root) || root < 0 || root > 11) {
+    throw new RangeError(`seventh chord root must be an integer 0-11 (got ${root})`);
+  }
+}
+
+// ---- Public functions ----
+
+/**
+ * Get the four pitch classes of a seventh chord.
+ *
+ * @param chord - The seventh chord.
+ * @returns Frozen tuple of 4 pitch classes [root, 3rd, 5th, 7th].
+ */
+export function seventhChordPitchClasses(
+  chord: SeventhChord,
+): readonly [number, number, number, number] {
+  validateSeventhRoot(chord.root);
+  const intervals = SEVENTH_INTERVALS[chord.quality];
+  return Object.freeze([
+    (chord.root + intervals[0]) % 12,
+    (chord.root + intervals[1]) % 12,
+    (chord.root + intervals[2]) % 12,
+    (chord.root + intervals[3]) % 12,
+  ] as [number, number, number, number]);
+}
+
+/**
+ * Apply a single seventh-chord NRT operation (P7, L7, or R7).
+ *
+ * - **P7 (Parallel-7):** Moves the 3rd by ±1 semitone. dom7 ↔ min7, maj7 ↔ minMaj7.
+ * - **L7 (Leading-tone-7):** Moves the 7th by ±1 semitone. dom7 ↔ maj7, min7 ↔ minMaj7, hdim7 ↔ dim7.
+ * - **R7 (Relative-7):** Moves the 5th by ±1 semitone. min7 ↔ hdim7.
+ *
+ * All defined operations are involutions (applying twice returns the original).
+ * Returns null when the operation is undefined for the given quality.
+ *
+ * @param chord - The input seventh chord.
+ * @param operation - 'P7', 'L7', or 'R7'.
+ * @returns The transformed chord, or null if the operation is undefined for this quality.
+ */
+export function nrt7Transform(chord: SeventhChord, operation: NRT7Operation): SeventhChord | null {
+  validateSeventhRoot(chord.root);
+  const targetQuality = NRT7_TRANSITIONS[operation][chord.quality];
+  if (targetQuality === undefined) return null;
+  return Object.freeze({ root: chord.root, quality: targetQuality });
+}
+
+/**
+ * Classify which single NRT7 operation (P7, L7, or R7) transforms one seventh chord to another.
+ *
+ * @param from - Source seventh chord.
+ * @param to - Target seventh chord.
+ * @returns The operation, or null if no single P7/L7/R7 connects them.
+ */
+export function classifyNRT7(from: SeventhChord, to: SeventhChord): NRT7Operation | null {
+  if (from.root !== to.root) return null;
+  const ops: NRT7Operation[] = ['P7', 'L7', 'R7'];
+  for (const op of ops) {
+    const result = nrt7Transform(from, op);
+    if (result !== null && result.root === to.root && result.quality === to.quality) {
+      return op;
+    }
+  }
+  return null;
+}
+
+/**
+ * Apply a compound seventh-chord transformation string (e.g., "P7L7", "R7L7P7").
+ *
+ * Operations are applied left-to-right. Returns null if any step is undefined.
+ *
+ * @param chord - The starting seventh chord.
+ * @param operations - String of P7, L7, and R7 tokens concatenated.
+ * @returns The resulting chord, or null if any intermediate step is undefined.
+ * @throws {Error} If the string contains invalid tokens.
+ */
+export function nrt7Compound(chord: SeventhChord, operations: string): SeventhChord | null {
+  if (operations === '') return chord;
+  const tokens = operations.match(/(P7|L7|R7)/g);
+  if (tokens === null || tokens.join('') !== operations) {
+    throw new Error(`Invalid NRT7 operation string '${operations}' (expected concatenation of P7, L7, R7)`);
+  }
+  let current: SeventhChord = chord;
+  for (const token of tokens) {
+    const next = nrt7Transform(current, token as NRT7Operation);
+    if (next === null) return null;
+    current = next;
+  }
+  return current;
+}
+
+/**
+ * Find the shortest sequence of P7/L7/R7 operations connecting two seventh chords.
+ *
+ * Uses BFS on the 6-node same-root graph. Returns empty array if chords are
+ * identical or have different roots (cross-root paths are not defined).
+ *
+ * @param from - Source seventh chord.
+ * @param to - Target seventh chord.
+ * @returns Array of operations forming the shortest path.
+ */
+export function nrt7Path(from: SeventhChord, to: SeventhChord): NRT7Operation[] {
+  const toKey = seventhChordKey(to);
+  if (seventhChordKey(from) === toKey) return [];
+  if (from.root !== to.root) return [];
+
+  const ops: NRT7Operation[] = ['P7', 'L7', 'R7'];
+  const visited = new Set<string>();
+  const queue: { chord: SeventhChord; path: NRT7Operation[] }[] = [{ chord: from, path: [] }];
+  visited.add(seventhChordKey(from));
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+
+    for (const op of ops) {
+      const next = nrt7Transform(current.chord, op);
+      if (next === null) continue;
+      const key = seventhChordKey(next);
+
+      if (key === toKey) {
+        return [...current.path, op];
+      }
+
+      if (!visited.has(key)) {
+        visited.add(key);
+        queue.push({ chord: next, path: [...current.path, op] });
+      }
+    }
+  }
+
+  return [];
+}
