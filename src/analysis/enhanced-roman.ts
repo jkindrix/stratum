@@ -434,12 +434,10 @@ export function detectModulations(
   const windowSize = options?.windowSize ?? score.settings.ticksPerQuarter * 4;
   const profile = options?.profile;
 
-  let windows;
-  try {
-    windows = detectKeyWindowed(score, windowSize, { profile });
-  } catch {
-    return Object.freeze([]);
-  }
+  const allEvents = score.parts.flatMap(p => p.events);
+  if (allEvents.length === 0) return Object.freeze([]);
+
+  const windows = detectKeyWindowed(score, windowSize, { profile });
 
   if (windows.length < 2) return Object.freeze([]);
 

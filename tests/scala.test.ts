@@ -221,6 +221,18 @@ x
       const f2 = tuning.frequencyAt(0, 5, 440);
       expect(f2 / f1).toBeCloseTo(2, 3);
     });
+
+    it('handles steps below the reference note', () => {
+      const scl = parseScl(SCL_12TET);
+      const tuning = tuningFromScl(scl);
+      // Reference is MIDI 69 (A4) = step 9, octave 5. Go one octave below.
+      const a4 = tuning.frequencyAt(9, 5, 440);
+      const a3 = tuning.frequencyAt(9, 4, 440);
+      expect(a4 / a3).toBeCloseTo(2, 3);
+      // Middle C (MIDI 60) = step 0, octave 5 → should be ~261.63 Hz
+      const c4 = tuning.frequencyAt(0, 5, 440);
+      expect(c4).toBeCloseTo(261.63, 0);
+    });
   });
 
   describe('sclToString', () => {

@@ -218,12 +218,11 @@ export function tuningFromScl(scl: SclData, kbm?: KbmData): TuningSystem {
       const refNoteNumber = refOctave * stepsPerOctave + refStep;
 
       const diff = noteNumber - refNoteNumber;
+      // Use floored division so remainder is always non-negative
       const fullOctaves = Math.floor(diff / stepsPerOctave);
-      let remainder = diff % stepsPerOctave;
-      if (remainder < 0) remainder += stepsPerOctave;
+      const remainder = ((diff % stepsPerOctave) + stepsPerOctave) % stepsPerOctave;
 
-      const adjustedOctaves = diff < 0 && remainder > 0 ? fullOctaves - 1 : fullOctaves;
-      const centOffset = adjustedOctaves * octaveCents + (centValues[remainder] ?? 0);
+      const centOffset = fullOctaves * octaveCents + (centValues[remainder] ?? 0);
 
       return hz * Math.pow(2, centOffset / 1200);
     },

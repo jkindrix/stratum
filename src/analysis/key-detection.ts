@@ -262,7 +262,7 @@ export function detectKeyWindowed(
  * @param score - The score to analyze.
  * @param options - Detection options (profile choice, duration weighting).
  * @returns Key detection result with best match and all 24 ranked candidates.
- * @throws {Error} If the score contains no note events.
+ * @throws {RangeError} If the score contains no note events.
  *
  * @example
  * ```ts
@@ -273,7 +273,7 @@ export function detectKeyWindowed(
 export function detectKeyTIV(score: Score, options?: KeyDetectionOptions): KeyDetectionResult {
   const events = score.parts.flatMap(p => p.events);
   if (events.length === 0) {
-    throw new Error('Cannot detect key: score contains no note events');
+    throw new RangeError('Cannot detect key: score contains no note events');
   }
 
   const profile = resolveProfile(options?.profile);
@@ -292,8 +292,8 @@ export function detectKeyTIV(score: Score, options?: KeyDetectionOptions): KeyDe
         placed[(i + tonic) % 12] = profileWeights[i] ?? 0;
       }
       const candidateTIV = tiv(placed);
-      const dist = tivDistance(observedTIV, candidateTIV);
-      const similarity = 1 / (1 + dist);
+      const d = tivDistance(observedTIV, candidateTIV);
+      const similarity = 1 / (1 + d);
 
       candidates.push({
         tonic,
