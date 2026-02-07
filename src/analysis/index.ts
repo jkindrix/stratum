@@ -208,3 +208,33 @@ export {
   entropyCurve,
   combineModels,
 } from './expectation.js';
+
+// Figured bass realization & analysis
+export type {
+  FBAccidental,
+  FBInterval,
+  ParsedFiguredBass,
+  FiguredBassKey,
+  RealizedChord,
+  FiguredBassAnalysisOptions,
+  FiguredBassEvent,
+} from './figured-bass.js';
+export { parseFiguredBass, realizeFiguredBass, figuredBassAnalysis } from './figured-bass.js';
+
+// Klumpenhouwer Networks & Generalized Interval Systems
+export type {
+  KNetArrowType,
+  KNetArrow,
+  KNet,
+  IsographyResult,
+  GIS,
+} from './knet-gis.js';
+export {
+  buildKNet,
+  kNetIsography,
+  buildGIS,
+  gisInterval,
+  pitchClassGIS,
+  pitchGIS,
+  durationGIS,
+} from './knet-gis.js';

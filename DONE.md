@@ -935,21 +935,21 @@
 
 ### 7.15 Figured Bass Realization
 
-- [ ] `parseFiguredBass(figures)` — parse figured bass notation (6, 6/4, 7, 4/3, 4/2, etc.)
-- [ ] `realizeFiguredBass(bass, figures, key?)` — generate chord voicing from bass note and figures
-- [ ] `figuredBassAnalysis(score, options?)` — analyze a bass line and identify implied figured bass
-- [ ] Support common abbreviations and defaults (no figure = 5/3, 6 = 6/3, etc.)
-- [ ] Support accidentals in figures (#, b, natural modifiers)
+- [x] `parseFiguredBass(figures)` — parse figured bass notation (6, 6/4, 7, 4/3, 4/2, etc.)
+- [x] `realizeFiguredBass(bass, figures, key?)` — generate chord voicing from bass note and figures
+- [x] `figuredBassAnalysis(score, options?)` — analyze a bass line and identify implied figured bass
+- [x] Support common abbreviations and defaults (no figure = 5/3, 6 = 6/3, etc.)
+- [x] Support accidentals in figures (#, b, natural modifiers)
 
 ### 7.16 Klumpenhouwer Networks and GIS
 
-- [ ] `KNet` class — Klumpenhouwer network: nodes (pitch classes or pitch-class sets) connected by T/I arrows
-- [ ] `buildKNet(nodes, arrows)` — construct a K-net from nodes and labeled transformations
-- [ ] `kNetIsography(knetA, knetB)` — test positive and negative isography between K-nets
-- [ ] `gisInterval(gis, a, b)` — compute the interval between two elements in a Generalized Interval System
-- [ ] `GIS` type — set of elements, group of intervals, interval function
-- [ ] `buildGIS(elements, intervalFn)` — construct a GIS from elements and an interval function
-- [ ] Support standard GIS: pitch-class GIS (mod 12), pitch GIS (integers), duration GIS
+- [x] `KNet` class — Klumpenhouwer network: nodes (pitch classes or pitch-class sets) connected by T/I arrows
+- [x] `buildKNet(nodes, arrows)` — construct a K-net from nodes and labeled transformations
+- [x] `kNetIsography(knetA, knetB)` — test positive and negative isography between K-nets
+- [x] `gisInterval(gis, a, b)` — compute the interval between two elements in a Generalized Interval System
+- [x] `GIS` type — set of elements, group of intervals, interval function
+- [x] `buildGIS(elements, intervalFn)` — construct a GIS from elements and an interval function
+- [x] Support standard GIS: pitch-class GIS (mod 12), pitch GIS (integers), duration GIS
 
 ---
 
@@ -1260,17 +1260,17 @@
 
 ### 9.35 Figured Bass Tests
 
-- [ ] Parse "6" → first inversion triad
-- [ ] Parse "6/4" → second inversion triad
-- [ ] Realize C bass + "7" in C major → C-E-G-B
-- [ ] Accidentals in figures handled (#6 → raised sixth)
+- [x] Parse "6" → first inversion triad
+- [x] Parse "6/4" → second inversion triad
+- [x] Realize C bass + "7" in C major → C-E-G-B
+- [x] Accidentals in figures handled (#6 → raised sixth)
 
 ### 9.36 Klumpenhouwer / GIS Tests
 
-- [ ] K-net positive isography: two K-nets with same T/I pattern → true
-- [ ] K-net negative isography detected
-- [ ] GIS interval: pitch-class GIS, interval C→E = 4
-- [ ] GIS interval function is well-defined (unique interval for each pair)
+- [x] K-net positive isography: two K-nets with same T/I pattern → true
+- [x] K-net negative isography detected
+- [x] GIS interval: pitch-class GIS, interval C→E = 4
+- [x] GIS interval function is well-defined (unique interval for each pair)
 
 ### 9.37 Stochastic Generator Tests
 
@@ -1555,8 +1555,8 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 7.12: Harmonic network analysis
 - [ ] Section 7.13: Corpus tools
 - [x] Section 7.14: Evaluation metrics (mir_eval-style)
-- [ ] Section 7.15: Figured bass realization
-- [ ] Section 7.16: Klumpenhouwer networks and GIS
+- [x] Section 7.15: Figured bass realization
+- [x] Section 7.16: Klumpenhouwer networks and GIS
 
 **Remaining formats:**
 - [x] Section 5.6: Humdrum \*\*kern import
@@ -1681,8 +1681,8 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 7.12 Harmonic Networks | — | ✅ 100% | — |
 | 7.13 Corpus Tools | — | — | 0% |
 | 7.14 Evaluation Metrics | — | ✅ 100% | — |
-| 7.15 Figured Bass | — | — | 0% |
-| 7.16 Klumpenhouwer / GIS | — | — | 0% |
+| 7.15 Figured Bass | — | ✅ 100% | — |
+| 7.16 Klumpenhouwer / GIS | — | ✅ 100% | — |
 | 8. Composition Utilities (8.1-8.5) | — | — | ✅ 100% |
 | 8.6 Stochastic Generators | — | — | ✅ 100% |
 | 9. Testing | ✅ 100% | Grows with features | Grows with features |

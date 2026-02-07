@@ -316,6 +316,20 @@ export type {
   MarkovModel,
   ICPoint,
   EntropyPoint,
+  // Figured bass
+  FBAccidental,
+  FBInterval,
+  ParsedFiguredBass,
+  FiguredBassKey,
+  RealizedChord,
+  FiguredBassAnalysisOptions,
+  FiguredBassEvent,
+  // K-net / GIS
+  KNetArrowType,
+  KNetArrow,
+  KNet,
+  IsographyResult,
+  GIS,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -454,6 +468,18 @@ export {
   surpriseCurve,
   entropyCurve,
   combineModels,
+  // Figured bass
+  parseFiguredBass,
+  realizeFiguredBass,
+  figuredBassAnalysis,
+  // K-net / GIS
+  buildKNet,
+  kNetIsography,
+  buildGIS,
+  gisInterval,
+  pitchClassGIS,
+  pitchGIS,
+  durationGIS,
 } from './analysis/index.js';
 
 // Composition
