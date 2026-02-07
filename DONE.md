@@ -859,37 +859,37 @@
 
 ### 7.8 Voice Separation
 
-- [ ] `separateVoices(events, options?)` — assign voice labels to polyphonic events
-- [ ] Streaming algorithm based on auditory scene analysis principles:
-  - [ ] Pitch proximity (closer pitch → same voice)
-  - [ ] Temporal proximity (closer onset → same voice)
-  - [ ] Directional continuity (stepwise in same direction → same voice)
-  - [ ] Register consistency (voices stay within register bands)
-- [ ] Configurable: max voices, pitch distance threshold, gap threshold
-- [ ] Handle voice crossing (temporarily overlapping registers)
-- [ ] Return: events with voice assignments, or separate event arrays per voice
+- [x] `separateVoices(events, options?)` — assign voice labels to polyphonic events
+- [x] Streaming algorithm based on auditory scene analysis principles:
+  - [x] Pitch proximity (closer pitch → same voice)
+  - [x] Temporal proximity (closer onset → same voice)
+  - [x] Directional continuity (stepwise in same direction → same voice)
+  - [x] Register consistency (voices stay within register bands)
+- [x] Configurable: max voices, pitch distance threshold, gap threshold
+- [x] Handle voice crossing (temporarily overlapping registers)
+- [x] Return: events with voice assignments, or separate event arrays per voice
 
 ### 7.9 Counterpoint Analysis
 
-- [ ] `checkFirstSpecies(voice1, voice2, options?)` — evaluate against first-species rules
-- [ ] Rules: forbidden parallel perfect consonances (5ths, 8ves)
-- [ ] Rules: forbidden direct/hidden 5ths and 8ves
-- [ ] Rules: all intervals must be consonant (unison, 3rd, 5th, 6th, 8ve)
-- [ ] Rules: contrary/oblique motion preference
-- [ ] Rules: no voice crossing
-- [ ] Rules: begin and end on perfect consonance
-- [ ] Rules: stepwise motion preference, limited leaps
-- [ ] `checkSecondSpecies(voice1, voice2, options?)` — add passing tone rules
-- [ ] `checkFourthSpecies(voice1, voice2, options?)` — add suspension rules
-- [ ] Return: list of violations with type, severity, and position
-- [ ] `contrapuntalMotion(voice1, voice2)` — classify each interval as parallel, similar, contrary, or oblique
+- [x] `checkFirstSpecies(voice1, voice2, options?)` — evaluate against first-species rules
+- [x] Rules: forbidden parallel perfect consonances (5ths, 8ves)
+- [x] Rules: forbidden direct/hidden 5ths and 8ves
+- [x] Rules: all intervals must be consonant (unison, 3rd, 5th, 6th, 8ve)
+- [x] Rules: contrary/oblique motion preference
+- [x] Rules: no voice crossing
+- [x] Rules: begin and end on perfect consonance
+- [x] Rules: stepwise motion preference, limited leaps
+- [x] `checkSecondSpecies(voice1, voice2, options?)` — add passing tone rules
+- [x] `checkFourthSpecies(voice1, voice2, options?)` — add suspension rules
+- [x] Return: list of violations with type, severity, and position
+- [x] `contrapuntalMotion(voice1, voice2)` — classify each interval as parallel, similar, contrary, or oblique
 
 ### 7.10 Textural Analysis
 
-- [ ] `textureType(score, tick)` — classify texture at a time point: monophonic, homophonic, polyphonic, homorhythmic
-- [ ] `rhythmicIndependence(voice1, voice2)` — correlation of onset patterns (1 = identical rhythm, 0 = independent)
-- [ ] `textureProfile(score, windowSize)` — texture classification curve over time
-- [ ] `voiceCount(score, tick)` — number of simultaneously sounding voices at a given time
+- [x] `textureType(score, tick)` — classify texture at a time point: monophonic, homophonic, polyphonic, homorhythmic
+- [x] `rhythmicIndependence(voice1, voice2)` — correlation of onset patterns (1 = identical rhythm, 0 = independent)
+- [x] `textureProfile(score, windowSize)` — texture classification curve over time
+- [x] `voiceCount(score, tick)` — number of simultaneously sounding voices at a given time
 
 ### 7.11 Statistical Analysis
 
@@ -1148,18 +1148,18 @@
 
 ### 9.19 Voice Separation Tests
 
-- [ ] Two non-overlapping voices correctly separated
-- [ ] Voice crossing handled (voices swap registers temporarily)
-- [ ] Single voice: all events assigned to one voice
-- [ ] Chordal texture: simultaneous notes assigned to different voices
+- [x] Two non-overlapping voices correctly separated
+- [x] Voice crossing handled (voices swap registers temporarily)
+- [x] Single voice: all events assigned to one voice
+- [x] Chordal texture: simultaneous notes assigned to different voices
 
 ### 9.20 Counterpoint Tests
 
-- [ ] Parallel fifths detected between two voices
-- [ ] Parallel octaves detected
-- [ ] Valid first-species counterpoint passes with no violations
-- [ ] Direct/hidden fifths detected
-- [ ] Voice crossing detected
+- [x] Parallel fifths detected between two voices
+- [x] Parallel octaves detected
+- [x] Valid first-species counterpoint passes with no violations
+- [x] Direct/hidden fifths detected
+- [x] Voice crossing detected
 
 ### 9.21 Statistical Analysis Tests
 

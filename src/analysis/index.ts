@@ -104,3 +104,28 @@ export {
   bestChordScale,
   analyzeOverHarmony,
 } from './chord-scale.js';
+
+// Voice separation
+export type { VoiceSeparationOptions, Voice, VoiceSeparationResult } from './voice-separation.js';
+export { separateVoices } from './voice-separation.js';
+
+// Counterpoint analysis
+export type {
+  MotionType,
+  MotionClassification,
+  ViolationType,
+  ViolationSeverity,
+  CounterpointViolation,
+  CounterpointOptions,
+  CounterpointResult,
+} from './counterpoint.js';
+export {
+  checkFirstSpecies,
+  checkSecondSpecies,
+  checkFourthSpecies,
+  contrapuntalMotion,
+} from './counterpoint.js';
+
+// Textural analysis
+export type { TextureClass, TexturePoint } from './texture.js';
+export { textureType, rhythmicIndependence, textureProfile, voiceCount } from './texture.js';

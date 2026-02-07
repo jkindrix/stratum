@@ -226,6 +226,21 @@ export type {
   NoteHarmonyClassification,
   // Modulation
   ModulationPoint,
+  // Voice separation
+  VoiceSeparationOptions,
+  Voice,
+  VoiceSeparationResult,
+  // Counterpoint
+  MotionType,
+  MotionClassification,
+  ViolationType,
+  ViolationSeverity,
+  CounterpointViolation,
+  CounterpointOptions,
+  CounterpointResult,
+  // Texture
+  TextureClass,
+  TexturePoint,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -296,4 +311,16 @@ export {
   chordScaleScore,
   bestChordScale,
   analyzeOverHarmony,
+  // Voice separation
+  separateVoices,
+  // Counterpoint analysis
+  checkFirstSpecies,
+  checkSecondSpecies,
+  checkFourthSpecies,
+  contrapuntalMotion,
+  // Textural analysis
+  textureType,
+  rhythmicIndependence,
+  textureProfile,
+  voiceCount,
 } from './analysis/index.js';
