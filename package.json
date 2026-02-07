@@ -33,6 +33,10 @@
     "./analysis": {
       "types": "./dist/analysis/index.d.ts",
       "import": "./dist/analysis/index.js"
+    },
+    "./composition": {
+      "types": "./dist/composition/index.d.ts",
+      "import": "./dist/composition/index.js"
     }
   },
   "files": [

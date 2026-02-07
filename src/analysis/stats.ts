@@ -284,17 +284,25 @@ export function markovTransition(
  * @param startPc - Starting pitch class.
  * @param length - Number of PCs to generate.
  * @param rng - Optional random number generator (returns [0,1)). Defaults to Math.random.
+ * @param temperature - Optional temperature scaling (default 1.0).
+ *   T > 1.0 → more uniform (exploratory).
+ *   T < 1.0 → more peaked (conservative).
+ *   T = 1.0 → unchanged.
  * @returns Frozen array of generated pitch classes.
- * @throws {RangeError} If startPc is not in the chain's states or length < 1.
+ * @throws {RangeError} If startPc is not in the chain's states, length < 1, or temperature ≤ 0.
  */
 export function markovGenerate(
   chain: MarkovChain,
   startPc: number,
   length: number,
   rng?: () => number,
+  temperature?: number,
 ): readonly number[] {
   if (!Number.isInteger(length) || length < 1) {
     throw new RangeError(`length must be a positive integer (got ${length})`);
+  }
+  if (temperature !== undefined && (typeof temperature !== 'number' || temperature <= 0)) {
+    throw new RangeError(`temperature must be > 0 (got ${temperature})`);
   }
 
   const stateIndex = new Map<number, number>();
@@ -308,16 +316,38 @@ export function markovGenerate(
   }
 
   const random = rng ?? Math.random;
+  const temp = temperature ?? 1.0;
   const result: number[] = [startPc];
   let currentIdx = startIdx;
 
   for (let step = 1; step < length; step++) {
     const row = chain.matrix[currentIdx]!;
+
+    // Apply temperature scaling: p_i' = p_i^(1/T) / Σ(p_j^(1/T))
+    let scaledRow: number[];
+    if (temp === 1.0) {
+      scaledRow = row as unknown as number[];
+    } else {
+      const invT = 1.0 / temp;
+      scaledRow = [];
+      let sum = 0;
+      for (let j = 0; j < row.length; j++) {
+        const v = Math.pow(row[j] ?? 0, invT);
+        scaledRow.push(v);
+        sum += v;
+      }
+      if (sum > 0) {
+        for (let j = 0; j < scaledRow.length; j++) {
+          scaledRow[j] = (scaledRow[j] ?? 0) / sum;
+        }
+      }
+    }
+
     const r = random();
     let cumulative = 0;
     let nextIdx = 0;
-    for (let j = 0; j < row.length; j++) {
-      cumulative += row[j] ?? 0;
+    for (let j = 0; j < scaledRow.length; j++) {
+      cumulative += scaledRow[j] ?? 0;
       if (r < cumulative) {
         nextIdx = j;
         break;

@@ -960,51 +960,51 @@
 - [x] `trainMarkovChain(sequence, order?)` — build transition matrix from pitch, interval, or chord sequence
 - [x] `generateFromChain(chain, length, seed?)` — generate new sequence by sampling
 - [ ] Support first-order and higher-order chains (up to order 5)
-- [ ] Configurable: temperature parameter for controlling randomness
+- [x] Configurable: temperature parameter for controlling randomness
 
 ### 8.2 L-System Music Generator
 
-- [ ] `LSystem` class — axiom, production rules, iteration count
-- [ ] `.iterate(n)` — apply production rules n times
-- [ ] `.toSequence(mapping)` — map L-system string to musical events via user-defined mapping
-- [ ] Built-in mappings: pitch (character → pitch class), rhythm (character → duration)
-- [ ] Support context-free and context-sensitive rules
+- [x] `LSystem` class — axiom, production rules, iteration count
+- [x] `.iterate(n)` — apply production rules n times
+- [x] `.toSequence(mapping)` — map L-system string to musical events via user-defined mapping
+- [x] Built-in mappings: pitch (character → pitch class), rhythm (character → duration)
+- [x] Support context-free and context-sensitive rules
 
 ### 8.3 Cellular Automaton Generator
 
-- [ ] `elementaryCA(rule, width, steps)` — 1D elementary cellular automaton (rules 0-255)
-- [ ] `caToEvents(grid, mapping)` — map CA grid to musical events
-- [ ] Built-in mappings: row → time, column → pitch, cell state → on/off
-- [ ] Support for Game of Life (2D) as well
+- [x] `elementaryCA(rule, width, steps)` — 1D elementary cellular automaton (rules 0-255)
+- [x] `caToEvents(grid, mapping)` — map CA grid to musical events
+- [x] Built-in mappings: row → time, column → pitch, cell state → on/off
+- [x] Support for Game of Life (2D) as well
 
 ### 8.4 Constraint Helpers
 
-- [ ] `checkParallelFifths(voice1, voice2)` — detect parallel perfect fifths
-- [ ] `checkParallelOctaves(voice1, voice2)` — detect parallel octaves
-- [ ] `checkVoiceCrossing(voices)` — detect voice crossing
-- [ ] `isInRange(events, low, high)` — verify all events within pitch range
-- [ ] `checkLeapResolution(events)` — verify leaps larger than a 4th resolve by step
+- [x] `checkParallelFifths(voice1, voice2)` — detect parallel perfect fifths
+- [x] `checkParallelOctaves(voice1, voice2)` — detect parallel octaves
+- [x] `checkVoiceCrossing(voices)` — detect voice crossing
+- [x] `isInRange(events, low, high)` — verify all events within pitch range
+- [x] `checkLeapResolution(events)` — verify leaps larger than a 4th resolve by step
 
 ### 8.5 Xenakis Sieve Construction
 
-- [ ] `Sieve` class — logical formula over residual classes
-- [ ] `sieve(modulus, residue)` — elementary sieve: `{n : n ≡ residue (mod modulus)}`
-- [ ] `.union(other)` — logical OR of sieves
-- [ ] `.intersection(other)` — logical AND of sieves
-- [ ] `.complement()` — logical NOT
-- [ ] `.realize(low, high)` — generate all integers in range satisfying the sieve
-- [ ] `.toPitchClasses()` — map realized integers to pitch classes (mod 12)
-- [ ] `.toScale(octaveSize?)` — map to a scale within a given modular space
+- [x] `Sieve` class — logical formula over residual classes
+- [x] `sieve(modulus, residue)` — elementary sieve: `{n : n ≡ residue (mod modulus)}`
+- [x] `.union(other)` — logical OR of sieves
+- [x] `.intersection(other)` — logical AND of sieves
+- [x] `.complement()` — logical NOT
+- [x] `.realize(low, high)` — generate all integers in range satisfying the sieve
+- [x] `.toPitchClasses()` — map realized integers to pitch classes (mod 12)
+- [x] `.toScale(octaveSize?)` — map to a scale within a given modular space
 
 ### 8.6 Stochastic Distribution Generators
 
-- [ ] `poissonOnsets(rate, duration, seed?)` — generate onset times from Poisson process
-- [ ] `gaussianPitches(mean, stdDev, count, seed?)` — generate pitch values from Gaussian distribution
-- [ ] `uniformRhythm(min, max, count, seed?)` — generate durations from uniform distribution
-- [ ] `exponentialDurations(rate, count, seed?)` — generate durations from exponential distribution
-- [ ] `cauchyPitches(location, scale, count, seed?)` — generate pitches from Cauchy distribution (heavy tails)
-- [ ] `weightedChoice(options, weights, count?, seed?)` — general weighted random selection (pitch classes, intervals, chords)
-- [ ] All generators accept optional seed for reproducibility
+- [x] `poissonOnsets(rate, duration, seed?)` — generate onset times from Poisson process
+- [x] `gaussianPitches(mean, stdDev, count, seed?)` — generate pitch values from Gaussian distribution
+- [x] `uniformRhythm(min, max, count, seed?)` — generate durations from uniform distribution
+- [x] `exponentialDurations(rate, count, seed?)` — generate durations from exponential distribution
+- [x] `cauchyPitches(location, scale, count, seed?)` — generate pitches from Cauchy distribution (heavy tails)
+- [x] `weightedChoice(options, weights, count?, seed?)` — general weighted random selection (pitch classes, intervals, chords)
+- [x] All generators accept optional seed for reproducibility
 
 ---
 
@@ -1186,10 +1186,10 @@
 ### 9.24 Composition Utility Tests
 
 - [x] Markov generator: output length matches requested length
-- [ ] L-system: known axiom/rules produce expected string after n iterations
-- [ ] Cellular automaton: Rule 110 produces known pattern
-- [ ] Sieve: `3@0 ∪ 4@0` realized correctly in range
-- [ ] Constraint helpers: parallel fifths detected in known examples
+- [x] L-system: known axiom/rules produce expected string after n iterations
+- [x] Cellular automaton: Rule 110 produces known pattern
+- [x] Sieve: `3@0 ∪ 4@0` realized correctly in range
+- [x] Constraint helpers: parallel fifths detected in known examples
 
 ### 9.25 Pitch Spelling Tests
 
@@ -1274,10 +1274,10 @@
 
 ### 9.37 Stochastic Generator Tests
 
-- [ ] Poisson onsets: mean rate approximately matches requested rate
-- [ ] Gaussian pitches: mean and std dev approximately match parameters
-- [ ] Seeded generators produce identical output for same seed
-- [ ] Weighted choice: distribution approximately matches weights over large sample
+- [x] Poisson onsets: mean rate approximately matches requested rate
+- [x] Gaussian pitches: mean and std dev approximately match parameters
+- [x] Seeded generators produce identical output for same seed
+- [x] Weighted choice: distribution approximately matches weights over large sample
 
 ---
 

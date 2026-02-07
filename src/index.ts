@@ -358,3 +358,44 @@ export {
   voiceSeparationAccuracy,
   overlapRatio,
 } from './analysis/index.js';
+
+// Composition
+export type {
+  WeightedOption,
+  ProductionRule,
+  SymbolMapping,
+  LSystemEvent,
+  CellGrid,
+  CAMapping,
+  CAEvent,
+  ParallelViolation,
+  CrossingViolation,
+  RangeViolation,
+  LeapViolation,
+} from './composition/index.js';
+export {
+  // Stochastic generators
+  poissonOnsets,
+  gaussianPitches,
+  uniformRhythm,
+  exponentialDurations,
+  cauchyPitches,
+  weightedChoice,
+  // Xenakis Sieve
+  Sieve,
+  sieve,
+  // L-System
+  LSystem,
+  PITCH_MAPPING,
+  RHYTHM_MAPPING,
+  // Cellular Automaton
+  elementaryCA,
+  gameOfLife,
+  caToEvents,
+  // Composition Constraints
+  checkParallelFifths,
+  checkParallelOctaves,
+  checkVoiceCrossing,
+  isInRange,
+  checkLeapResolution,
+} from './composition/index.js';
