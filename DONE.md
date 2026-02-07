@@ -823,39 +823,39 @@
 
 #### 7.7.1 Twelve-Tone Matrix
 
-- [ ] `TwelveToneRow` class — represents a row as an ordered sequence of 12 pitch classes
-- [ ] `.matrix()` — generate 12×12 matrix of all 48 row forms
-- [ ] `.prime(n)` — P_n: row n of matrix, read left to right
-- [ ] `.retrograde(n)` — R_n: row n read right to left
-- [ ] `.inversion(n)` — I_n: column n read top to bottom
-- [ ] `.retrogradeInversion(n)` — RI_n: column n read bottom to top
-- [ ] `.identifyForm(sequence)` — given 12 notes, identify which of 48 forms it matches (or null)
-- [ ] `.isAllInterval()` — test if row contains all 11 interval classes
-- [ ] `allIntervalRows()` — enumerate or sample from the 1,928 all-interval series
+- [x] `TwelveToneRow` class — represents a row as an ordered sequence of 12 pitch classes
+- [x] `.matrix()` — generate 12×12 matrix of all 48 row forms
+- [x] `.prime(n)` — P_n: row n of matrix, read left to right
+- [x] `.retrograde(n)` — R_n: row n read right to left
+- [x] `.inversion(n)` — I_n: column n read top to bottom
+- [x] `.retrogradeInversion(n)` — RI_n: column n read bottom to top
+- [x] `.identifyForm(sequence)` — given 12 notes, identify which of 48 forms it matches (or null)
+- [x] `.isAllInterval()` — test if row contains all 11 interval classes
+- [x] `allIntervalRows()` — enumerate or sample from the 1,928 all-interval series
 
 #### 7.7.2 Combinatoriality
 
-- [ ] `isHexachordallyCombinatorialP(row)` — P-combinatorial: first hexachord of P₀ + first hexachord of some Pₙ = aggregate
-- [ ] `isHexachordallyCombinatorialI(row)` — I-combinatorial: P₀ first hex + Iₙ first hex = aggregate
-- [ ] `isHexachordallyCombinatorialR(row)` — R-combinatorial
-- [ ] `isHexachordallyCombinatorialRI(row)` — RI-combinatorial
-- [ ] `isAllCombinatorialHexachord(hexachord)` — test if hexachord is combinatorial under all 4 operations
-- [ ] `classifyAllCombinatorialType(hexachord)` — Babbitt's classification (A-F)
+- [x] `isHexachordallyCombinatorialP(row)` — P-combinatorial: first hexachord of P₀ + first hexachord of some Pₙ = aggregate
+- [x] `isHexachordallyCombinatorialI(row)` — I-combinatorial: P₀ first hex + Iₙ first hex = aggregate
+- [x] `isHexachordallyCombinatorialR(row)` — R-combinatorial
+- [x] `isHexachordallyCombinatorialRI(row)` — RI-combinatorial
+- [x] `isAllCombinatorialHexachord(hexachord)` — test if hexachord is combinatorial under all 4 operations
+- [x] `classifyAllCombinatorialType(hexachord)` — Babbitt's classification (A-F)
 
 #### 7.7.3 Serial Operations
 
-- [ ] `rotate(sequence, n)` — cyclic permutation of ordered pitch sequence
-- [ ] `multiply(sequence, factor)` — multiplicative operation: `(pc * factor) mod 12`
-- [ ] `M5(sequence)` — multiply by 5 (maps semitones to fourths)
-- [ ] `M7(sequence)` — multiply by 7 (maps semitones to fifths)
-- [ ] `setMultiplication(setA, setB)` — Boulez's frequency multiplication: `{(a+b) mod 12 : a∈A, b∈B}`
-- [ ] `intervalExpansion(sequence, factor)` — expand/contract intervals by factor
+- [x] `rotate(sequence, n)` — cyclic permutation of ordered pitch sequence
+- [x] `multiply(sequence, factor)` — multiplicative operation: `(pc * factor) mod 12`
+- [x] `M5(sequence)` — multiply by 5 (maps semitones to fourths)
+- [x] `M7(sequence)` — multiply by 7 (maps semitones to fifths)
+- [x] `setMultiplication(setA, setB)` — Boulez's frequency multiplication: `{(a+b) mod 12 : a∈A, b∈B}`
+- [x] `intervalExpansion(sequence, factor)` — expand/contract intervals by factor
 
 #### 7.7.4 Row Invariance
 
-- [ ] `invariantPcs(row, formA, formB)` — pitch classes shared between two row forms at corresponding positions
-- [ ] `segmentalInvariance(row, segmentSize)` — find segments that map to themselves under transposition/inversion
-- [ ] `derivedRow(generator)` — test if row can be derived from transformations of a single trichord/tetrachord
+- [x] `invariantPcs(row, formA, formB)` — pitch classes shared between two row forms at corresponding positions
+- [x] `segmentalInvariance(row, segmentSize)` — find segments that map to themselves under transposition/inversion
+- [x] `derivedRow(generator)` — test if row can be derived from transformations of a single trichord/tetrachord
 
 ### 7.8 Voice Separation
 
@@ -1143,8 +1143,8 @@
 - [x] Twelve-tone matrix: Webern Op. 21 row produces known matrix
 - [x] Row identification: correctly matches P, I, R, RI forms
 - [x] Combinatoriality: Schoenberg's row from Op. 33a is hexachordally combinatorial
-- [ ] Set multiplication: {0,1,2} × {0,4,7} produces correct result
-- [ ] M5: pitch class 1 → 5, 2 → 10, etc.
+- [x] Set multiplication: {0,1,2} × {0,4,7} produces correct result
+- [x] M5: pitch class 1 → 5, 2 → 10, etc.
 
 ### 9.19 Voice Separation Tests
 
@@ -1548,7 +1548,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 3.5: GTTM-inspired metrical analysis
 - [x] Section 4.7: Information-theoretic expectation
 - [x] Section 7.6.3: SIA/SIATEC repetition discovery
-- [ ] Section 7.7.4: Row invariance analysis
+- [x] Section 7.7.4: Row invariance analysis
 - [x] Section 7.8: Voice separation
 - [x] Section 7.9: Counterpoint analysis
 - [x] Section 7.10: Textural analysis
@@ -1673,7 +1673,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 7.4 Chord-Scale Theory | — | ✅ 100% | — |
 | 7.6.1-7.6.2 SSM / Novelty | — | ✅ 100% | — |
 | 7.6.3 SIA/SIATEC | — | — | ✅ 100% |
-| 7.7 Post-Tonal | — | ✅ 100% | — |
+| 7.7 Post-Tonal | — | ✅ 100% | ✅ 100% |
 | 7.8 Voice Separation | — | ✅ 100% | — |
 | 7.9 Counterpoint | — | ✅ 100% | — |
 | 7.10 Textural Analysis | — | ✅ 100% | — |

@@ -73,7 +73,19 @@ export {
 } from './neo-riemannian.js';
 
 // Twelve-tone serial operations
-export type { TwelveToneRow, TwelveToneMatrix, RowForm } from './serial.js';
+export type {
+  TwelveToneRow,
+  TwelveToneMatrix,
+  RowForm,
+  RowFormIdentification,
+  AllCombinatorialType,
+  AllCombinatorialClassification,
+  AllIntervalRowOptions,
+  SegmentalInvarianceResult,
+  SegmentMapping,
+  DerivedRowResult,
+  DerivedRowTransformation,
+} from './serial.js';
 export {
   createRow,
   twelvetoneMatrix,
@@ -82,6 +94,22 @@ export {
   rowRotate,
   combinatoriality,
   invariantPcs,
+  identifyForm,
+  isAllInterval,
+  allIntervalRows,
+  multiply,
+  M5,
+  M7,
+  setMultiplication,
+  intervalExpansion,
+  isHexachordallyCombinatorialP,
+  isHexachordallyCombinatorialI,
+  isHexachordallyCombinatorialR,
+  isHexachordallyCombinatorialRI,
+  isAllCombinatorialHexachord,
+  classifyAllCombinatorialType,
+  segmentalInvariance,
+  derivedRow,
 } from './serial.js';
 
 // Statistical analysis
