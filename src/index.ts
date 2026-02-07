@@ -184,8 +184,48 @@ export type { ScoreJSON, SclDegree, SclData, KbmData, XmlElement, XmlSerializeOp
 export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON, parseScl, parseKbm, tuningFromScl, sclToString, kbmToString, parseXml, serializeXml, createElement, findChild, findChildren, textContent, childText, childInt, musicXmlToScore, scoreToMusicXML, kernToScore, abcToScore, meiToScore, scoreToLilyPond, toJAMS, toRomanText, fromRomanText } from './io/index.js';
 
 // Rendering
-export type { RenderOptions, TensionRenderOptions, OverlayOptions } from './render/index.js';
-export { renderChromaticStaff, renderTensionCurve, renderOverlay } from './render/index.js';
+export type {
+  RenderOptions,
+  TensionRenderOptions,
+  OverlayOptions,
+  ColorStop,
+  PCDistributionOptions,
+  ICV,
+  ICVRadarOptions,
+  CircleOfFifthsOptions,
+  FormSection,
+  FormDiagramOptions,
+  SSMHeatmapOptions,
+  TonnetzOptions,
+  ChordGraphOptions,
+  JILatticeNode,
+  JILatticeOptions,
+  PitchSpacePlotOptions,
+  WavescapeOptions,
+} from './render/index.js';
+export {
+  renderChromaticStaff,
+  renderTensionCurve,
+  renderOverlay,
+  escapeXml,
+  svgOpen,
+  svgClose,
+  svgEmpty,
+  colorRamp,
+  VIRIDIS_STOPS,
+  hslToRgb,
+  polylinePoints,
+  renderPCDistribution,
+  renderICVRadar,
+  renderCircleOfFifths,
+  renderFormDiagram,
+  renderSSM,
+  renderTonnetz,
+  renderChordGraph,
+  renderJILattice,
+  renderPitchSpacePlot,
+  renderWavescape,
+} from './render/index.js';
 
 // Analysis
 export type {

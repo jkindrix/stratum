@@ -1,4 +1,5 @@
 import type { Score } from '../core/types.js';
+import { escapeXml } from './svg-utils.js';
 
 /** Options for chromatic staff SVG rendering */
 export interface RenderOptions {
@@ -36,16 +37,6 @@ const DEFAULTS: Required<RenderOptions> = {
   marginLeft: 44,
   padding: 20,
 };
-
-/** Escape text for safe XML embedding. */
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
 
 /**
  * Render a score as an SVG chromatic staff.

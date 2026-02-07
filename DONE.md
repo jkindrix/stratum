@@ -642,87 +642,87 @@
 
 ### 6.3 Tonnetz Visualization
 
-- [ ] `renderTonnetz(options?)` — SVG Tonnetz lattice (toroidal, triangulated)
-- [ ] Highlight active pitch classes (from chord or set)
-- [ ] Highlight triadic triangles (major = downward, minor = upward)
-- [ ] Animate chord progression as a path through the lattice
-- [ ] Show NRT transformation labels on edges (P, L, R)
-- [ ] Configurable: colors, node size, layout (triangular vs. hexagonal)
+- [x] `renderTonnetz(options?)` — SVG Tonnetz lattice (toroidal, triangulated)
+- [x] Highlight active pitch classes (from chord or set)
+- [x] Highlight triadic triangles (major = downward, minor = upward)
+- [x] Animate chord progression as a path through the lattice
+- [x] Show NRT transformation labels on edges (P, L, R)
+- [x] Configurable: colors, node size, layout (triangular vs. hexagonal)
 
 ### 6.4 Circle of Fifths Visualization
 
-- [ ] `renderCircleOfFifths(options?)` — SVG circle-of-fifths diagram
-- [ ] Highlight active pitch classes
-- [ ] Highlight current key (major/minor arcs)
-- [ ] Show chord quality on each degree (major, minor, diminished)
-- [ ] Configurable: colors, radius, label format (sharps vs. flats)
+- [x] `renderCircleOfFifths(options?)` — SVG circle-of-fifths diagram
+- [x] Highlight active pitch classes
+- [x] Highlight current key (major/minor arcs)
+- [x] Show chord quality on each degree (major, minor, diminished)
+- [x] Configurable: colors, radius, label format (sharps vs. flats)
 
 ### 6.5 Interval-Class Vector Radar Chart
 
-- [ ] `renderICVRadar(icv, options?)` — SVG radar/spider chart for 6-element interval-class vector
-- [ ] Hexagonal axis layout (IC1 through IC6)
-- [ ] Support overlay of multiple ICVs for comparison
-- [ ] Configurable: colors, scale, labels
+- [x] `renderICVRadar(icv, options?)` — SVG radar/spider chart for 6-element interval-class vector
+- [x] Hexagonal axis layout (IC1 through IC6)
+- [x] Support overlay of multiple ICVs for comparison
+- [x] Configurable: colors, scale, labels
 
 ### 6.6 Self-Similarity Matrix Heatmap
 
-- [ ] `renderSSM(matrix, options?)` — SVG heatmap of self-similarity matrix
-- [ ] Color scale: low similarity (dark) → high similarity (light)
-- [ ] Time axis labels (measures or seconds)
-- [ ] Overlay novelty curve peaks as vertical markers
-- [ ] Configurable: color scheme, resolution, axis labels
+- [x] `renderSSM(matrix, options?)` — SVG heatmap of self-similarity matrix
+- [x] Color scale: low similarity (dark) → high similarity (light)
+- [x] Time axis labels (measures or seconds)
+- [x] Overlay novelty curve peaks as vertical markers
+- [x] Configurable: color scheme, resolution, axis labels
 
 ### 6.7 Chord Transition Graph
 
-- [ ] `renderChordGraph(graph, options?)` — SVG force-directed graph of chord transitions
-- [ ] Node size proportional to frequency
-- [ ] Edge width proportional to transition probability
-- [ ] Edge arrows for direction
-- [ ] Node labels (chord names)
-- [ ] Configurable: layout algorithm, colors, thresholds
+- [x] `renderChordGraph(graph, options?)` — SVG force-directed graph of chord transitions
+- [x] Node size proportional to frequency
+- [x] Edge width proportional to transition probability
+- [x] Edge arrows for direction
+- [x] Node labels (chord names)
+- [x] Configurable: layout algorithm, colors, thresholds
 
 ### 6.8 Pitch-Class Distribution Chart
 
-- [ ] `renderPCDistribution(distribution, options?)` — SVG bar chart of 12 pitch-class frequencies
-- [ ] Horizontal or circular layout
-- [ ] Support overlay of key profile for comparison
-- [ ] Configurable: colors, orientation, labels
+- [x] `renderPCDistribution(distribution, options?)` — SVG bar chart of 12 pitch-class frequencies
+- [x] Horizontal or circular layout
+- [x] Support overlay of key profile for comparison
+- [x] Configurable: colors, orientation, labels
 
 ### 6.9 Just Intonation Lattice Visualization
 
-- [ ] `renderJILattice(intervals, options?)` — SVG lattice of just intonation intervals
-- [ ] 5-limit 2D lattice: horizontal axis = fifths (3/2), vertical axis = thirds (5/4)
-- [ ] 7-limit 3D projection: add depth axis for septimal intervals (7/4)
-- [ ] Highlight active intervals or scale degrees
-- [ ] Show ratio labels on nodes
-- [ ] Configurable: colors, node size, prime limit, projection angle (for 3D)
+- [x] `renderJILattice(intervals, options?)` — SVG lattice of just intonation intervals
+- [x] 5-limit 2D lattice: horizontal axis = fifths (3/2), vertical axis = thirds (5/4)
+- [x] 7-limit 3D projection: add depth axis for septimal intervals (7/4)
+- [x] Highlight active intervals or scale degrees
+- [x] Show ratio labels on nodes
+- [x] Configurable: colors, node size, prime limit, projection angle (for 3D)
 
 ### 6.10 Wavescape Visualization
 
-- [ ] `renderWavescape(score, options?)` — SVG hierarchical wavescape (DFT-based)
-- [ ] Compute DFT coefficients at multiple hierarchical levels (note, beat, measure, section)
-- [ ] Map DFT magnitude/phase to color (hue = phase, saturation = magnitude)
-- [ ] Triangular hierarchical layout (time on x-axis, level on y-axis)
-- [ ] Configurable: DFT component to display (diadicity, triadicity, diatonicity, etc.)
-- [ ] Configurable: color mapping, resolution, orientation
+- [x] `renderWavescape(score, options?)` — SVG hierarchical wavescape (DFT-based)
+- [x] Compute DFT coefficients at multiple hierarchical levels (note, beat, measure, section)
+- [x] Map DFT magnitude/phase to color (hue = phase, saturation = magnitude)
+- [x] Triangular hierarchical layout (time on x-axis, level on y-axis)
+- [x] Configurable: DFT component to display (diadicity, triadicity, diatonicity, etc.)
+- [x] Configurable: color mapping, resolution, orientation
 
 ### 6.11 Form/Structure Diagram
 
-- [ ] `renderFormDiagram(boundaries, labels?, options?)` — SVG structural form diagram
-- [ ] Horizontal segmented bar showing sections (A, B, A', C, etc.)
-- [ ] Color-coded by section identity (repeated sections share colors)
-- [ ] Time axis labels (measures or seconds)
-- [ ] Overlay novelty curve below the form bar
-- [ ] Configurable: colors, height, label format
+- [x] `renderFormDiagram(boundaries, labels?, options?)` — SVG structural form diagram
+- [x] Horizontal segmented bar showing sections (A, B, A', C, etc.)
+- [x] Color-coded by section identity (repeated sections share colors)
+- [x] Time axis labels (measures or seconds)
+- [x] Overlay novelty curve below the form bar
+- [x] Configurable: colors, height, label format
 
 ### 6.12 Pitch-Space Plots
 
-- [ ] `renderPitchSpacePlot(events, geometry, options?)` — SVG pitch-space visualization
-- [ ] Geometry: linear (pitch vs. time, standard piano-roll variant)
-- [ ] Geometry: circular (pitch classes on circle, time as radius or animation)
-- [ ] Geometry: spiral (pitch helix combining octave and chroma)
-- [ ] Highlight melodic contour paths
-- [ ] Configurable: colors, geometry type, axis labels, point size
+- [x] `renderPitchSpacePlot(events, geometry, options?)` — SVG pitch-space visualization
+- [x] Geometry: linear (pitch vs. time, standard piano-roll variant)
+- [x] Geometry: circular (pitch classes on circle, time as radius or animation)
+- [x] Geometry: spiral (pitch helix combining octave and chroma)
+- [x] Highlight melodic contour paths
+- [x] Configurable: colors, geometry type, axis labels, point size
 
 ---
 
@@ -1176,12 +1176,12 @@
 
 ### 9.23 Visualization Tests
 
-- [ ] Tonnetz SVG: valid SVG with correct number of nodes (12)
-- [ ] Circle of fifths SVG: valid SVG, correct pitch-class ordering
-- [ ] ICV radar: valid SVG, 6 axes present
-- [ ] SSM heatmap: valid SVG, dimensions match matrix size
-- [ ] Chord graph: valid SVG, nodes and edges present
-- [ ] PC distribution: valid SVG, 12 bars
+- [x] Tonnetz SVG: valid SVG with correct number of nodes (12)
+- [x] Circle of fifths SVG: valid SVG, correct pitch-class ordering
+- [x] ICV radar: valid SVG, 6 axes present
+- [x] SSM heatmap: valid SVG, dimensions match matrix size
+- [x] Chord graph: valid SVG, nodes and edges present
+- [x] PC distribution: valid SVG, 12 bars
 
 ### 9.24 Composition Utility Tests
 
@@ -1239,10 +1239,10 @@
 
 ### 9.32 JI Lattice / Wavescape / Form Diagram Tests
 
-- [ ] JI lattice SVG: valid SVG, 5-limit lattice has expected node layout
-- [ ] Wavescape SVG: valid SVG, triangular layout with correct dimensions
-- [ ] Form diagram SVG: valid SVG, section count matches input boundaries
-- [ ] Pitch-space plot SVG: valid SVG, correct geometry for each type
+- [x] JI lattice SVG: valid SVG, 5-limit lattice has expected node layout
+- [x] Wavescape SVG: valid SVG, triangular layout with correct dimensions
+- [x] Form diagram SVG: valid SVG, section count matches input boundaries
+- [x] Pitch-space plot SVG: valid SVG, correct geometry for each type
 
 ### 9.33 Corpus Tool Tests
 
@@ -1523,18 +1523,18 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 5.9: JAMS and RomanText export
 
 **Visualization:**
-- [ ] Section 6.3: Tonnetz visualization
-- [ ] Section 6.4: Circle of fifths
-- [ ] Section 6.5: ICV radar chart
-- [ ] Section 6.6: Self-similarity matrix heatmap
-- [ ] Section 6.8: Pitch-class distribution chart
+- [x] Section 6.3: Tonnetz visualization
+- [x] Section 6.4: Circle of fifths
+- [x] Section 6.5: ICV radar chart
+- [x] Section 6.6: Self-similarity matrix heatmap
+- [x] Section 6.8: Pitch-class distribution chart
 
 **Tuning:**
 - [x] Section 2.8.1: Scala .scl/.kbm support
 
 **Tests and docs:**
 - [ ] All Section 9.3-9.18 tests passing
-- [ ] All Section 9.23 visualization tests passing
+- [x] All Section 9.23 visualization tests passing
 - [ ] All Section 9.25-9.27 tests passing (pitch spelling, EMD, cent/ratio/EDO)
 - [ ] README updated with v2 examples
 - [ ] JSDoc on all v2 exports
@@ -1581,11 +1581,11 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 8.6: Stochastic distribution generators
 
 **Visualization:**
-- [ ] Section 6.7: Chord transition graph
-- [ ] Section 6.9: Just intonation lattice visualization
-- [ ] Section 6.10: Wavescape visualization
-- [ ] Section 6.11: Form/structure diagram
-- [ ] Section 6.12: Pitch-space plots
+- [x] Section 6.7: Chord transition graph
+- [x] Section 6.9: Just intonation lattice visualization
+- [x] Section 6.10: Wavescape visualization
+- [x] Section 6.11: Form/structure diagram
+- [x] Section 6.12: Pitch-space plots
 
 **Tests, docs, build:**
 - [ ] All Section 9.19-9.24 tests passing
@@ -1660,12 +1660,12 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 5.13 MIDI Extensions (MPE/2.0) | — | — | 0% |
 | 5.14 OSC Output | — | — | 0% |
 | 6. Render Module (6.1-6.2) | ✅ 100% | — | — |
-| 6.3-6.6, 6.8 Visualizations | — | 0% | — |
-| 6.7 Chord Graph | — | — | 0% |
-| 6.9 JI Lattice | — | — | 0% |
-| 6.10 Wavescape | — | — | 0% |
-| 6.11 Form Diagram | — | — | 0% |
-| 6.12 Pitch-Space Plots | — | — | 0% |
+| 6.3-6.6, 6.8 Visualizations | — | ✅ 100% | — |
+| 6.7 Chord Graph | — | — | ✅ 100% |
+| 6.9 JI Lattice | — | — | ✅ 100% |
+| 6.10 Wavescape | — | — | ✅ 100% |
+| 6.11 Form Diagram | — | — | ✅ 100% |
+| 6.12 Pitch-Space Plots | — | — | ✅ 100% |
 | 7. Analysis (7.2, 7.5-7.6) | ✅ 100% | — | — |
 | 7.1 Key Detection | — | ✅ 100% | — |
 | 7.2.1 Enhanced Roman Numerals | — | ✅ 100% | — |

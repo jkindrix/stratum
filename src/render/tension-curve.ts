@@ -1,4 +1,5 @@
 import type { TensionCurve } from '../tension/tension.js';
+import { escapeXml } from './svg-utils.js';
 
 /** Options for tension curve SVG rendering */
 export interface TensionRenderOptions {
@@ -36,16 +37,6 @@ const DEFAULTS: Required<TensionRenderOptions> = {
   timeAxis: 'seconds',
   strokeWidth: 2,
 };
-
-/** Escape text for safe XML embedding. */
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
 
 /**
  * Render a tension curve as an SVG line chart.
