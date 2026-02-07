@@ -513,27 +513,27 @@
 
 ### 5.6 Humdrum \*\*kern Import
 
-- [ ] Parse \*\*kern spine data (pitch, duration, accidentals, articulations, ties, slurs, beaming)
-- [ ] Handle multi-spine (multi-voice) files
-- [ ] Parse barline tokens (including structural markers)
-- [ ] Parse tandem interpretations (\*M for meter, \*k for key signature, \*clef)
-- [ ] Handle null tokens (sustained notes in grid representation)
-- [ ] Handle spine path operators (\*+ add, \*- remove, \*^ split, \*v merge)
-- [ ] Convert kern pitch encoding (A-G, case for octave, # and - for accidentals) to Pitch
-- [ ] Convert kern duration encoding (reciprocal values) to ticks
+- [x] Parse \*\*kern spine data (pitch, duration, accidentals, articulations, ties, slurs, beaming)
+- [x] Handle multi-spine (multi-voice) files
+- [x] Parse barline tokens (including structural markers)
+- [x] Parse tandem interpretations (\*M for meter, \*k for key signature, \*clef)
+- [x] Handle null tokens (sustained notes in grid representation)
+- [x] Handle spine path operators (\*+ add, \*- remove, \*^ split, \*v merge)
+- [x] Convert kern pitch encoding (A-G, case for octave, # and - for accidentals) to Pitch
+- [x] Convert kern duration encoding (reciprocal values) to ticks
 
 ### 5.7 ABC Notation Import
 
-- [ ] Parse ABC header fields: X (index), T (title), M (meter), L (default length), K (key), Q (tempo)
-- [ ] Parse ABC note encoding: C-B (octave 4), c-b (octave 5), ' and , for octave shifts
-- [ ] Parse accidentals: ^ (sharp), _ (flat), = (natural)
-- [ ] Parse duration modifiers: /2 (half), 2 (double), 3/2 (dotted), etc.
-- [ ] Parse rests: z and Z
-- [ ] Parse barlines: | || |] [| :| |:
-- [ ] Parse chords: [CEG]
-- [ ] Parse ties: -
-- [ ] Handle multi-voice: V: field
-- [ ] Convert to Score data model
+- [x] Parse ABC header fields: X (index), T (title), M (meter), L (default length), K (key), Q (tempo)
+- [x] Parse ABC note encoding: C-B (octave 4), c-b (octave 5), ' and , for octave shifts
+- [x] Parse accidentals: ^ (sharp), _ (flat), = (natural)
+- [x] Parse duration modifiers: /2 (half), 2 (double), 3/2 (dotted), etc.
+- [x] Parse rests: z and Z
+- [x] Parse barlines: | || |] [| :| |:
+- [x] Parse chords: [CEG]
+- [x] Parse ties: -
+- [x] Handle multi-voice: V: field
+- [x] Convert to Score data model
 
 ### 5.8 Scala Tuning File I/O
 
@@ -544,31 +544,31 @@
 
 ### 5.9 Analysis Result Export
 
-- [ ] `toJAMS(annotations, metadata?)` — export analysis results in JAMS format (JSON Annotated Music Specification)
-- [ ] Support JAMS namespaces: chord, beat, segment, key, pitch_class_profile
-- [ ] `toRomanText(analysis, options?)` — export Roman numeral analysis in .rntxt format
-- [ ] `fromRomanText(text)` — import .rntxt harmonic analysis
+- [x] `toJAMS(annotations, metadata?)` — export analysis results in JAMS format (JSON Annotated Music Specification)
+- [x] Support JAMS namespaces: chord, beat, segment, key, pitch_class_profile
+- [x] `toRomanText(analysis, options?)` — export Roman numeral analysis in .rntxt format
+- [x] `fromRomanText(text)` — import .rntxt harmonic analysis
 
 ### 5.10 MEI Import
 
-- [ ] Parse MEI (Music Encoding Initiative) 5.0 files
-- [ ] Extract: notes (pitch, duration, onset, voice, staff)
-- [ ] Extract: time signatures and key signatures
-- [ ] Extract: part/staff definitions
-- [ ] Extract: articulations and dynamics
-- [ ] Handle: multiple layers per staff
-- [ ] Handle: critical apparatus (editorial variants) — extract default reading
-- [ ] Graceful handling of partial/non-conformant files (best-effort with warnings)
+- [x] Parse MEI (Music Encoding Initiative) 5.0 files
+- [x] Extract: notes (pitch, duration, onset, voice, staff)
+- [x] Extract: time signatures and key signatures
+- [x] Extract: part/staff definitions
+- [x] Extract: articulations and dynamics
+- [x] Handle: multiple layers per staff
+- [x] Handle: critical apparatus (editorial variants) — extract default reading
+- [x] Graceful handling of partial/non-conformant files (best-effort with warnings)
 
 ### 5.11 LilyPond Export
 
-- [ ] `scoreToLilyPond(score, options?)` — generate LilyPond source string
-- [ ] Export: notes with pitch spelling and duration
-- [ ] Export: rests
-- [ ] Export: time signatures and key signatures
-- [ ] Export: multi-voice parts with `\\voiceOne`, `\\voiceTwo` layout
-- [ ] Export: dynamics and articulations
-- [ ] Output compiles with LilyPond 2.24+ without errors
+- [x] `scoreToLilyPond(score, options?)` — generate LilyPond source string
+- [x] Export: notes with pitch spelling and duration
+- [x] Export: rests
+- [x] Export: time signatures and key signatures
+- [x] Export: multi-voice parts with `\\voiceOne`, `\\voiceTwo` layout
+- [x] Export: dynamics and articulations
+- [x] Output compiles with LilyPond 2.24+ without errors
 
 ### 5.12 Web MIDI API Integration
 
@@ -1074,29 +1074,29 @@
 
 ### 9.10 MusicXML I/O Tests
 
-- [ ] Import: known MusicXML file produces expected note count, part count, time/key signatures
-- [ ] Export: score → MusicXML string → parse → equivalent score
-- [ ] Handle: multi-voice parts
-- [ ] Handle: transposing instruments
-- [ ] Handle: tuplets (correct durations)
-- [ ] Handle: ties vs. slurs distinguished
-- [ ] Graceful failure on malformed XML
+- [x] Import: known MusicXML file produces expected note count, part count, time/key signatures
+- [x] Export: score → MusicXML string → parse → equivalent score
+- [x] Handle: multi-voice parts
+- [x] Handle: transposing instruments
+- [x] Handle: tuplets (correct durations)
+- [x] Handle: ties vs. slurs distinguished
+- [x] Graceful failure on malformed XML
 
 ### 9.11 Humdrum / ABC / Scala I/O Tests
 
-- [ ] Kern: parse a multi-spine file, verify note count and pitch values
-- [ ] Kern: spine path operators (split/merge) handled correctly
-- [ ] ABC: parse a simple folk tune, verify pitch and duration
-- [ ] ABC: multi-voice ABC parsed into separate parts
+- [x] Kern: parse a multi-spine file, verify note count and pitch values
+- [x] Kern: spine path operators (split/merge) handled correctly
+- [x] ABC: parse a simple folk tune, verify pitch and duration
+- [x] ABC: multi-voice ABC parsed into separate parts
 - [x] Scala: parse .scl with ratios, verify cent values
 - [x] Scala: parse .scl with cent values directly
 
 ### 9.12 JAMS / RomanText Export Tests
 
-- [ ] JAMS: exported JSON validates against JAMS schema
-- [ ] JAMS: chord annotations have correct time intervals
-- [ ] RomanText: exported .rntxt matches expected format
-- [ ] RomanText: round-trip (export → import → same analysis)
+- [x] JAMS: exported JSON validates against JAMS schema
+- [x] JAMS: chord annotations have correct time intervals
+- [x] RomanText: exported .rntxt matches expected format
+- [x] RomanText: round-trip (export → import → same analysis)
 
 ### 9.13 Key Detection Tests
 
@@ -1219,10 +1219,10 @@
 
 ### 9.29 MEI / LilyPond I/O Tests
 
-- [ ] MEI: parse a known MEI file, verify note count and pitch values
-- [ ] MEI: multi-layer staff parsed correctly
-- [ ] LilyPond: export produces compilable source
-- [ ] LilyPond: multi-voice export uses correct `\\voiceOne`/`\\voiceTwo` syntax
+- [x] MEI: parse a known MEI file, verify note count and pitch values
+- [x] MEI: multi-layer staff parsed correctly
+- [x] LilyPond: export produces compilable source
+- [x] LilyPond: multi-voice export uses correct `\\voiceOne`/`\\voiceTwo` syntax
 
 ### 9.30 Web MIDI / MPE / MIDI 2.0 Tests
 
@@ -1518,9 +1518,9 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 2.8: Cent/ratio/EDO step conversion utilities
 
 **Format support:**
-- [ ] Section 5.4: MusicXML import
-- [ ] Section 5.5: MusicXML export
-- [ ] Section 5.9: JAMS and RomanText export
+- [x] Section 5.4: MusicXML import
+- [x] Section 5.5: MusicXML export
+- [x] Section 5.9: JAMS and RomanText export
 
 **Visualization:**
 - [ ] Section 6.3: Tonnetz visualization
@@ -1559,10 +1559,10 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] Section 7.16: Klumpenhouwer networks and GIS
 
 **Remaining formats:**
-- [ ] Section 5.6: Humdrum \*\*kern import
-- [ ] Section 5.7: ABC notation import
-- [ ] Section 5.10: MEI import
-- [ ] Section 5.11: LilyPond export
+- [x] Section 5.6: Humdrum \*\*kern import
+- [x] Section 5.7: ABC notation import
+- [x] Section 5.10: MEI import
+- [x] Section 5.11: LilyPond export
 - [ ] Section 5.12: Web MIDI API integration
 - [ ] Section 5.13: MIDI extensions (MPE, MIDI 2.0)
 - [ ] Section 5.14: OSC output
@@ -1649,13 +1649,13 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 4.6 TIV / DFT | — | ✅ 100% | — |
 | 4.7 Information-Theoretic | — | — | 0% |
 | 5. I/O Module (5.1-5.3) | ✅ 100% | — | — |
-| 5.4-5.5 MusicXML | — | 0% | — |
-| 5.6 Humdrum kern | — | — | 0% |
-| 5.7 ABC Notation | — | — | 0% |
+| 5.4-5.5 MusicXML | — | ✅ 100% | — |
+| 5.6 Humdrum kern | — | — | ✅ 100% |
+| 5.7 ABC Notation | — | — | ✅ 100% |
 | 5.8 Scala I/O | — | ✅ 100% | — |
-| 5.9 JAMS / RomanText | — | 0% | — |
-| 5.10 MEI Import | — | — | 0% |
-| 5.11 LilyPond Export | — | — | 0% |
+| 5.9 JAMS / RomanText | — | ✅ 100% | — |
+| 5.10 MEI Import | — | — | ✅ 100% |
+| 5.11 LilyPond Export | — | — | ✅ 100% |
 | 5.12 Web MIDI | — | — | 0% |
 | 5.13 MIDI Extensions (MPE/2.0) | — | — | 0% |
 | 5.14 OSC Output | — | — | 0% |
