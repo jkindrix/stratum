@@ -212,16 +212,16 @@
 
 #### 2.6.1 Geometric Voice Leading (Tymoczko)
 
-- [ ] `voiceLeadingVector(from, to)` — displacement vector for each voice in optimal assignment
-- [ ] `geometricDistance(from, to, metric?)` — voice-leading distance with configurable metric (L1/L2/Linf)
-- [ ] `OPTIC equivalences` — quotient operations for octave, permutation, transposition, inversion, cardinality
-- [ ] Optimal voice leading via Hungarian algorithm for O(n³) performance
+- [x] `voiceLeadingVector(from, to)` — displacement vector for each voice in optimal assignment
+- [x] `geometricDistance(from, to, metric?)` — voice-leading distance with configurable metric (L1/L2/Linf)
+- [x] `OPTIC equivalences` — quotient operations for octave, permutation, transposition, inversion, cardinality
+- [x] Optimal voice leading via Hungarian algorithm for O(n³) performance
 
 #### 2.6.2 Parsimonious Voice Leading
 
-- [ ] `parsimonyScore(from, to)` — total semitone displacement of smoothest voice leading
-- [ ] `commonToneCount(from, to)` — number of shared pitch classes
-- [ ] `isParsimoniousConnection(from, to, threshold?)` — boolean with configurable max displacement (default 2)
+- [x] `parsimonyScore(from, to)` — total semitone displacement of smoothest voice leading
+- [x] `commonToneCount(from, to)` — number of shared pitch classes
+- [x] `isParsimoniousConnection(from, to, threshold?)` — boolean with configurable max displacement (default 2)
 
 ### 2.7 Scales, Modes, and Chords
 
@@ -285,30 +285,30 @@
 
 #### 2.8.2 Rank-2 Temperaments and MOS Scales
 
-- [ ] `Rank2Temperament` type — period (cents), generator (cents)
-- [ ] `mosScale(period, generator, size)` — generate MOS (Moment of Symmetry) scale of given size
-- [ ] `mosStepPattern(period, generator, size)` — return step pattern as Large/small string (e.g., "5L 2s")
-- [ ] `isMos(scale)` — test if a scale has exactly two step sizes
-- [ ] `mosTree(period, generator, maxSize?)` — enumerate MOS scales at successive sizes
-- [ ] Built-in rank-2 presets: meantone, superpyth, flattone, mavila
+- [x] `Rank2Temperament` type — period (cents), generator (cents)
+- [x] `mosScale(period, generator, size)` — generate MOS (Moment of Symmetry) scale of given size
+- [x] `mosStepPattern(period, generator, size)` — return step pattern as Large/small string (e.g., "5L 2s")
+- [x] `isMos(scale)` — test if a scale has exactly two step sizes
+- [x] `mosTree(period, generator, maxSize?)` — enumerate MOS scales at successive sizes
+- [x] Built-in rank-2 presets: meantone, superpyth, flattone, mavila
 
 #### 2.8.3 Monzo Arithmetic
 
-- [ ] `Monzo` type — prime exponent vector `[e₂, e₃, e₅, e₇, ...]`
-- [ ] `monzoToCents(monzo)` — convert monzo to cents
-- [ ] `monzoToRatio(monzo)` — convert monzo to frequency ratio
-- [ ] `ratioToMonzo(numerator, denominator, primeLimit?)` — factor a ratio into monzo
-- [ ] `monzoAdd(a, b)` — interval stacking (multiply ratios)
-- [ ] `monzoSubtract(a, b)` — interval subtraction (divide ratios)
-- [ ] `monzoScale(monzo, n)` — interval repetition
+- [x] `Monzo` type — prime exponent vector `[e₂, e₃, e₅, e₇, ...]`
+- [x] `monzoToCents(monzo)` — convert monzo to cents
+- [x] `monzoToRatio(monzo)` — convert monzo to frequency ratio
+- [x] `ratioToMonzo(numerator, denominator, primeLimit?)` — factor a ratio into monzo
+- [x] `monzoAdd(a, b)` — interval stacking (multiply ratios)
+- [x] `monzoSubtract(a, b)` — interval subtraction (divide ratios)
+- [x] `monzoScale(monzo, n)` — interval repetition
 
 #### 2.8.4 Temperament Mapping and Val Computation
 
-- [ ] `Val` type — mapping from JI intervals to tempered steps (e.g., 12-EDO patent val ⟨12 19 28|)
-- [ ] `patentVal(divisions, primeLimit?)` — compute patent val for N-EDO to a given prime limit
-- [ ] `valMapping(val, monzo)` — apply val to monzo: number of tempered steps for a JI interval
-- [ ] `temperamentError(val, primeLimit?)` — RMS error of a val's approximation of JI intervals
-- [ ] `isBadlyBroken(val)` — test if a val produces a degenerate mapping (e.g., maps 3/2 to 0 steps)
+- [x] `Val` type — mapping from JI intervals to tempered steps (e.g., 12-EDO patent val ⟨12 19 28|)
+- [x] `patentVal(divisions, primeLimit?)` — compute patent val for N-EDO to a given prime limit
+- [x] `valMapping(val, monzo)` — apply val to monzo: number of tempered steps for a JI interval
+- [x] `temperamentError(val, primeLimit?)` — RMS error of a val's approximation of JI intervals
+- [x] `isBadlyBroken(val)` — test if a val produces a degenerate mapping (e.g., maps 3/2 to 0 steps)
 
 ---
 
@@ -346,18 +346,18 @@
 ### 3.4 Rhythmic Complexity Measures
 
 - [x] `rhythmicEntropy(events, levels)` — Shannon entropy of onset distribution across metric positions
-- [ ] `lzComplexity(events, gridTicks)` — Lempel-Ziv complexity of binary onset string
-- [ ] `syncopationIndex(events, levels)` — Longuet-Higgins-Lee total syncopation score
-- [ ] `weightedNoteToBeatDistance(events, levels)` — WNBD: average weighted distance from nearest strong beat
-- [ ] `grooveScore(events, levels, options?)` — composite groove metric combining syncopation and micro-timing
+- [x] `lzComplexity(events, gridTicks)` — Lempel-Ziv complexity of binary onset string
+- [x] `syncopationIndex(events, levels)` — Longuet-Higgins-Lee total syncopation score
+- [x] `weightedNoteToBeatDistance(events, levels)` — WNBD: average weighted distance from nearest strong beat
+- [x] `grooveScore(events, levels, options?)` — composite groove metric combining syncopation and micro-timing
 
 ### 3.5 GTTM-Inspired Analysis
 
-- [ ] `metricalPreference(score, options?)` — metrical structure via preference rules (MPRs): align strong beats with onsets, long notes, harmonic changes, bass events
-- [ ] `groupingBoundaries(events, options?)` — detect phrase/group boundaries via GPRs: proximity, change, symmetry, parallelism
-- [ ] `hierarchicalMeter(score)` — multi-level metrical grid construction
-- [ ] Configurable preference rule weights
-- [ ] **Scope note:** Time-span reduction and prolongational reduction (full GTTM) are out of scope for this implementation. This section covers metrical and grouping preference rules only. Full tree-based reductions may be considered as a future extension.
+- [x] `metricalPreference(score, options?)` — metrical structure via preference rules (MPRs): align strong beats with onsets, long notes, harmonic changes, bass events
+- [x] `groupingBoundaries(events, options?)` — detect phrase/group boundaries via GPRs: proximity, change, symmetry, parallelism
+- [x] `hierarchicalMeter(score)` — multi-level metrical grid construction
+- [x] Configurable preference rule weights
+- [x] **Scope note:** Time-span reduction and prolongational reduction (full GTTM) are out of scope for this implementation. This section covers metrical and grouping preference rules only. Full tree-based reductions may be considered as a future extension.
 
 ---
 

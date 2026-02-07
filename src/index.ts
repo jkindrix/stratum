@@ -31,7 +31,7 @@ export {
 } from './core/index.js';
 
 // Pitch analysis
-export type { ForteEntry, Scale, Chord, SpelledPitch, SpellingKeyContext } from './pitch/index.js';
+export type { ForteEntry, Scale, Chord, SpelledPitch, SpellingKeyContext, Monzo, Rank2Temperament, Val, MosEntry, VoiceLeadingMetric, OPTICResult } from './pitch/index.js';
 export {
   normalizePc,
   pitchFromPcOctave,
@@ -50,6 +50,7 @@ export {
   FORTE_BY_NAME,
   voiceLeadingDistance,
   smoothestVoiceLeading,
+  pcDistance,
   // Scales, modes, and chords
   SCALE_CATALOG,
   CHORD_CATALOG,
@@ -89,10 +90,37 @@ export {
   // Pitch spelling
   spellPitch,
   spellPitchSequence,
+  // Monzo arithmetic
+  monzoToCents,
+  monzoToRatio,
+  ratioToMonzo,
+  monzoAdd,
+  monzoSubtract,
+  monzoScale,
+  // Rank-2 temperaments, MOS scales, vals
+  mosScale,
+  mosStepPattern,
+  isMos,
+  mosTree,
+  patentVal,
+  valMapping,
+  temperamentError,
+  isBadlyBroken,
+  MEANTONE,
+  SUPERPYTH,
+  FLATTONE,
+  MAVILA,
+  // Geometric voice leading
+  voiceLeadingVector,
+  geometricDistance,
+  opticEquivalence,
+  parsimonyScore,
+  commonToneCount,
+  isParsimoniousConnection,
 } from './pitch/index.js';
 
 // Time analysis
-export type { MetricLevel, MetricOptions, Pattern, PatternOptions } from './time/index.js';
+export type { MetricLevel, MetricOptions, Pattern, PatternOptions, GrooveOptions, MPRWeights, MetricalPreferenceResult, MetricalPreferenceOptions, GroupingBoundary, GroupingOptions, MetricalGridEntry } from './time/index.js';
 export {
   buildMetricLevels,
   beatStrength,
@@ -104,6 +132,15 @@ export {
   swing,
   durationName,
   durationTicks,
+  // Rhythmic complexity
+  lzComplexity,
+  syncopationIndex,
+  weightedNoteToBeatDistance,
+  grooveScore,
+  // GTTM preference rules
+  metricalPreference,
+  groupingBoundaries,
+  hierarchicalMeter,
 } from './time/index.js';
 
 // Tension analysis

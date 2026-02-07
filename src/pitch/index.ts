@@ -27,6 +27,7 @@ export type { ForteEntry } from './forte-catalog.js';
 export {
   voiceLeadingDistance,
   smoothestVoiceLeading,
+  pcDistance,
 } from './voice-leading.js';
 
 // Scales, modes, and chords
@@ -81,3 +82,42 @@ export {
 // Pitch spelling
 export type { SpelledPitch, SpellingKeyContext } from './spelling.js';
 export { spellPitch, spellPitchSequence } from './spelling.js';
+
+// Monzo arithmetic
+export type { Monzo } from './monzo.js';
+export {
+  monzoToCents,
+  monzoToRatio,
+  ratioToMonzo,
+  monzoAdd,
+  monzoSubtract,
+  monzoScale,
+} from './monzo.js';
+
+// Rank-2 temperaments, MOS scales, vals
+export type { Rank2Temperament, Val, MosEntry } from './temperament.js';
+export {
+  mosScale,
+  mosStepPattern,
+  isMos,
+  mosTree,
+  patentVal,
+  valMapping,
+  temperamentError,
+  isBadlyBroken,
+  MEANTONE,
+  SUPERPYTH,
+  FLATTONE,
+  MAVILA,
+} from './temperament.js';
+
+// Geometric voice leading
+export type { VoiceLeadingMetric, OPTICResult } from './geometric-voice-leading.js';
+export {
+  voiceLeadingVector,
+  geometricDistance,
+  opticEquivalence,
+  parsimonyScore,
+  commonToneCount,
+  isParsimoniousConnection,
+} from './geometric-voice-leading.js';

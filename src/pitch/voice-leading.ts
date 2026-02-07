@@ -32,7 +32,14 @@ export function voiceLeadingDistance(from: number[], to: number[]): number {
   return greedyMinDistance(src, dst);
 }
 
-function pcDistance(a: number, b: number): number {
+/**
+ * Minimum pitch-class distance (0–6 semitones) between two pitch classes.
+ *
+ * @param a - First pitch class.
+ * @param b - Second pitch class.
+ * @returns Shortest distance in semitones (0–6).
+ */
+export function pcDistance(a: number, b: number): number {
   const diff = (b - a + 12) % 12;
   return Math.min(diff, 12 - diff);
 }
