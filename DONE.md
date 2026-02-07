@@ -773,7 +773,7 @@
 
 - [ ] `chordScaleMap` — database mapping chord types to compatible scales
 - [ ] `availableScales(chord)` — return all compatible scales for a given chord
-- [ ] `classifyTones(scale, chord)` — for each scale degree: chord tone, available tension, or avoid note
+- [x] `classifyTones(scale, chord)` — for each scale degree: chord tone, available tension, or avoid note
 - [x] `analyzeOverHarmony(melody, chords)` — classify each melodic note relative to underlying chord-scale
 - [ ] Built-in mappings for: major 7, dominant 7, minor 7, half-dim 7, diminished 7, altered, lydian dominant, and common jazz voicings
 - [x] `hpcp(events)` — Harmonic Pitch Class Profile: weighted 12-element chroma vector from sounding events
@@ -1035,28 +1035,28 @@
 
 ### 9.4 Geometric Voice Leading Tests
 
-- [ ] Hungarian algorithm produces same result as brute-force for small sets
-- [ ] L1, L2, Linf metrics produce different but valid orderings
-- [ ] Parsimony score: P, L, R operations yield score of 1 or 2
+- [x] Hungarian algorithm produces same result as brute-force for small sets
+- [x] L1, L2, Linf metrics produce different but valid orderings
+- [x] Parsimony score: P, L, R operations yield score of 1 or 2
 
 ### 9.5 Scala / Rank-2 / Monzo Tests
 
 - [x] Parse known .scl files (12-TET, Werckmeister III, Kirnberger III)
 - [x] Round-trip: tuning → .scl string → parse → same tuning
-- [ ] MOS: meantone[7] = 5L 2s (diatonic), meantone[12] = 7L 5s (chromatic)
-- [ ] Monzo: `[0, 1, 0]` (ratio 3/1) → ~1901.955 cents
-- [ ] Monzo arithmetic: `3/2 * 5/4 = 15/8`
+- [x] MOS: meantone[7] = 5L 2s (diatonic), meantone[12] = 7L 5s (chromatic)
+- [x] Monzo: `[0, 1, 0]` (ratio 3/1) → ~1901.955 cents
+- [x] Monzo arithmetic: `3/2 * 5/4 = 15/8`
 
 ### 9.6 Rhythmic Complexity Tests
 
-- [ ] Entropy: isochronous pattern = 0 (or minimal), random = high
-- [ ] Syncopation index: on-beat pattern = 0, off-beat heavy pattern = high
-- [ ] LZ complexity: repetitive pattern = low, non-repetitive = high
+- [x] Entropy: isochronous pattern = 0 (or minimal), random = high
+- [x] Syncopation index: on-beat pattern = 0, off-beat heavy pattern = high
+- [x] LZ complexity: repetitive pattern = low, non-repetitive = high
 
 ### 9.7 GTTM-Inspired Tests
 
-- [ ] Metrical preference: downbeat of 4/4 identified as strongest
-- [ ] Grouping boundaries: rest-separated phrases detected
+- [x] Metrical preference: downbeat of 4/4 identified as strongest
+- [x] Grouping boundaries: rest-separated phrases detected
 
 ### 9.8 Tonal Tension Model Tests
 
@@ -1125,10 +1125,10 @@
 
 ### 9.16 Chord-Scale Theory Tests
 
-- [ ] Cmaj7 → includes Ionian and Lydian
-- [ ] Cm7 → includes Dorian and Aeolian
-- [ ] C7 → includes Mixolydian
-- [ ] Avoid notes correctly identified (e.g., 4th over major chord)
+- [x] Cmaj7 → includes Ionian and Lydian
+- [x] Cm7 → includes Dorian and Aeolian
+- [x] C7 → includes Mixolydian
+- [x] Avoid notes correctly identified (e.g., 4th over major chord)
 
 ### 9.17 Self-Similarity / Novelty / SIA Tests
 
@@ -1213,9 +1213,9 @@
 
 ### 9.28 Temperament Mapping Tests
 
-- [ ] Patent val for 12-EDO: ⟨12 19 28| (5-limit)
-- [ ] `valMapping`: 3/2 in 12-EDO → 7 steps
-- [ ] Temperament error: 31-EDO < 12-EDO for 5-limit
+- [x] Patent val for 12-EDO: ⟨12 19 28| (5-limit)
+- [x] `valMapping`: 3/2 in 12-EDO → 7 steps
+- [x] Temperament error: 31-EDO < 12-EDO for 5-limit
 
 ### 9.29 MEI / LilyPond I/O Tests
 
@@ -1438,7 +1438,7 @@
 | Forte catalog | ✅ Complete | Complete 220-entry catalog |
 | Neo-Riemannian transforms | ✅ Complete | Section 7.3 |
 | Tonnetz representation | ✅ Complete | Data model done; SVG viz separate |
-| Geometric voice leading | Planned | Section 2.6.1 |
+| Geometric voice leading | ✅ Complete | Section 2.6.1 |
 
 ### From Flux Framework
 
@@ -1453,7 +1453,7 @@
 | Entropy / predictability | ✅ Complete | shannonEntropy, rhythmicEntropy |
 | Roughness | ✅ Complete | Plomp-Levelt model |
 | Self-similarity analysis | ✅ Complete | selfSimilarityMatrix, noveltyDetection |
-| Stream fission/fusion | Planned | Section 7.8 (voice separation) |
+| Stream fission/fusion | ✅ Complete | Section 7.8 (voice separation) |
 | Statistical distributions | ✅ Complete | zipfDistribution, markovTransition |
 
 ### From PHASE Framework
@@ -1463,8 +1463,8 @@
 | Tension surface T(t) | ✅ Complete | Tension curve |
 | Tension derivatives | ✅ Complete | Velocity, acceleration |
 | Tension integral | ✅ Complete | tensionIntegral |
-| Hierarchical prediction | Planned | Section 4.7 (information-theoretic) |
-| Anticipation / prediction error | Planned | Section 4.7 |
+| Hierarchical prediction | ✅ Complete | Section 4.7 (information-theoretic) |
+| Anticipation / prediction error | ✅ Complete | Section 4.7 |
 | Swing ratio parameter | ✅ Complete | Rhythmic utility |
 | Tonal Pitch Space tension | ✅ Complete | Section 4.4 |
 | Spiral Array tension | ✅ Complete | Section 4.5 |
@@ -1476,7 +1476,7 @@
 |---------|--------|-------|
 | Consonance as roughness | ✅ Complete | Plomp-Levelt model |
 | Metrical hierarchy | ✅ Complete | Time module |
-| Groove quantification | Planned | Section 3.4 |
+| Groove quantification | ✅ Complete | Section 3.4 |
 | Arnold tongue hierarchy | Exclude | Oscillator dynamics |
 | Coupling equation | Exclude | Physics simulation |
 | Affect from dynamics | Exclude | Requires coherence computation |
@@ -1542,16 +1542,16 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 ### v3.0 — Feature-Complete Platform
 
 **Remaining analysis:**
-- [ ] Section 2.6.1: Geometric voice leading (Tymoczko)
-- [ ] Section 2.6.2: Parsimonious voice leading
-- [ ] Section 3.4: Rhythmic complexity measures
-- [ ] Section 3.5: GTTM-inspired metrical analysis
-- [ ] Section 4.7: Information-theoretic expectation
-- [ ] Section 7.6.3: SIA/SIATEC repetition discovery
+- [x] Section 2.6.1: Geometric voice leading (Tymoczko)
+- [x] Section 2.6.2: Parsimonious voice leading
+- [x] Section 3.4: Rhythmic complexity measures
+- [x] Section 3.5: GTTM-inspired metrical analysis
+- [x] Section 4.7: Information-theoretic expectation
+- [x] Section 7.6.3: SIA/SIATEC repetition discovery
 - [ ] Section 7.7.4: Row invariance analysis
-- [ ] Section 7.8: Voice separation
-- [ ] Section 7.9: Counterpoint analysis
-- [ ] Section 7.10: Textural analysis
+- [x] Section 7.8: Voice separation
+- [x] Section 7.9: Counterpoint analysis
+- [x] Section 7.10: Textural analysis
 - [x] Section 7.12: Harmonic network analysis
 - [ ] Section 7.13: Corpus tools
 - [x] Section 7.14: Evaluation metrics (mir_eval-style)
@@ -1568,17 +1568,17 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] Section 5.14: OSC output
 
 **Tuning (advanced):**
-- [ ] Section 2.8.2: Rank-2 temperaments and MOS scales
-- [ ] Section 2.8.3: Monzo arithmetic
-- [ ] Section 2.8.4: Temperament mapping and val computation
+- [x] Section 2.8.2: Rank-2 temperaments and MOS scales
+- [x] Section 2.8.3: Monzo arithmetic
+- [x] Section 2.8.4: Temperament mapping and val computation
 
 **Composition utilities:**
 - [x] Section 8.1: Markov chain generator
-- [ ] Section 8.2: L-system generator
-- [ ] Section 8.3: Cellular automaton generator
-- [ ] Section 8.4: Constraint helpers
-- [ ] Section 8.5: Xenakis sieve construction
-- [ ] Section 8.6: Stochastic distribution generators
+- [x] Section 8.2: L-system generator
+- [x] Section 8.3: Cellular automaton generator
+- [x] Section 8.4: Constraint helpers
+- [x] Section 8.5: Xenakis sieve construction
+- [x] Section 8.6: Stochastic distribution generators
 
 **Visualization:**
 - [ ] Section 6.7: Chord transition graph
@@ -1593,7 +1593,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] README updated with v3 examples
 - [ ] JSDoc on all v3 exports
 - [ ] Subpath exports updated for all new modules
-- [ ] Zero runtime dependencies maintained
+- [x] Zero runtime dependencies maintained
 
 ---
 
@@ -1633,13 +1633,13 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 2. Pitch Module (2.1-2.3, 2.5-2.8) | ✅ 100% | — | — |
 | 2.1 Pitch Spelling | — | ✅ 100% | — |
 | 2.4 PCS Similarity + EMD | — | ✅ 100% | — |
-| 2.6.1 Geometric Voice Leading | — | — | 0% |
-| 2.6.2 Parsimonious Voice Leading | — | — | 0% |
+| 2.6.1 Geometric Voice Leading | — | — | ✅ 100% |
+| 2.6.2 Parsimonious Voice Leading | — | — | ✅ 100% |
 | 2.8 Cent/Ratio/EDO Utilities | — | ✅ 100% | — |
 | 2.8.1 Scala Support | — | ✅ 100% | — |
-| 2.8.2 Rank-2 / MOS | — | — | 0% |
-| 2.8.3 Monzo Arithmetic | — | — | 0% |
-| 2.8.4 Temperament Mapping | — | — | 0% |
+| 2.8.2 Rank-2 / MOS | — | — | ✅ 100% |
+| 2.8.3 Monzo Arithmetic | — | — | ✅ 100% |
+| 2.8.4 Temperament Mapping | — | — | ✅ 100% |
 | 3. Time Module (3.1-3.3) | ✅ 100% | — | — |
 | 3.4 Rhythmic Complexity | — | — | ✅ 100% |
 | 3.5 GTTM-Inspired | — | — | ✅ 100% |
