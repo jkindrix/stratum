@@ -82,7 +82,7 @@ export {
 } from './serial.js';
 
 // Statistical analysis
-export type { MarkovChain, ZipfResult } from './stats.js';
+export type { MarkovChain, ZipfResult, StyleFingerprint } from './stats.js';
 export {
   shannonEntropy,
   rhythmicEntropy,
@@ -90,6 +90,12 @@ export {
   markovTransition,
   markovGenerate,
   ngramCounts,
+  pitchDistribution,
+  intervalDistribution,
+  durationDistribution,
+  chordTypeDistribution,
+  styleFingerprint,
+  styleSimilarity,
 } from './stats.js';
 
 // Chord-scale theory
@@ -129,3 +135,24 @@ export {
 // Textural analysis
 export type { TextureClass, TexturePoint } from './texture.js';
 export { textureType, rhythmicIndependence, textureProfile, voiceCount } from './texture.js';
+
+// Harmonic network analysis
+export type { ChordNode, ChordEdge, ChordGraph, GraphMetrics, CommunityResult, GraphComparison } from './harmonic-network.js';
+export {
+  chordTransitionGraph,
+  transitionProbabilities,
+  graphCentrality,
+  detectCommunities,
+  findCycles,
+  compareGraphs,
+} from './harmonic-network.js';
+
+// Evaluation metrics
+export type { AccuracyResult, KeyAccuracyResult, PrecisionRecallResult, EvalKey, Segment, OverlapResult } from './evaluation.js';
+export {
+  chordAccuracy,
+  keyAccuracy,
+  segmentationPrecisionRecall,
+  voiceSeparationAccuracy,
+  overlapRatio,
+} from './evaluation.js';

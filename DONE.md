@@ -893,25 +893,25 @@
 
 ### 7.11 Statistical Analysis
 
-- [ ] `pitchDistribution(events)` — 12-element pitch-class frequency histogram
-- [ ] `intervalDistribution(events)` — frequency distribution of all melodic intervals
-- [ ] `durationDistribution(events)` — frequency distribution of note durations
-- [ ] `chordTypeDistribution(score, windowSize)` — frequency of chord types across piece
+- [x] `pitchDistribution(events)` — 12-element pitch-class frequency histogram
+- [x] `intervalDistribution(events)` — frequency distribution of all melodic intervals
+- [x] `durationDistribution(events)` — frequency distribution of note durations
+- [x] `chordTypeDistribution(score, windowSize)` — frequency of chord types across piece
 - [x] `shannonEntropy(distribution)` — Shannon entropy of any discrete distribution
 - [x] `zipfExponent(distribution)` — fit Zipf's law, return exponent (slope of log-log rank-frequency)
 - [x] `markovTransitionMatrix(chordSequence, order?)` — build transition probability matrix (first or higher order)
 - [x] `markovGenerate(matrix, length, seed?)` — generate sequence from trained Markov chain
-- [ ] `styleFingerprint(score)` — combined feature vector (distributions, entropy, Zipf exponent, etc.)
-- [ ] `styleSimilarity(fingerprintA, fingerprintB)` — cosine distance between style fingerprints
+- [x] `styleFingerprint(score)` — combined feature vector (distributions, entropy, Zipf exponent, etc.)
+- [x] `styleSimilarity(fingerprintA, fingerprintB)` — cosine distance between style fingerprints
 
 ### 7.12 Harmonic Network Analysis
 
-- [ ] `chordTransitionGraph(chordSequence)` — build directed weighted graph from chord progression
-- [ ] `transitionProbabilities(graph)` — normalize edge weights to probabilities
-- [ ] `graphCentrality(graph)` — PageRank and betweenness centrality for each chord node
-- [ ] `detectCommunities(graph)` — community detection (Louvain or label propagation)
-- [ ] `findCycles(graph, maxLength?)` — detect common harmonic cycles (ii-V-I, I-vi-IV-V, etc.)
-- [ ] `compareGraphs(graphA, graphB)` — measure similarity between two harmonic networks
+- [x] `chordTransitionGraph(chordSequence)` — build directed weighted graph from chord progression
+- [x] `transitionProbabilities(graph)` — normalize edge weights to probabilities
+- [x] `graphCentrality(graph)` — PageRank and betweenness centrality for each chord node
+- [x] `detectCommunities(graph)` — community detection (Louvain or label propagation)
+- [x] `findCycles(graph, maxLength?)` — detect common harmonic cycles (ii-V-I, I-vi-IV-V, etc.)
+- [x] `compareGraphs(graphA, graphB)` — measure similarity between two harmonic networks
 
 ### 7.13 Corpus Tools
 
@@ -926,12 +926,12 @@
 
 ### 7.14 Evaluation Metrics
 
-- [ ] `chordAccuracy(predicted, reference)` — proportion of correctly labeled chords (mir_eval-style)
-- [ ] `keyAccuracy(predicted, reference)` — key detection accuracy (exact match, fifth-related match, relative-key match)
-- [ ] `segmentationPrecisionRecall(predicted, reference, tolerance?)` — precision/recall/F1 for structural boundary detection
-- [ ] `voiceSeparationAccuracy(predicted, reference)` — proportion of correctly assigned voice labels
-- [ ] `overlapRatio(predictedSegments, referenceSegments)` — segment overlap metric for form analysis
-- [ ] All metrics return structured result objects with score, counts, and details
+- [x] `chordAccuracy(predicted, reference)` — proportion of correctly labeled chords (mir_eval-style)
+- [x] `keyAccuracy(predicted, reference)` — key detection accuracy (exact match, fifth-related match, relative-key match)
+- [x] `segmentationPrecisionRecall(predicted, reference, tolerance?)` — precision/recall/F1 for structural boundary detection
+- [x] `voiceSeparationAccuracy(predicted, reference)` — proportion of correctly assigned voice labels
+- [x] `overlapRatio(predictedSegments, referenceSegments)` — segment overlap metric for form analysis
+- [x] All metrics return structured result objects with score, counts, and details
 
 ### 7.15 Figured Bass Realization
 
@@ -1163,16 +1163,16 @@
 
 ### 9.21 Statistical Analysis Tests
 
-- [ ] Pitch distribution: C major piece → highest bins at C, E, G
+- [x] Pitch distribution: C major piece → highest bins at C, E, G
 - [x] Shannon entropy: uniform distribution → maximum entropy
 - [x] Markov chain: trained on I-IV-V-I → generates plausible progressions
 - [x] Zipf exponent: calculated correctly for known distribution
 
 ### 9.22 Harmonic Network Tests
 
-- [ ] Graph from I-IV-V-I → 3 nodes, 3 edges
-- [ ] PageRank: I chord has highest centrality in diatonic progressions
-- [ ] Community detection: tonic/dominant/subdominant groupings
+- [x] Graph from I-IV-V-I → 3 nodes, 3 edges
+- [x] PageRank: I chord has highest centrality in diatonic progressions
+- [x] Community detection: tonic/dominant/subdominant groupings
 
 ### 9.23 Visualization Tests
 
@@ -1253,10 +1253,10 @@
 
 ### 9.34 Evaluation Metric Tests
 
-- [ ] Chord accuracy: perfect match → 1.0, no match → 0.0
-- [ ] Key accuracy: exact match → 1.0, relative key → partial credit
-- [ ] Segmentation precision/recall: exact boundaries → F1 = 1.0
-- [ ] Voice separation accuracy: correct labels → 1.0
+- [x] Chord accuracy: perfect match → 1.0, no match → 0.0
+- [x] Key accuracy: exact match → 1.0, relative key → partial credit
+- [x] Segmentation precision/recall: exact boundaries → F1 = 1.0
+- [x] Voice separation accuracy: correct labels → 1.0
 
 ### 9.35 Figured Bass Tests
 
@@ -1552,9 +1552,9 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] Section 7.8: Voice separation
 - [ ] Section 7.9: Counterpoint analysis
 - [ ] Section 7.10: Textural analysis
-- [ ] Section 7.12: Harmonic network analysis
+- [x] Section 7.12: Harmonic network analysis
 - [ ] Section 7.13: Corpus tools
-- [ ] Section 7.14: Evaluation metrics (mir_eval-style)
+- [x] Section 7.14: Evaluation metrics (mir_eval-style)
 - [ ] Section 7.15: Figured bass realization
 - [ ] Section 7.16: Klumpenhouwer networks and GIS
 
@@ -1674,13 +1674,13 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 7.6.1-7.6.2 SSM / Novelty | — | ✅ 100% | — |
 | 7.6.3 SIA/SIATEC | — | — | 0% |
 | 7.7 Post-Tonal | — | ✅ 100% | — |
-| 7.8 Voice Separation | — | — | 0% |
-| 7.9 Counterpoint | — | — | 0% |
-| 7.10 Textural Analysis | — | — | 0% |
+| 7.8 Voice Separation | — | ✅ 100% | — |
+| 7.9 Counterpoint | — | ✅ 100% | — |
+| 7.10 Textural Analysis | — | ✅ 100% | — |
 | 7.11 Statistical Analysis | — | ✅ 100% | — |
-| 7.12 Harmonic Networks | — | — | 0% |
+| 7.12 Harmonic Networks | — | ✅ 100% | — |
 | 7.13 Corpus Tools | — | — | 0% |
-| 7.14 Evaluation Metrics | — | — | 0% |
+| 7.14 Evaluation Metrics | — | ✅ 100% | — |
 | 7.15 Figured Bass | — | — | 0% |
 | 7.16 Klumpenhouwer / GIS | — | — | 0% |
 | 8. Composition Utilities (8.1-8.5) | — | — | 0% |

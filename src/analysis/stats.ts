@@ -1,8 +1,9 @@
 // ---------------------------------------------------------------------------
-// Stratum — Statistical Analysis (Entropy, Zipf, Markov)
+// Stratum — Statistical Analysis (Entropy, Zipf, Markov, Distributions)
 // ---------------------------------------------------------------------------
 
-import type { NoteEvent } from '../core/types.js';
+import type { NoteEvent, Score } from '../core/types.js';
+import { harmonicRhythm } from './harmonic.js';
 
 /** Markov chain built from pitch-class transitions. */
 export interface MarkovChain {
@@ -12,6 +13,22 @@ export interface MarkovChain {
   readonly matrix: readonly (readonly number[])[];
   /** Markov order (1 = first-order). */
   readonly order: number;
+}
+
+/** Style fingerprint combining multiple statistical features. */
+export interface StyleFingerprint {
+  /** 12-element normalized pitch-class histogram (sums to 1.0). */
+  readonly pitchDistribution: readonly number[];
+  /** Signed MIDI interval → frequency count. */
+  readonly intervalDistribution: ReadonlyMap<number, number>;
+  /** Duration value → frequency count. */
+  readonly durationDistribution: ReadonlyMap<number, number>;
+  /** Shannon entropy of pitch-class distribution (bits). */
+  readonly pitchEntropy: number;
+  /** Entropy of inter-onset interval distribution (bits). */
+  readonly rhythmicEntropy: number;
+  /** Zipf exponent from pitch-class rank-frequency distribution. */
+  readonly zipfExponent: number;
 }
 
 /** Rank-frequency distribution result. */
@@ -342,4 +359,162 @@ export function ngramCounts(
   }
 
   return counts;
+}
+
+/**
+ * Normalized pitch-class frequency distribution.
+ *
+ * Returns a 12-element array where each index corresponds to a pitch class
+ * (0 = C, 1 = C#, … 11 = B). Values sum to 1.0.
+ *
+ * @param events - Note events to analyze.
+ * @returns Frozen 12-element array of normalized frequencies.
+ * @throws {RangeError} If events is empty.
+ */
+export function pitchDistribution(events: readonly NoteEvent[]): readonly number[] {
+  validateEvents(events);
+
+  const counts = new Array<number>(12).fill(0);
+  for (const e of events) {
+    counts[e.pitch.pitchClass] = (counts[e.pitch.pitchClass] ?? 0) + 1;
+  }
+
+  const total = events.length;
+  const dist: number[] = [];
+  for (let i = 0; i < 12; i++) {
+    dist.push((counts[i] ?? 0) / total);
+  }
+
+  return Object.freeze(dist);
+}
+
+/**
+ * Distribution of signed melodic intervals between successive notes.
+ *
+ * Events are sorted by onset; the signed MIDI interval (next.midi - prev.midi)
+ * between each consecutive pair is counted.
+ *
+ * @param events - Note events to analyze.
+ * @returns ReadonlyMap from signed interval to count.
+ * @throws {RangeError} If events is empty.
+ */
+export function intervalDistribution(events: readonly NoteEvent[]): ReadonlyMap<number, number> {
+  validateEvents(events);
+
+  if (events.length < 2) return new Map<number, number>();
+
+  const sorted = [...events].sort((a, b) => a.onset - b.onset);
+  const counts = new Map<number, number>();
+  for (let i = 1; i < sorted.length; i++) {
+    const interval = sorted[i]!.pitch.midi - sorted[i - 1]!.pitch.midi;
+    counts.set(interval, (counts.get(interval) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+/**
+ * Distribution of note duration values.
+ *
+ * Counts the frequency of each distinct duration value in the event set.
+ *
+ * @param events - Note events to analyze.
+ * @returns ReadonlyMap from duration to count.
+ * @throws {RangeError} If events is empty.
+ */
+export function durationDistribution(events: readonly NoteEvent[]): ReadonlyMap<number, number> {
+  validateEvents(events);
+
+  const counts = new Map<number, number>();
+  for (const e of events) {
+    counts.set(e.duration, (counts.get(e.duration) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+/**
+ * Distribution of chord types across a score.
+ *
+ * Uses {@link harmonicRhythm} to sample chords at regular intervals,
+ * then counts occurrences of each chord symbol.
+ *
+ * @param score - The score to analyze.
+ * @param windowSize - Sample interval in ticks (default: ticksPerQuarter).
+ * @returns ReadonlyMap from chord symbol (e.g. "Cmaj") to count.
+ */
+export function chordTypeDistribution(
+  score: Score,
+  windowSize?: number,
+): ReadonlyMap<string, number> {
+  const events = harmonicRhythm(score, windowSize);
+  const counts = new Map<string, number>();
+
+  for (const event of events) {
+    if (event.label) {
+      const key = event.label.symbol;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+  }
+
+  return counts;
+}
+
+/**
+ * Compute a multi-dimensional style fingerprint from note events.
+ *
+ * Combines pitch distribution, interval distribution, duration distribution,
+ * Shannon entropy, rhythmic entropy, and Zipf exponent into a single object.
+ *
+ * @param events - Note events to analyze.
+ * @returns Frozen StyleFingerprint.
+ * @throws {RangeError} If events is empty.
+ */
+export function styleFingerprint(events: readonly NoteEvent[]): StyleFingerprint {
+  validateEvents(events);
+
+  const pd = pitchDistribution(events);
+  const id = intervalDistribution(events);
+  const dd = durationDistribution(events);
+  const pe = shannonEntropy(events);
+  const re = rhythmicEntropy(events);
+  const zd = zipfDistribution(events);
+
+  return Object.freeze({
+    pitchDistribution: pd,
+    intervalDistribution: id,
+    durationDistribution: dd,
+    pitchEntropy: pe,
+    rhythmicEntropy: re,
+    zipfExponent: zd.exponent,
+  });
+}
+
+/**
+ * Cosine similarity between two style fingerprints.
+ *
+ * Compares the 12-dimensional pitch distribution vectors.
+ * Returns a value in [0, 1] where 1 means identical distributions.
+ *
+ * @param a - First style fingerprint.
+ * @param b - Second style fingerprint.
+ * @returns Cosine similarity in [0, 1].
+ */
+export function styleSimilarity(a: StyleFingerprint, b: StyleFingerprint): number {
+  let dot = 0;
+  let magA = 0;
+  let magB = 0;
+
+  for (let i = 0; i < 12; i++) {
+    const va = a.pitchDistribution[i] ?? 0;
+    const vb = b.pitchDistribution[i] ?? 0;
+    dot += va * vb;
+    magA += va * va;
+    magB += vb * vb;
+  }
+
+  const denom = Math.sqrt(magA) * Math.sqrt(magB);
+  if (denom === 0) return 0;
+
+  return dot / denom;
 }

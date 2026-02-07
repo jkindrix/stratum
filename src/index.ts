@@ -219,6 +219,7 @@ export type {
   // Stats
   MarkovChain,
   ZipfResult,
+  StyleFingerprint,
   // Chord-scale
   ToneClassification,
   ScaleTone,
@@ -241,6 +242,20 @@ export type {
   // Texture
   TextureClass,
   TexturePoint,
+  // Harmonic network
+  ChordNode,
+  ChordEdge,
+  ChordGraph,
+  GraphMetrics,
+  CommunityResult,
+  GraphComparison,
+  // Evaluation
+  AccuracyResult,
+  KeyAccuracyResult,
+  PrecisionRecallResult,
+  EvalKey,
+  Segment,
+  OverlapResult,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -302,6 +317,12 @@ export {
   markovTransition,
   markovGenerate,
   ngramCounts,
+  pitchDistribution,
+  intervalDistribution,
+  durationDistribution,
+  chordTypeDistribution,
+  styleFingerprint,
+  styleSimilarity,
   // Chord-scale theory
   chordScaleMatch,
   classifyTones,
@@ -323,4 +344,17 @@ export {
   rhythmicIndependence,
   textureProfile,
   voiceCount,
+  // Harmonic network analysis
+  chordTransitionGraph,
+  transitionProbabilities,
+  graphCentrality,
+  detectCommunities,
+  findCycles,
+  compareGraphs,
+  // Evaluation metrics
+  chordAccuracy,
+  keyAccuracy,
+  segmentationPrecisionRecall,
+  voiceSeparationAccuracy,
+  overlapRatio,
 } from './analysis/index.js';
