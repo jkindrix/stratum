@@ -3,7 +3,7 @@
 // ---------------------------------------------------------------------------
 
 import type { Scale } from '../pitch/scales.js';
-import { SCALE_CATALOG } from '../pitch/scales.js';
+import { SCALE_CATALOG, CHORD_CATALOG } from '../pitch/scales.js';
 import { normalizePc } from '../pitch/pitch-class.js';
 import type { ChordLabel } from './harmonic.js';
 import type { NoteEvent } from '../core/types.js';
@@ -371,4 +371,112 @@ export function analyzeOverHarmony(
   }
 
   return Object.freeze(results);
+}
+
+// ---- Chord-Scale Map ----
+
+/**
+ * Curated map from chord type symbols to ordered arrays of compatible scale names.
+ * Scale names match entries in SCALE_CATALOG. Order reflects jazz/classical preference.
+ */
+export const CHORD_SCALE_MAP: ReadonlyMap<string, readonly string[]> = new Map<string, readonly string[]>([
+  // Seventh chords
+  ['maj7', Object.freeze(['Ionian', 'Lydian'])],
+  ['7', Object.freeze(['Mixolydian', 'Lydian Dominant', 'Mixolydian b6', 'Whole Tone', 'Octatonic Half-Whole'])],
+  ['min7', Object.freeze(['Dorian', 'Aeolian', 'Phrygian', 'Melodic Minor'])],
+  ['m7b5', Object.freeze(['Locrian', 'Locrian #6', 'Aeolian b5'])],
+  ['dim7', Object.freeze(['Octatonic Half-Whole', 'Octatonic Whole-Half'])],
+  ['mMaj7', Object.freeze(['Melodic Minor', 'Harmonic Minor'])],
+  // Augmented
+  ['aug', Object.freeze(['Whole Tone', 'Lydian Augmented'])],
+  ['augMaj7', Object.freeze(['Lydian Augmented', 'Ionian Augmented'])],
+  // Triads
+  ['maj', Object.freeze(['Ionian', 'Lydian', 'Mixolydian'])],
+  ['min', Object.freeze(['Dorian', 'Aeolian', 'Phrygian', 'Harmonic Minor', 'Melodic Minor'])],
+  ['dim', Object.freeze(['Locrian', 'Octatonic Half-Whole'])],
+  // Extended
+  ['9', Object.freeze(['Mixolydian', 'Lydian Dominant'])],
+  ['min9', Object.freeze(['Dorian', 'Aeolian'])],
+  ['maj9', Object.freeze(['Ionian', 'Lydian'])],
+  ['13', Object.freeze(['Mixolydian', 'Lydian Dominant'])],
+  // Suspended
+  ['sus4', Object.freeze(['Mixolydian', 'Dorian'])],
+  ['sus2', Object.freeze(['Mixolydian', 'Ionian'])],
+]);
+
+/**
+ * Return all compatible scales for a chord type, using curated mappings when available.
+ *
+ * If the chord type exists in CHORD_SCALE_MAP, returns scales in curated preference order
+ * with compatibility scores computed from classifyTones. Otherwise falls back to dynamic
+ * matching via chordScaleMatch.
+ *
+ * @param chordType - Chord symbol (e.g. 'maj7', '7', 'min7').
+ * @param root - Optional root pitch class (0-11). Defaults to 0.
+ * @returns Frozen array of ChordScaleMatch sorted by curated order or compatibility.
+ */
+export function availableScales(
+  chordType: string,
+  root?: number,
+): readonly ChordScaleMatch[] {
+  const scaleNames = CHORD_SCALE_MAP.get(chordType);
+  const r = root !== undefined ? normalizePc(root) : 0;
+
+  if (!scaleNames) {
+    // Fallback: find chord in catalog and use dynamic matching
+    const catalogChord = CHORD_CATALOG.find(c => c.symbol === chordType);
+    if (!catalogChord) return Object.freeze([]);
+
+    const chordLabel: ChordLabel = {
+      name: catalogChord.name,
+      symbol: catalogChord.symbol,
+      root: r,
+      pcs: catalogChord.intervals.map(interval => normalizePc(r + interval)),
+    };
+    return chordScaleMatch(chordLabel, r);
+  }
+
+  // Find chord in catalog to build ChordLabel
+  const catalogChord = CHORD_CATALOG.find(c => c.symbol === chordType);
+  if (!catalogChord) return Object.freeze([]);
+
+  const chordLabel: ChordLabel = {
+    name: catalogChord.name,
+    symbol: catalogChord.symbol,
+    root: r,
+    pcs: catalogChord.intervals.map(interval => normalizePc(r + interval)),
+  };
+
+  const chordTones = getChordPcs(chordLabel);
+  const matches: ChordScaleMatch[] = [];
+
+  for (const scaleName of scaleNames) {
+    const scale = SCALE_CATALOG.find(s => s.name === scaleName);
+    if (!scale) continue;
+
+    const degreePcs = scaleDegreePcs(scale, r);
+    const scalePcSet = new Set(degreePcs);
+
+    // Verify all chord tones are in the scale
+    let chordTonesInScale = 0;
+    for (const ct of chordTones) {
+      if (scalePcSet.has(ct)) chordTonesInScale++;
+    }
+    if (chordTonesInScale < chordTones.size) continue;
+
+    const tones = classifyTones(chordLabel, scale, r);
+    const avoidCount = tones.filter(t => t.classification === 'avoid').length;
+    const base = chordTonesInScale / chordTones.size;
+    const penalty = avoidCount * 0.1;
+    const compatibility = Math.max(0, base - penalty);
+
+    matches.push(Object.freeze({
+      scale,
+      root: r,
+      tones,
+      compatibility,
+    }));
+  }
+
+  return Object.freeze(matches);
 }

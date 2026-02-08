@@ -4,16 +4,28 @@
 
 import type { NoteEvent } from '../core/types.js';
 
-/** A point in (onset, pitch) space. */
+/** A point in musical space with optional duration and velocity dimensions. */
 export interface MusicPoint {
   readonly onset: number;
   readonly pitch: number;
+  readonly duration?: number;
+  readonly velocity?: number;
 }
 
-/** A translation vector in (onset, pitch) space. */
+/** A translation vector in musical space with optional duration and velocity components. */
 export interface TranslationVector {
   readonly dOnset: number;
   readonly dPitch: number;
+  readonly dDuration?: number;
+  readonly dVelocity?: number;
+}
+
+/** Options for multi-dimensional point set representation. */
+export interface PointSetOptions {
+  /** Include note duration as a dimension. */
+  readonly includeDuration?: boolean;
+  /** Include note velocity as a dimension. */
+  readonly includeVelocity?: boolean;
 }
 
 /** A maximal translatable pattern (MTP) discovered by SIA. */
@@ -39,16 +51,29 @@ export interface CosiatecResult {
 // ---------------------------------------------------------------------------
 
 function pointKey(p: MusicPoint): string {
-  return `${p.onset},${p.pitch}`;
+  let k = `${p.onset},${p.pitch}`;
+  if (p.duration !== undefined) k += `,${p.duration}`;
+  if (p.velocity !== undefined) k += `,${p.velocity}`;
+  return k;
 }
 
 function vectorKey(v: TranslationVector): string {
-  return `${v.dOnset},${v.dPitch}`;
+  let k = `${v.dOnset},${v.dPitch}`;
+  if (v.dDuration !== undefined) k += `,${v.dDuration}`;
+  if (v.dVelocity !== undefined) k += `,${v.dVelocity}`;
+  return k;
 }
 
 function comparePoints(a: MusicPoint, b: MusicPoint): number {
   if (a.onset !== b.onset) return a.onset - b.onset;
-  return a.pitch - b.pitch;
+  if (a.pitch !== b.pitch) return a.pitch - b.pitch;
+  if (a.duration !== undefined && b.duration !== undefined && a.duration !== b.duration) {
+    return a.duration - b.duration;
+  }
+  if (a.velocity !== undefined && b.velocity !== undefined && a.velocity !== b.velocity) {
+    return a.velocity - b.velocity;
+  }
+  return 0;
 }
 
 function patternKey(pts: readonly MusicPoint[]): string {
@@ -60,17 +85,29 @@ function patternKey(pts: readonly MusicPoint[]): string {
 // ---------------------------------------------------------------------------
 
 /**
- * Convert NoteEvent[] to a sorted, deduplicated point set in (onset, pitch) space.
+ * Convert NoteEvent[] to a sorted, deduplicated point set.
+ *
+ * By default produces 2D (onset, pitch) points. Pass options to include
+ * duration and/or velocity as additional dimensions.
  *
  * @param events - Note events.
+ * @param options - Optional dimensions to include.
  * @returns Frozen array of MusicPoints, sorted lexicographically.
  */
-export function pointSetRepresentation(events: readonly NoteEvent[]): readonly MusicPoint[] {
+export function pointSetRepresentation(
+  events: readonly NoteEvent[],
+  options?: PointSetOptions,
+): readonly MusicPoint[] {
   const seen = new Set<string>();
   const points: MusicPoint[] = [];
 
   for (const e of events) {
-    const p: MusicPoint = { onset: e.onset, pitch: e.pitch.midi };
+    const p: MusicPoint = {
+      onset: e.onset,
+      pitch: e.pitch.midi,
+      ...(options?.includeDuration ? { duration: e.duration } : {}),
+      ...(options?.includeVelocity ? { velocity: e.velocity } : {}),
+    };
     const k = pointKey(p);
     if (!seen.has(k)) {
       seen.add(k);
@@ -115,6 +152,10 @@ export function sia(
       const vec: TranslationVector = {
         dOnset: pj.onset - pi.onset,
         dPitch: pj.pitch - pi.pitch,
+        ...(pi.duration !== undefined && pj.duration !== undefined
+          ? { dDuration: pj.duration - pi.duration } : {}),
+        ...(pi.velocity !== undefined && pj.velocity !== undefined
+          ? { dVelocity: pj.velocity - pi.velocity } : {}),
       };
       const vk = vectorKey(vec);
 
@@ -198,12 +239,22 @@ export function siatec(
       const vec: TranslationVector = {
         dOnset: p.onset - firstPoint.onset,
         dPitch: p.pitch - firstPoint.pitch,
+        ...(p.duration !== undefined && firstPoint.duration !== undefined
+          ? { dDuration: p.duration - firstPoint.duration } : {}),
+        ...(p.velocity !== undefined && firstPoint.velocity !== undefined
+          ? { dVelocity: p.velocity - firstPoint.velocity } : {}),
       };
 
       // Check if ALL pattern points exist when translated by vec
       let allPresent = true;
       for (const pp of pattern) {
-        const translated = `${pp.onset + vec.dOnset},${pp.pitch + vec.dPitch}`;
+        let translated = `${pp.onset + vec.dOnset},${pp.pitch + vec.dPitch}`;
+        if (pp.duration !== undefined && vec.dDuration !== undefined) {
+          translated += `,${pp.duration + vec.dDuration}`;
+        }
+        if (pp.velocity !== undefined && vec.dVelocity !== undefined) {
+          translated += `,${pp.velocity + vec.dVelocity}`;
+        }
         if (!pointSet.has(translated)) {
           allPresent = false;
           break;
@@ -249,10 +300,8 @@ export function cosiatec(
 
   const totalPoints = points.length;
   let uncovered = new Set<string>();
-  const mutablePoints: MusicPoint[] = [];
   for (const p of points) {
     uncovered.add(pointKey(p));
-    mutablePoints.push({ onset: p.onset, pitch: p.pitch });
   }
 
   const selectedTecs: TEC[] = [];
@@ -263,10 +312,13 @@ export function cosiatec(
     const currentPoints: MusicPoint[] = [];
     for (const k of uncovered) {
       const parts = k.split(',');
-      currentPoints.push({
+      const p: MusicPoint = {
         onset: Number(parts[0]),
         pitch: Number(parts[1]),
-      });
+        ...(parts.length >= 3 ? { duration: Number(parts[2]) } : {}),
+        ...(parts.length >= 4 ? { velocity: Number(parts[3]) } : {}),
+      };
+      currentPoints.push(p);
     }
     currentPoints.sort(comparePoints);
 
@@ -295,7 +347,13 @@ export function cosiatec(
     // Remove covered points
     for (const translator of bestTec.translators) {
       for (const pp of bestTec.pattern) {
-        const translated = `${pp.onset + translator.dOnset},${pp.pitch + translator.dPitch}`;
+        let translated = `${pp.onset + translator.dOnset},${pp.pitch + translator.dPitch}`;
+        if (pp.duration !== undefined && translator.dDuration !== undefined) {
+          translated += `,${pp.duration + translator.dDuration}`;
+        }
+        if (pp.velocity !== undefined && translator.dVelocity !== undefined) {
+          translated += `,${pp.velocity + translator.dVelocity}`;
+        }
         uncovered.delete(translated);
       }
     }

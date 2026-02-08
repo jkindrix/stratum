@@ -12,6 +12,8 @@ import {
   createScore,
   addPart,
   addNote,
+  CHORD_SCALE_MAP,
+  availableScales,
 } from '../src/index.js';
 import type { ChordLabel, NoteEvent } from '../src/index.js';
 
@@ -342,6 +344,59 @@ describe('Chord-Scale Theory', () => {
       const result = analyzeOverHarmony([], chords, ionian, 0);
       expect(result).toHaveLength(0);
       expect(Object.isFrozen(result)).toBe(true);
+    });
+  });
+
+  describe('CHORD_SCALE_MAP', () => {
+    it('has entries for all 7 core chord types', () => {
+      for (const type of ['maj7', '7', 'min7', 'm7b5', 'dim7', 'mMaj7', 'aug']) {
+        expect(CHORD_SCALE_MAP.has(type)).toBe(true);
+      }
+    });
+
+    it('values are non-empty arrays', () => {
+      for (const [, scales] of CHORD_SCALE_MAP) {
+        expect(scales.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe('availableScales', () => {
+    it('returns Ionian and Lydian for maj7 at root 0', () => {
+      const matches = availableScales('maj7', 0);
+      expect(matches.length).toBeGreaterThanOrEqual(2);
+      const names = matches.map(m => m.scale.name);
+      expect(names).toContain('Ionian');
+      expect(names).toContain('Lydian');
+    });
+
+    it('returns Mixolydian for dom7 at root 7', () => {
+      const matches = availableScales('7', 7);
+      const names = matches.map(m => m.scale.name);
+      expect(names).toContain('Mixolydian');
+    });
+
+    it('returns Dorian and Aeolian for min7 at root 2', () => {
+      const matches = availableScales('min7', 2);
+      const names = matches.map(m => m.scale.name);
+      expect(names).toContain('Dorian');
+      expect(names).toContain('Aeolian');
+    });
+
+    it('falls back to dynamic matching for unknown type', () => {
+      const matches = availableScales('6', 0);
+      // '6' is not in CHORD_SCALE_MAP but is in CHORD_CATALOG
+      expect(matches.length).toBeGreaterThan(0);
+    });
+
+    it('returns frozen results with compatibility in [0,1]', () => {
+      const matches = availableScales('maj7', 0);
+      expect(Object.isFrozen(matches)).toBe(true);
+      for (const m of matches) {
+        expect(Object.isFrozen(m)).toBe(true);
+        expect(m.compatibility).toBeGreaterThanOrEqual(0);
+        expect(m.compatibility).toBeLessThanOrEqual(1);
+      }
     });
   });
 });

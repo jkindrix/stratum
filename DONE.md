@@ -147,7 +147,7 @@
 - [x] `parsePitchName(name)` — string to Pitch (C4, Bb3, F#5)
 - [x] `spellPitch(midiNote, key?)` — automatic pitch spelling: select correct enharmonic name based on key context (e.g., MIDI 61 → C# in A major, Db in Ab major)
 - [x] `spellPitchSequence(midiNotes, key?)` — spell a melody with minimal accidentals and context-aware enharmonic selection
-- [ ] Support enharmonic preference rules: diatonic spelling, minimal accidentals, directional consistency
+- [x] Support enharmonic preference rules: diatonic spelling, minimal accidentals, directional consistency
 
 ### 2.2 Intervals
 
@@ -184,7 +184,7 @@
 - [x] `pcSetCosine(a, b)` — cosine similarity between pitch-class distributions
 - [x] `zRelation(a, b)` — detect Z-related sets (same ICV, different prime form)
 - [x] `earthMoversDistance(a, b)` — Earth Mover's Distance between pitch-class distributions (optimal transport cost on the chroma circle)
-- [ ] Support configurable ground distance (circular semitone distance on pitch-class ring)
+- [x] Support configurable ground distance (circular semitone distance on pitch-class ring)
 
 ### 2.5 Forte Catalog
 
@@ -771,11 +771,11 @@
 
 ### 7.4 Chord-Scale Theory
 
-- [ ] `chordScaleMap` — database mapping chord types to compatible scales
-- [ ] `availableScales(chord)` — return all compatible scales for a given chord
+- [x] `chordScaleMap` — database mapping chord types to compatible scales
+- [x] `availableScales(chord)` — return all compatible scales for a given chord
 - [x] `classifyTones(scale, chord)` — for each scale degree: chord tone, available tension, or avoid note
 - [x] `analyzeOverHarmony(melody, chords)` — classify each melodic note relative to underlying chord-scale
-- [ ] Built-in mappings for: major 7, dominant 7, minor 7, half-dim 7, diminished 7, altered, lydian dominant, and common jazz voicings
+- [x] Built-in mappings for: major 7, dominant 7, minor 7, half-dim 7, diminished 7, altered, lydian dominant, and common jazz voicings
 - [x] `hpcp(events)` — Harmonic Pitch Class Profile: weighted 12-element chroma vector from sounding events
 - [x] `chordScaleScore(hpcp, scaleTemplate)` — cosine similarity or KL divergence between HPCP and chord-scale template
 - [x] `bestChordScale(hpcp, chord)` — return highest-scoring compatible scale for observed pitch content
@@ -797,11 +797,11 @@
 
 #### 7.6.1 Self-Similarity Matrix
 
-- [ ] `selfSimilarityMatrix(score, windowSize, featureType?)` — compute SSM from score
-- [ ] Feature types: chroma (pitch-class distribution), pitch histogram, rhythm pattern, interval sequence, combined
-- [ ] Similarity metric: cosine similarity (default), Euclidean distance, correlation
-- [ ] `enhanceSSM(matrix, options?)` — path enhancement, transposition invariance, thresholding
-- [ ] Support configurable window size and hop size
+- [x] `selfSimilarityMatrix(score, windowSize, featureType?)` — compute SSM from score
+- [x] Feature types: chroma (pitch-class distribution), pitch histogram, rhythm pattern, interval sequence, combined
+- [x] Similarity metric: cosine similarity (default), Euclidean distance, correlation
+- [x] `enhanceSSM(matrix, options?)` — path enhancement, transposition invariance, thresholding
+- [x] Support configurable window size and hop size
 
 #### 7.6.2 Novelty Detection
 
@@ -817,7 +817,7 @@
 - [x] `siatec(pointSet)` — find all translation equivalence classes (all occurrences of each pattern)
 - [x] `cosiatec(pointSet)` — greedy cover: iteratively select best TEC, remove points, repeat
 - [x] `compressionRatio(pointSet)` — measure structural repetitiveness
-- [ ] Support additional dimensions: duration, velocity
+- [x] Support additional dimensions: duration, velocity
 
 ### 7.7 Post-Tonal Analysis
 
@@ -1350,7 +1350,7 @@
 - [x] No dev dependencies or test files in published package
 - [x] Package installs cleanly in a fresh project (`npm install` from tarball)
 - [x] Tree-shakeable (ESM, no side effects)
-- [ ] Subpath exports updated for all new modules (composition, serial, nrt, stats, etc.)
+- [x] Subpath exports updated for all new modules (composition, serial, nrt, stats, etc.)
 
 ### 11.4 CI Pipeline
 
@@ -1396,7 +1396,7 @@
 ### 12.4 Zero Dependencies
 
 - [x] No runtime dependencies (production)
-- [ ] Maintained through all new modules — every parser, algorithm, and renderer implemented from scratch
+- [x] Maintained through all new modules — every parser, algorithm, and renderer implemented from scratch
 
 ---
 
@@ -1592,7 +1592,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [ ] All Section 9.25-9.37 tests passing (new feature tests)
 - [ ] README updated with v3 examples
 - [ ] JSDoc on all v3 exports
-- [ ] Subpath exports updated for all new modules
+- [x] Subpath exports updated for all new modules
 - [x] Zero runtime dependencies maintained
 
 ---

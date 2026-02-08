@@ -197,6 +197,9 @@ export interface NoveltyPoint {
 /** Extracts a feature vector from a set of note events. */
 export type FeatureExtractor = (events: readonly NoteEvent[]) => readonly number[];
 
+/** A similarity metric that compares two feature vectors and returns a value in [0, 1]. */
+export type SimilarityMetric = (a: readonly number[], b: readonly number[]) => number;
+
 /**
  * Default feature extractor: 12-bin chroma vector (pitch-class histogram).
  *
@@ -223,7 +226,7 @@ export function chromaticFeature(events: readonly NoteEvent[]): readonly number[
 }
 
 /** Cosine similarity between two vectors, clamped to [0, 1]. */
-function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
+export function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
   let dot = 0, normA = 0, normB = 0;
   const len = Math.min(a.length, b.length);
   for (let i = 0; i < len; i++) {
@@ -239,6 +242,155 @@ function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
 }
 
 /**
+ * Euclidean similarity between two vectors: 1 / (1 + euclidean_distance).
+ * Returns a value in [0, 1] where 1 means identical.
+ */
+export function euclideanSimilarity(a: readonly number[], b: readonly number[]): number {
+  let sum = 0;
+  const len = Math.min(a.length, b.length);
+  for (let i = 0; i < len; i++) {
+    const diff = (a[i] ?? 0) - (b[i] ?? 0);
+    sum += diff * diff;
+  }
+  return 1 / (1 + Math.sqrt(sum));
+}
+
+/**
+ * Pearson correlation similarity: (r + 1) / 2 mapped to [0, 1].
+ * Returns 0.5 for uncorrelated, 1 for perfectly correlated, 0 for perfectly anticorrelated.
+ */
+export function correlationSimilarity(a: readonly number[], b: readonly number[]): number {
+  const len = Math.min(a.length, b.length);
+  if (len === 0) return 0;
+
+  let sumA = 0, sumB = 0;
+  for (let i = 0; i < len; i++) {
+    sumA += a[i] ?? 0;
+    sumB += b[i] ?? 0;
+  }
+  const meanA = sumA / len;
+  const meanB = sumB / len;
+
+  let cov = 0, varA = 0, varB = 0;
+  for (let i = 0; i < len; i++) {
+    const da = (a[i] ?? 0) - meanA;
+    const db = (b[i] ?? 0) - meanB;
+    cov += da * db;
+    varA += da * da;
+    varB += db * db;
+  }
+
+  const denom = Math.sqrt(varA) * Math.sqrt(varB);
+  if (denom === 0) return 0.5; // undefined correlation → neutral
+  const r = cov / denom;
+  return (r + 1) / 2;
+}
+
+// ---------------------------------------------------------------------------
+// Additional Feature Extractors
+// ---------------------------------------------------------------------------
+
+/**
+ * 128-bin MIDI pitch histogram, duration-weighted and normalized to sum ≈ 1.
+ *
+ * @param events - Note events in a window.
+ * @returns 128-element array of normalized durations per MIDI pitch.
+ */
+export function pitchHistogramFeature(events: readonly NoteEvent[]): readonly number[] {
+  const bins = new Array<number>(128).fill(0);
+  let total = 0;
+  for (const e of events) {
+    const midi = Math.max(0, Math.min(127, e.pitch.midi));
+    bins[midi] = (bins[midi] ?? 0) + e.duration;
+    total += e.duration;
+  }
+  if (total > 0) {
+    for (let i = 0; i < 128; i++) {
+      bins[i] = (bins[i] ?? 0) / total;
+    }
+  }
+  return Object.freeze(bins);
+}
+
+/**
+ * 16-bin inter-onset interval (IOI) ratio histogram, normalized.
+ * Bins represent IOI ratios quantized to 16 levels from very short to very long.
+ *
+ * @param events - Note events in a window.
+ * @returns 16-element array of normalized IOI counts.
+ */
+export function rhythmFeature(events: readonly NoteEvent[]): readonly number[] {
+  const bins = new Array<number>(16).fill(0);
+  if (events.length < 2) return Object.freeze(bins);
+
+  const sorted = [...events].sort((a, b) => a.onset - b.onset);
+  let total = 0;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const ioi = sorted[i]!.onset - sorted[i - 1]!.onset;
+    // Quantize IOI: bin 0 = 0 ticks, bin 15 = >= 7680 ticks (2 whole notes at 480 tpq)
+    const bin = Math.min(15, Math.floor(ioi / 480));
+    bins[bin] = (bins[bin] ?? 0) + 1;
+    total++;
+  }
+
+  if (total > 0) {
+    for (let i = 0; i < 16; i++) {
+      bins[i] = (bins[i] ?? 0) / total;
+    }
+  }
+  return Object.freeze(bins);
+}
+
+/**
+ * 25-bin melodic interval histogram (-12 to +12 semitones), normalized.
+ * Index 0 = -12, index 12 = 0 (repeat), index 24 = +12.
+ *
+ * @param events - Note events in a window.
+ * @returns 25-element array of normalized interval counts.
+ */
+export function intervalFeature(events: readonly NoteEvent[]): readonly number[] {
+  const bins = new Array<number>(25).fill(0);
+  if (events.length < 2) return Object.freeze(bins);
+
+  const sorted = [...events].sort((a, b) => a.onset - b.onset);
+  let total = 0;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const interval = sorted[i]!.pitch.midi - sorted[i - 1]!.pitch.midi;
+    // Clamp to [-12, +12] and map to [0, 24]
+    const clamped = Math.max(-12, Math.min(12, interval));
+    const bin = clamped + 12;
+    bins[bin] = (bins[bin] ?? 0) + 1;
+    total++;
+  }
+
+  if (total > 0) {
+    for (let i = 0; i < 25; i++) {
+      bins[i] = (bins[i] ?? 0) / total;
+    }
+  }
+  return Object.freeze(bins);
+}
+
+/**
+ * Combined feature vector: chroma(12) + rhythm(16) + interval(25) = 53 dimensions.
+ *
+ * @param events - Note events in a window.
+ * @returns 53-element concatenated feature vector.
+ */
+export function combinedFeature(events: readonly NoteEvent[]): readonly number[] {
+  const chroma = chromaticFeature(events);
+  const rhythm = rhythmFeature(events);
+  const interval = intervalFeature(events);
+  const result: number[] = [];
+  for (const v of chroma) result.push(v);
+  for (const v of rhythm) result.push(v);
+  for (const v of interval) result.push(v);
+  return Object.freeze(result);
+}
+
+/**
  * Build a self-similarity matrix from a score.
  *
  * Divides the score into windows, extracts feature vectors, and computes
@@ -248,6 +400,7 @@ function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
  * @param windowSize - Window size in ticks.
  * @param hopSize - Hop between windows in ticks.
  * @param extractor - Feature extraction function (defaults to chromaticFeature).
+ * @param metric - Similarity metric function (defaults to cosineSimilarity).
  * @returns Frozen SimilarityMatrix.
  * @throws {RangeError} If windowSize or hopSize is not positive.
  */
@@ -256,6 +409,7 @@ export function selfSimilarityMatrix(
   windowSize: number,
   hopSize: number,
   extractor?: FeatureExtractor,
+  metric?: SimilarityMetric,
 ): SimilarityMatrix {
   if (!Number.isFinite(windowSize) || windowSize <= 0) {
     throw new RangeError(`windowSize must be positive (got ${windowSize})`);
@@ -265,6 +419,7 @@ export function selfSimilarityMatrix(
   }
 
   const extract = extractor ?? chromaticFeature;
+  const sim = metric ?? cosineSimilarity;
   const allEvents = score.parts.flatMap(p => p.events);
 
   if (allEvents.length === 0) {
@@ -295,7 +450,7 @@ export function selfSimilarityMatrix(
   for (let i = 0; i < n; i++) {
     const row: number[] = [];
     for (let j = 0; j < n; j++) {
-      row.push(cosineSimilarity(features[i]!, features[j]!));
+      row.push(sim(features[i]!, features[j]!));
     }
     data.push(Object.freeze(row));
   }
@@ -305,6 +460,114 @@ export function selfSimilarityMatrix(
     data: Object.freeze(data),
     windowSize,
     hopSize,
+  });
+}
+
+/** Options for SSM post-processing enhancement. */
+export interface EnhanceSSMOptions {
+  /** Normalize each row to max=1 for transposition invariance. */
+  readonly transpositionInvariant?: boolean;
+  /** Diagonal kernel smoothing half-width for path enhancement. */
+  readonly pathEnhance?: number;
+  /** Zero out cells below this threshold. */
+  readonly threshold?: number;
+}
+
+/**
+ * Post-process a self-similarity matrix with optional enhancements.
+ *
+ * @param matrix - Input SimilarityMatrix.
+ * @param options - Enhancement options.
+ * @returns New frozen SimilarityMatrix with enhancements applied.
+ */
+export function enhanceSSM(
+  matrix: SimilarityMatrix,
+  options?: EnhanceSSMOptions,
+): SimilarityMatrix {
+  const n = matrix.size;
+  if (n === 0) {
+    return Object.freeze({
+      size: 0,
+      data: Object.freeze([]),
+      windowSize: matrix.windowSize,
+      hopSize: matrix.hopSize,
+    });
+  }
+
+  // Copy data to mutable arrays
+  let data: number[][] = [];
+  for (let i = 0; i < n; i++) {
+    const row: number[] = [];
+    const srcRow = matrix.data[i];
+    for (let j = 0; j < n; j++) {
+      row.push(srcRow ? (srcRow[j] ?? 0) : 0);
+    }
+    data.push(row);
+  }
+
+  // Transposition invariance: normalize each row to max=1
+  if (options?.transpositionInvariant) {
+    for (let i = 0; i < n; i++) {
+      let maxVal = 0;
+      for (let j = 0; j < n; j++) {
+        const v = data[i]![j] ?? 0;
+        if (v > maxVal) maxVal = v;
+      }
+      if (maxVal > 0) {
+        for (let j = 0; j < n; j++) {
+          data[i]![j] = (data[i]![j] ?? 0) / maxVal;
+        }
+      }
+    }
+  }
+
+  // Path enhancement: diagonal kernel smoothing
+  if (options?.pathEnhance !== undefined && options.pathEnhance > 0) {
+    const L = Math.round(options.pathEnhance);
+    const enhanced: number[][] = [];
+    for (let i = 0; i < n; i++) {
+      const row: number[] = [];
+      for (let j = 0; j < n; j++) {
+        let sum = 0;
+        let count = 0;
+        for (let k = -L; k <= L; k++) {
+          const ri = i + k;
+          const ci = j + k;
+          if (ri >= 0 && ri < n && ci >= 0 && ci < n) {
+            sum += data[ri]![ci] ?? 0;
+            count++;
+          }
+        }
+        row.push(count > 0 ? sum / count : 0);
+      }
+      enhanced.push(row);
+    }
+    data = enhanced;
+  }
+
+  // Thresholding: zero out cells below threshold
+  if (options?.threshold !== undefined) {
+    const thresh = options.threshold;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if ((data[i]![j] ?? 0) < thresh) {
+          data[i]![j] = 0;
+        }
+      }
+    }
+  }
+
+  // Freeze and return
+  const frozenData: (readonly number[])[] = [];
+  for (let i = 0; i < n; i++) {
+    frozenData.push(Object.freeze(data[i]!));
+  }
+
+  return Object.freeze({
+    size: n,
+    data: Object.freeze(frozenData),
+    windowSize: matrix.windowSize,
+    hopSize: matrix.hopSize,
   });
 }
 

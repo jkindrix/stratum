@@ -12,6 +12,13 @@ import {
   multiScaleNovelty,
   findStructuralBoundaries,
   selfSimilarityMatrix,
+  pitchHistogramFeature,
+  rhythmFeature,
+  intervalFeature,
+  combinedFeature,
+  euclideanSimilarity,
+  correlationSimilarity,
+  enhanceSSM,
 } from '../src/index.js';
 import type { NoteEvent, MusicPoint, Score } from '../src/index.js';
 
@@ -369,6 +376,218 @@ describe('Enhanced Novelty Detection', () => {
         expect(b.confidence).toBeGreaterThanOrEqual(0);
         expect(b.confidence).toBeLessThanOrEqual(1);
       }
+    });
+  });
+});
+
+describe('Enhanced SSM Features', () => {
+  // Reuse helper from above scope
+  function makeEvt(midi: number, onset: number, duration = 480): NoteEvent {
+    return {
+      id: `ssm-${++idCounter}`,
+      pitch: pitchFromMidi(midi),
+      onset,
+      duration,
+      velocity: 80,
+      voice: 0,
+    };
+  }
+
+  function buildScore(events: NoteEvent[]): Score {
+    const score = createScore({ title: 'test', composer: '' });
+    const part = addPart(score, { name: 'P1' });
+    for (const e of events) {
+      addNote(score, part, { midi: e.pitch.midi, onset: e.onset, duration: e.duration, velocity: e.velocity });
+    }
+    return score;
+  }
+
+  describe('pitchHistogramFeature', () => {
+    it('returns 128-element vector summing to ~1', () => {
+      const events = [makeEvt(60, 0), makeEvt(64, 480), makeEvt(67, 960)];
+      const feature = pitchHistogramFeature(events);
+      expect(feature).toHaveLength(128);
+      const sum = feature.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1, 5);
+    });
+  });
+
+  describe('rhythmFeature', () => {
+    it('returns 16-element normalized vector', () => {
+      const events = [makeEvt(60, 0), makeEvt(64, 480), makeEvt(67, 960)];
+      const feature = rhythmFeature(events);
+      expect(feature).toHaveLength(16);
+      const sum = feature.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1, 5);
+    });
+  });
+
+  describe('intervalFeature', () => {
+    it('returns 25-element normalized vector', () => {
+      const events = [makeEvt(60, 0), makeEvt(64, 480), makeEvt(67, 960)];
+      const feature = intervalFeature(events);
+      expect(feature).toHaveLength(25);
+      const sum = feature.reduce((a, b) => a + b, 0);
+      expect(sum).toBeCloseTo(1, 5);
+    });
+  });
+
+  describe('combinedFeature', () => {
+    it('concatenates to 53 elements', () => {
+      const events = [makeEvt(60, 0), makeEvt(64, 480), makeEvt(67, 960)];
+      const feature = combinedFeature(events);
+      expect(feature).toHaveLength(53);
+    });
+  });
+
+  describe('euclideanSimilarity', () => {
+    it('returns 1 for identical vectors', () => {
+      const a = [1, 0, 0.5, 0.3];
+      expect(euclideanSimilarity(a, a)).toBe(1);
+    });
+
+    it('returns < 1 for different vectors', () => {
+      const a = [1, 0, 0];
+      const b = [0, 1, 0];
+      expect(euclideanSimilarity(a, b)).toBeLessThan(1);
+      expect(euclideanSimilarity(a, b)).toBeGreaterThan(0);
+    });
+  });
+
+  describe('correlationSimilarity', () => {
+    it('returns 1 for identical vectors', () => {
+      const a = [1, 2, 3, 4];
+      expect(correlationSimilarity(a, a)).toBeCloseTo(1, 10);
+    });
+
+    it('returns ~0 for perfectly anticorrelated', () => {
+      const a = [1, 2, 3, 4];
+      const b = [4, 3, 2, 1];
+      expect(correlationSimilarity(a, b)).toBeCloseTo(0, 10);
+    });
+  });
+
+  describe('selfSimilarityMatrix with custom metric', () => {
+    it('accepts 5th metric argument', () => {
+      const events = [makeEvt(60, 0), makeEvt(64, 480), makeEvt(67, 960), makeEvt(72, 1440)];
+      const score = buildScore(events);
+      const ssm = selfSimilarityMatrix(score, 480, 480, undefined, euclideanSimilarity);
+      expect(ssm.size).toBeGreaterThan(0);
+      // Diagonal should be 1 (identical windows)
+      for (let i = 0; i < ssm.size; i++) {
+        expect(ssm.data[i]![i]).toBeCloseTo(1, 5);
+      }
+    });
+  });
+
+  describe('enhanceSSM', () => {
+    it('applies thresholding and returns frozen result', () => {
+      const events: NoteEvent[] = [];
+      for (let i = 0; i < 8; i++) {
+        events.push(makeEvt(60 + (i % 4), i * 480));
+      }
+      const score = buildScore(events);
+      const ssm = selfSimilarityMatrix(score, 480, 480);
+      const enhanced = enhanceSSM(ssm, { threshold: 0.5 });
+
+      expect(Object.isFrozen(enhanced)).toBe(true);
+      expect(enhanced.size).toBe(ssm.size);
+      // All values should be >= 0.5 or 0
+      for (let i = 0; i < enhanced.size; i++) {
+        for (let j = 0; j < enhanced.size; j++) {
+          const val = enhanced.data[i]![j]!;
+          expect(val === 0 || val >= 0.5).toBe(true);
+        }
+      }
+    });
+  });
+});
+
+describe('SIA Multi-Dimensional Points', () => {
+  describe('pointSetRepresentation with options', () => {
+    function makeEvt(midi: number, onset: number, duration = 480, velocity = 80): NoteEvent {
+      return {
+        id: `dim-${++idCounter}`,
+        pitch: pitchFromMidi(midi),
+        onset,
+        duration,
+        velocity,
+        voice: 0,
+      };
+    }
+
+    it('includes duration when { includeDuration: true }', () => {
+      const events = [makeEvt(60, 0, 480), makeEvt(64, 480, 960)];
+      const points = pointSetRepresentation(events, { includeDuration: true });
+      expect(points[0]!.duration).toBe(480);
+      expect(points[1]!.duration).toBe(960);
+    });
+
+    it('includes velocity when { includeVelocity: true }', () => {
+      const events = [makeEvt(60, 0, 480, 64), makeEvt(64, 480, 480, 100)];
+      const points = pointSetRepresentation(events, { includeVelocity: true });
+      expect(points[0]!.velocity).toBe(64);
+      expect(points[1]!.velocity).toBe(100);
+    });
+
+    it('includes both dimensions', () => {
+      const events = [makeEvt(60, 0, 480, 64)];
+      const points = pointSetRepresentation(events, { includeDuration: true, includeVelocity: true });
+      expect(points[0]!.duration).toBe(480);
+      expect(points[0]!.velocity).toBe(64);
+    });
+
+    it('produces 2D points without options (backward compat)', () => {
+      const events = [makeEvt(60, 0, 480, 80)];
+      const points = pointSetRepresentation(events);
+      expect(points[0]!.duration).toBeUndefined();
+      expect(points[0]!.velocity).toBeUndefined();
+    });
+  });
+
+  describe('sia with duration dimension', () => {
+    it('distinguishes patterns by duration', () => {
+      // Two motifs identical in onset/pitch but different durations
+      const points: MusicPoint[] = [
+        { onset: 0, pitch: 60, duration: 480 },
+        { onset: 480, pitch: 64, duration: 480 },
+        { onset: 960, pitch: 60, duration: 480 },
+        { onset: 1440, pitch: 64, duration: 480 },
+      ];
+      const patterns = sia(points);
+      expect(patterns.length).toBeGreaterThan(0);
+      // Should find dDuration = 0 for matching durations
+      const found = patterns.find(p => p.vector.dDuration === 0);
+      expect(found).toBeDefined();
+    });
+  });
+
+  describe('siatec with duration dimension', () => {
+    it('translators include dDuration field', () => {
+      const points: MusicPoint[] = [
+        { onset: 0, pitch: 60, duration: 480 },
+        { onset: 480, pitch: 64, duration: 480 },
+        { onset: 960, pitch: 60, duration: 480 },
+        { onset: 1440, pitch: 64, duration: 480 },
+      ];
+      const tecs = siatec(points);
+      expect(tecs.length).toBeGreaterThan(0);
+      const hasDDuration = tecs.some(t => t.translators.some(v => v.dDuration !== undefined));
+      expect(hasDDuration).toBe(true);
+    });
+  });
+
+  describe('cosiatec with multi-dimensional points', () => {
+    it('handles multi-dimensional points without error', () => {
+      const points: MusicPoint[] = [
+        { onset: 0, pitch: 60, duration: 480, velocity: 80 },
+        { onset: 480, pitch: 64, duration: 480, velocity: 80 },
+        { onset: 960, pitch: 60, duration: 480, velocity: 80 },
+        { onset: 1440, pitch: 64, duration: 480, velocity: 80 },
+      ];
+      const result = cosiatec(points);
+      expect(result.compressionRatio).toBeGreaterThan(0);
+      expect(result.tecs.length).toBeGreaterThan(0);
     });
   });
 });

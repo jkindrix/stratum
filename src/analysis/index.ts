@@ -24,7 +24,9 @@ export type {
   SimilarityMatrix,
   NoveltyPoint,
   FeatureExtractor,
+  SimilarityMetric,
   StructuralBoundary,
+  EnhanceSSMOptions,
 } from './structural.js';
 export {
   segmentByRests,
@@ -32,7 +34,15 @@ export {
   eventDensityCurve,
   registralEnvelope,
   chromaticFeature,
+  cosineSimilarity,
+  euclideanSimilarity,
+  correlationSimilarity,
+  pitchHistogramFeature,
+  rhythmFeature,
+  intervalFeature,
+  combinedFeature,
   selfSimilarityMatrix,
+  enhanceSSM,
   noveltyDetection,
   noveltyPeaks,
   multiScaleNovelty,
@@ -140,6 +150,8 @@ export {
   chordScaleScore,
   bestChordScale,
   analyzeOverHarmony,
+  CHORD_SCALE_MAP,
+  availableScales,
 } from './chord-scale.js';
 
 // Voice separation
@@ -189,7 +201,7 @@ export {
 } from './evaluation.js';
 
 // SIA/SIATEC repetition discovery
-export type { MusicPoint, TranslationVector, SIAPattern, TEC, CosiatecResult } from './sia.js';
+export type { MusicPoint, TranslationVector, SIAPattern, TEC, CosiatecResult, PointSetOptions } from './sia.js';
 export { pointSetRepresentation, sia, siatec, cosiatec, compressionRatio } from './sia.js';
 
 // Information-theoretic expectation

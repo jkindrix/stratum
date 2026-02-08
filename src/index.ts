@@ -31,7 +31,7 @@ export {
 } from './core/index.js';
 
 // Pitch analysis
-export type { ForteEntry, Scale, Chord, SpelledPitch, SpellingKeyContext, Monzo, Rank2Temperament, Val, MosEntry, VoiceLeadingMetric, OPTICResult } from './pitch/index.js';
+export type { ForteEntry, Scale, Chord, SpelledPitch, SpellingKeyContext, Monzo, Rank2Temperament, Val, MosEntry, VoiceLeadingMetric, OPTICResult, GroundDistance } from './pitch/index.js';
 export {
   normalizePc,
   pitchFromPcOctave,
@@ -252,7 +252,9 @@ export type {
   SimilarityMatrix,
   NoveltyPoint,
   FeatureExtractor,
+  SimilarityMetric,
   StructuralBoundary,
+  EnhanceSSMOptions,
   // Serial
   TwelveToneRow,
   TwelveToneMatrix,
@@ -311,6 +313,7 @@ export type {
   SIAPattern,
   TEC,
   CosiatecResult,
+  PointSetOptions,
   // Information-theoretic expectation
   Viewpoint,
   MarkovModel,
@@ -360,7 +363,15 @@ export {
   registralEnvelope,
   // Self-similarity & novelty
   chromaticFeature,
+  cosineSimilarity,
+  euclideanSimilarity,
+  correlationSimilarity,
+  pitchHistogramFeature,
+  rhythmFeature,
+  intervalFeature,
+  combinedFeature,
   selfSimilarityMatrix,
+  enhanceSSM,
   noveltyDetection,
   noveltyPeaks,
   multiScaleNovelty,
@@ -437,6 +448,8 @@ export {
   chordScaleScore,
   bestChordScale,
   analyzeOverHarmony,
+  CHORD_SCALE_MAP,
+  availableScales,
   // Voice separation
   separateVoices,
   // Counterpoint analysis
