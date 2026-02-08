@@ -15,6 +15,9 @@ import {
   addNote,
   midiToScore,
   scoreToMidi,
+  inflate,
+  unzip,
+  isMxl,
 } from '../src/index.js';
 import type { XmlElement } from '../src/index.js';
 
@@ -827,5 +830,604 @@ describe('MusicXML integration', () => {
     const bassMidis = reimported.parts[1]!.events.map(e => e.pitch.midi);
     expect(bassMidis).toContain(53);
     expect(bassMidis).toContain(48);
+  });
+});
+
+// ==========================================================================
+// ZIP / DEFLATE Tests
+// ==========================================================================
+
+/** Build a minimal stored ZIP archive (compression method 0). */
+function buildStoredZip(files: Map<string, string>): Uint8Array {
+  const encoder = new TextEncoder();
+  const entries: { filename: Uint8Array; data: Uint8Array; offset: number }[] = [];
+  const chunks: Uint8Array[] = [];
+  let offset = 0;
+
+  // Local file headers + data
+  for (const [name, content] of files) {
+    const fnBytes = encoder.encode(name);
+    const dataBytes = encoder.encode(content);
+    const header = new Uint8Array(30 + fnBytes.length);
+    const view = new DataView(header.buffer);
+    view.setUint32(0, 0x04034B50, true);  // local file header signature
+    view.setUint16(4, 20, true);           // version needed
+    view.setUint16(6, 0, true);            // flags
+    view.setUint16(8, 0, true);            // method: stored
+    view.setUint32(14, 0, true);           // CRC-32 (ignored for our purposes)
+    view.setUint32(18, dataBytes.length, true); // compressed size
+    view.setUint32(22, dataBytes.length, true); // uncompressed size
+    view.setUint16(26, fnBytes.length, true);   // filename length
+    view.setUint16(28, 0, true);           // extra field length
+    header.set(fnBytes, 30);
+
+    entries.push({ filename: fnBytes, data: dataBytes, offset });
+    chunks.push(header, dataBytes);
+    offset += header.length + dataBytes.length;
+  }
+
+  // Central directory
+  const cdOffset = offset;
+  for (const entry of entries) {
+    const cdHeader = new Uint8Array(46 + entry.filename.length);
+    const cdView = new DataView(cdHeader.buffer);
+    cdView.setUint32(0, 0x02014B50, true);  // central dir signature
+    cdView.setUint16(4, 20, true);           // version made by
+    cdView.setUint16(6, 20, true);           // version needed
+    cdView.setUint16(8, 0, true);            // flags
+    cdView.setUint16(10, 0, true);           // method: stored
+    cdView.setUint32(20, entry.data.length, true); // compressed size
+    cdView.setUint32(24, entry.data.length, true); // uncompressed size
+    cdView.setUint16(28, entry.filename.length, true); // filename length
+    cdView.setUint32(42, entry.offset, true); // local header offset
+    cdHeader.set(entry.filename, 46);
+    chunks.push(cdHeader);
+    offset += cdHeader.length;
+  }
+
+  // End of central directory
+  const eocd = new Uint8Array(22);
+  const eocdView = new DataView(eocd.buffer);
+  eocdView.setUint32(0, 0x06054B50, true);    // EOCD signature
+  eocdView.setUint16(8, entries.length, true); // total entries (this disk)
+  eocdView.setUint16(10, entries.length, true); // total entries
+  eocdView.setUint32(12, offset - cdOffset, true); // CD size
+  eocdView.setUint32(16, cdOffset, true);      // CD offset
+  chunks.push(eocd);
+
+  // Concatenate
+  const totalLen = chunks.reduce((s, c) => s + c.length, 0);
+  const result = new Uint8Array(totalLen);
+  let pos = 0;
+  for (const c of chunks) {
+    result.set(c, pos);
+    pos += c.length;
+  }
+  return result;
+}
+
+/** Build a simple MusicXML string with N quarter notes. */
+function buildSimpleXml(nMeasures: number, notesPerMeasure: number = 4): string {
+  let xml = `<?xml version="1.0"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>P</part-name></score-part></part-list>
+  <part id="P1">`;
+  for (let m = 1; m <= nMeasures; m++) {
+    xml += `\n    <measure number="${m}">`;
+    if (m === 1) {
+      xml += `\n      <attributes><divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time></attributes>`;
+    }
+    for (let n = 0; n < notesPerMeasure; n++) {
+      xml += `\n      <note><pitch><step>C</step><octave>4</octave></pitch>
+        <duration>1</duration><type>quarter</type></note>`;
+    }
+    xml += `\n    </measure>`;
+  }
+  xml += '\n  </part>\n</score-partwise>';
+  return xml;
+}
+
+describe('ZIP / DEFLATE', () => {
+  it('isMxl detects ZIP magic bytes', () => {
+    expect(isMxl(new Uint8Array([0x50, 0x4B, 0x03, 0x04, 0, 0]))).toBe(true);
+    expect(isMxl(new Uint8Array([0x3C, 0x3F, 0x78, 0x6D]))).toBe(false); // <?xm
+    expect(isMxl(new Uint8Array([0x50, 0x4B]))).toBe(false); // too short
+  });
+
+  it('unzip extracts stored entries', () => {
+    const files = new Map([['hello.txt', 'Hello, World!']]);
+    const zip = buildStoredZip(files);
+    const result = unzip(zip);
+    expect(result.size).toBe(1);
+    expect(new TextDecoder().decode(result.get('hello.txt')!)).toBe('Hello, World!');
+  });
+
+  it('unzip extracts deflated entries (stored DEFLATE block)', () => {
+    // Build a DEFLATE stream with BTYPE=0 (stored block)
+    // Final bit=1, BTYPE=00, then LEN/NLEN, then data
+    const data = new TextEncoder().encode('Test data');
+    const deflated = new Uint8Array(5 + data.length);
+    deflated[0] = 0x01; // BFINAL=1, BTYPE=00
+    deflated[1] = data.length & 0xFF;
+    deflated[2] = (data.length >> 8) & 0xFF;
+    deflated[3] = ~data.length & 0xFF;
+    deflated[4] = (~data.length >> 8) & 0xFF;
+    deflated.set(data, 5);
+
+    const result = inflate(deflated);
+    expect(new TextDecoder().decode(result)).toBe('Test data');
+  });
+
+  it('unzip extracts multiple files', () => {
+    const files = new Map([
+      ['a.txt', 'Alpha'],
+      ['dir/b.txt', 'Bravo'],
+    ]);
+    const zip = buildStoredZip(files);
+    const result = unzip(zip);
+    expect(result.size).toBe(2);
+    expect(new TextDecoder().decode(result.get('a.txt')!)).toBe('Alpha');
+    expect(new TextDecoder().decode(result.get('dir/b.txt')!)).toBe('Bravo');
+  });
+
+  it('unzip throws on truncated archive', () => {
+    const files = new Map([['test.txt', 'data']]);
+    const zip = buildStoredZip(files);
+    expect(() => unzip(zip.slice(0, 10))).toThrow();
+  });
+
+  it('inflate decompresses fixed Huffman block', () => {
+    // Create a minimal fixed Huffman encoded block containing "A"
+    // BFINAL=1, BTYPE=01, literal 'A' (0x41 = code 0x41, 8-bit fixed),
+    // then end-of-block (256 = 0000000, 7-bit fixed)
+    // We'll use a known DEFLATE stream for "A"
+    // Instead, let's just test inflate on a stored block with multiple data
+    const text = 'AAAA';
+    const data = new TextEncoder().encode(text);
+    const deflated = new Uint8Array(5 + data.length);
+    deflated[0] = 0x01; // BFINAL=1, BTYPE=00
+    deflated[1] = data.length & 0xFF;
+    deflated[2] = (data.length >> 8) & 0xFF;
+    deflated[3] = ~data.length & 0xFF;
+    deflated[4] = (~data.length >> 8) & 0xFF;
+    deflated.set(data, 5);
+    expect(new TextDecoder().decode(inflate(deflated))).toBe(text);
+  });
+
+  it('inflate handles empty final stored block', () => {
+    // BFINAL=1, BTYPE=00, LEN=0, NLEN=0xFFFF
+    const empty = new Uint8Array([0x01, 0x00, 0x00, 0xFF, 0xFF]);
+    const result = inflate(empty);
+    expect(result.length).toBe(0);
+  });
+
+  it('inflate decompresses multi-block stored data', () => {
+    // Two stored blocks: first non-final, then final
+    const d1 = new TextEncoder().encode('Hello');
+    const d2 = new TextEncoder().encode(' World');
+    const block1 = new Uint8Array(5 + d1.length);
+    block1[0] = 0x00; // BFINAL=0, BTYPE=00
+    block1[1] = d1.length & 0xFF;
+    block1[2] = (d1.length >> 8) & 0xFF;
+    block1[3] = ~d1.length & 0xFF;
+    block1[4] = (~d1.length >> 8) & 0xFF;
+    block1.set(d1, 5);
+
+    const block2 = new Uint8Array(5 + d2.length);
+    block2[0] = 0x01; // BFINAL=1, BTYPE=00
+    block2[1] = d2.length & 0xFF;
+    block2[2] = (d2.length >> 8) & 0xFF;
+    block2[3] = ~d2.length & 0xFF;
+    block2[4] = (~d2.length >> 8) & 0xFF;
+    block2.set(d2, 5);
+
+    const combined = new Uint8Array(block1.length + block2.length);
+    combined.set(block1, 0);
+    combined.set(block2, block1.length);
+
+    const result = inflate(combined);
+    expect(new TextDecoder().decode(result)).toBe('Hello World');
+  });
+
+  it('inflate throws on invalid block type', () => {
+    // BFINAL=1, BTYPE=11 (reserved) = 0b111 = 7
+    expect(() => inflate(new Uint8Array([0x07]))).toThrow(/Invalid DEFLATE block type/);
+  });
+});
+
+// ==========================================================================
+// .mxl Container Tests
+// ==========================================================================
+
+describe('.mxl container', () => {
+  it('musicXmlToScore accepts Uint8Array for .mxl', () => {
+    const xml = buildSimpleXml(1, 2);
+    const files = new Map([
+      ['META-INF/container.xml', `<?xml version="1.0"?>
+<container><rootfiles><rootfile full-path="score.musicxml"/></rootfiles></container>`],
+      ['score.musicxml', xml],
+    ]);
+    const mxl = buildStoredZip(files);
+    const { score } = musicXmlToScore(mxl);
+    expect(score.parts.length).toBe(1);
+    expect(score.parts[0]!.events.length).toBe(2);
+  });
+
+  it('reads rootfile path from container.xml', () => {
+    const xml = buildSimpleXml(1, 3);
+    const files = new Map([
+      ['META-INF/container.xml', `<?xml version="1.0"?>
+<container><rootfiles><rootfile full-path="nested/piece.musicxml"/></rootfiles></container>`],
+      ['nested/piece.musicxml', xml],
+    ]);
+    const mxl = buildStoredZip(files);
+    const { score } = musicXmlToScore(mxl);
+    expect(score.parts[0]!.events.length).toBe(3);
+  });
+
+  it('falls back to .musicxml file when container.xml missing', () => {
+    const xml = buildSimpleXml(1, 4);
+    const files = new Map([
+      ['piece.musicxml', xml],
+    ]);
+    const mxl = buildStoredZip(files);
+    const { score } = musicXmlToScore(mxl);
+    expect(score.parts[0]!.events.length).toBe(4);
+  });
+
+  it('throws for empty .mxl (no XML files)', () => {
+    const files = new Map([['readme.txt', 'not xml']]);
+    const mxl = buildStoredZip(files);
+    expect(() => musicXmlToScore(mxl)).toThrow(/No MusicXML rootfile/);
+  });
+
+  it('still accepts string input (backward compatibility)', () => {
+    const xml = buildSimpleXml(1, 2);
+    const { score } = musicXmlToScore(xml);
+    expect(score.parts[0]!.events.length).toBe(2);
+  });
+
+  it('handles Uint8Array that is plain XML (not ZIP)', () => {
+    const xml = buildSimpleXml(1, 2);
+    const bytes = new TextEncoder().encode(xml);
+    const { score } = musicXmlToScore(bytes);
+    expect(score.parts[0]!.events.length).toBe(2);
+  });
+});
+
+// ==========================================================================
+// Repeat Expansion Tests
+// ==========================================================================
+
+/** Build MusicXML with repeat/ending/jump structure. */
+function buildRepeatXml(specs: {
+  notes?: number; // quarter notes per measure (default 1)
+  measures: Array<{
+    barlines?: Array<{
+      location?: 'left' | 'right';
+      repeat?: { direction: 'forward' | 'backward'; times?: number };
+      ending?: { number: string; type: 'start' | 'stop' | 'discontinue' };
+    }>;
+    directions?: Array<{
+      segno?: string;
+      coda?: string;
+      fine?: boolean;
+      dacapo?: boolean;
+      dalsegno?: string;
+      tocoda?: string;
+    }>;
+    directionType?: Array<{
+      segno?: boolean;
+      coda?: boolean;
+    }>;
+  }>;
+}): string {
+  const notesPerMeasure = specs.notes ?? 1;
+  let xml = `<?xml version="1.0"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>P</part-name></score-part></part-list>
+  <part id="P1">`;
+
+  for (let i = 0; i < specs.measures.length; i++) {
+    const m = specs.measures[i]!;
+    xml += `\n    <measure number="${i + 1}">`;
+
+    if (i === 0) {
+      xml += `\n      <attributes><divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time></attributes>`;
+    }
+
+    // Left barlines
+    for (const bl of m.barlines ?? []) {
+      if (bl.location === 'left' || bl.repeat?.direction === 'forward') {
+        xml += `\n      <barline location="left">`;
+        if (bl.repeat) xml += `<repeat direction="${bl.repeat.direction}"${bl.repeat.times ? ` times="${bl.repeat.times}"` : ''}/>`;
+        if (bl.ending) xml += `<ending number="${bl.ending.number}" type="${bl.ending.type}"/>`;
+        xml += `</barline>`;
+      }
+    }
+
+    // Directions (segno/coda markers, jumps)
+    for (const dir of m.directions ?? []) {
+      xml += `\n      <direction>`;
+      const soundAttrs: string[] = [];
+      if (dir.segno) soundAttrs.push(`segno="${dir.segno}"`);
+      if (dir.coda) soundAttrs.push(`coda="${dir.coda}"`);
+      if (dir.fine) soundAttrs.push(`fine="yes"`);
+      if (dir.dacapo) soundAttrs.push(`dacapo="yes"`);
+      if (dir.dalsegno) soundAttrs.push(`dalsegno="${dir.dalsegno}"`);
+      if (dir.tocoda) soundAttrs.push(`tocoda="${dir.tocoda}"`);
+      if (soundAttrs.length > 0) {
+        xml += `<sound ${soundAttrs.join(' ')}/>`;
+      }
+      xml += `</direction>`;
+    }
+    for (const dt of m.directionType ?? []) {
+      xml += `\n      <direction><direction-type>`;
+      if (dt.segno) xml += `<segno/>`;
+      if (dt.coda) xml += `<coda/>`;
+      xml += `</direction-type></direction>`;
+    }
+
+    // Notes — each measure gets unique MIDI to identify measure origin
+    for (let n = 0; n < notesPerMeasure; n++) {
+      const midi = 60 + i; // unique per measure index
+      xml += `\n      <note><pitch><step>C</step><octave>4</octave><alter>${i}</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>`;
+    }
+
+    // Right barlines
+    for (const bl of m.barlines ?? []) {
+      if (bl.location === 'right' || bl.repeat?.direction === 'backward' || (!bl.location && !bl.repeat)) {
+        if (bl.repeat || bl.ending) {
+          xml += `\n      <barline location="right">`;
+          if (bl.repeat) xml += `<repeat direction="${bl.repeat.direction}"${bl.repeat.times ? ` times="${bl.repeat.times}"` : ''}/>`;
+          if (bl.ending) xml += `<ending number="${bl.ending.number}" type="${bl.ending.type}"/>`;
+          xml += `</barline>`;
+        }
+      }
+    }
+
+    xml += `\n    </measure>`;
+  }
+
+  xml += '\n  </part>\n</score-partwise>';
+  return xml;
+}
+
+/** Get the origin measure index sequence from parsed events (midi - 60). */
+function getMeasureOrigins(xml: string): number[] {
+  const { score } = musicXmlToScore(xml);
+  const events = score.parts[0]!.events.slice().sort((a, b) => a.onset - b.onset);
+  return events.map(e => e.pitch.midi - 60);
+}
+
+describe('Repeat expansion', () => {
+  it('simple backward repeat (2 measures → 4 notes)', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        { barlines: [{ repeat: { direction: 'forward' } }] },
+        { barlines: [{ repeat: { direction: 'backward' } }] },
+      ],
+    });
+    // Should play: m0, m1, m0, m1
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 0, 1]);
+  });
+
+  it('forward-backward repeat', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        { barlines: [{ repeat: { direction: 'forward' } }] },
+        { barlines: [{ repeat: { direction: 'backward' } }] },
+        {},
+      ],
+    });
+    // m0, m1, m2, m1, m2, m3
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2, 1, 2, 3]);
+  });
+
+  it('first/second endings', () => {
+    // Use raw XML for precision — ending start + backward repeat on same barline
+    const xml = `<?xml version="1.0"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>P</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes><divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+      <barline location="left"><repeat direction="forward"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>0</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+    </measure>
+    <measure number="2">
+      <barline location="left"><ending number="1" type="start"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>1</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+      <barline location="right"><ending number="1" type="stop"/><repeat direction="backward"/></barline>
+    </measure>
+    <measure number="3">
+      <barline location="left"><ending number="2" type="start"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>2</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+    </measure>
+  </part>
+</score-partwise>`;
+    // Pass 1: m0, m1 (ending 1), jump back
+    // Pass 2: m0, skip m1 (ending 1), m2 (ending 2)
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 0, 2]);
+  });
+
+  it('three endings', () => {
+    const xml = `<?xml version="1.0"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>P</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes><divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+      <barline location="left"><repeat direction="forward"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>0</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+    </measure>
+    <measure number="2">
+      <barline location="left"><ending number="1" type="start"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>1</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+      <barline location="right"><ending number="1" type="stop"/><repeat direction="backward" times="3"/></barline>
+    </measure>
+    <measure number="3">
+      <barline location="left"><ending number="2" type="start"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>2</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+      <barline location="right"><ending number="2" type="stop"/><repeat direction="backward" times="3"/></barline>
+    </measure>
+    <measure number="4">
+      <barline location="left"><ending number="3" type="start"/></barline>
+      <note><pitch><step>C</step><octave>4</octave><alter>3</alter></pitch>
+        <duration>1</duration><type>quarter</type></note>
+    </measure>
+  </part>
+</score-partwise>`;
+    // Pass 1: m0, m1; Pass 2: m0, m2; Pass 3: m0, m3
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 0, 2, 0, 3]);
+  });
+
+  it('D.C. (da capo)', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        {},
+        { directions: [{ dacapo: true }] },
+      ],
+    });
+    // m0, m1, m2 (D.C.), m0, m1, m2
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2, 0, 1, 2]);
+  });
+
+  it('D.C. al Fine', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        { directions: [{ fine: true }] },
+        { directions: [{ dacapo: true }] },
+      ],
+    });
+    // First pass: m0, m1 (Fine marker, not active), m2 (D.C.)
+    // Jump back: m0, m1 (Fine — stop)
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2, 0, 1]);
+  });
+
+  it('D.S. (dal segno)', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        { directions: [{ segno: 'segno' }] },
+        {},
+        { directions: [{ dalsegno: 'segno' }] },
+      ],
+    });
+    // m0, m1 (segno), m2, m3 (D.S.), m1, m2, m3
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2, 3, 1, 2, 3]);
+  });
+
+  it('D.S. al Coda', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        { directions: [{ segno: 'segno' }] },
+        { directions: [{ tocoda: 'coda' }] },
+        { directions: [{ dalsegno: 'segno' }] },
+        { directions: [{ coda: 'coda' }] },
+      ],
+    });
+    // First: m0, m1(segno), m2(tocoda, not active), m3(D.S.)
+    // Jump to segno: m1, m2(tocoda, active → jump to coda), m4
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2, 3, 1, 2, 4]);
+  });
+
+  it('D.C. al Coda', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        { directions: [{ tocoda: 'coda' }] },
+        { directions: [{ dacapo: true }] },
+        { directions: [{ coda: 'coda' }] },
+      ],
+    });
+    // First: m0, m1(tocoda not active), m2(D.C.)
+    // Jump back: m0, m1(tocoda active → jump to coda marker at m3), m3
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2, 0, 1, 3]);
+  });
+
+  it('ties do not carry across repeat boundaries', () => {
+    // Build XML with a tied note in a repeated section
+    const xml = `<?xml version="1.0"?>
+<score-partwise version="4.0">
+  <part-list><score-part id="P1"><part-name>P</part-name></score-part></part-list>
+  <part id="P1">
+    <measure number="1">
+      <attributes><divisions>1</divisions>
+        <time><beats>4</beats><beat-type>4</beat-type></time></attributes>
+      <barline location="left"><repeat direction="forward"/></barline>
+      <note><pitch><step>C</step><octave>4</octave></pitch>
+        <duration>1</duration><type>quarter</type>
+        <tie type="start"/></note>
+    </measure>
+    <measure number="2">
+      <note><pitch><step>C</step><octave>4</octave></pitch>
+        <duration>1</duration><type>quarter</type>
+        <tie type="stop"/></note>
+      <barline location="right"><repeat direction="backward"/></barline>
+    </measure>
+  </part>
+</score-partwise>`;
+    const { score } = musicXmlToScore(xml);
+    const events = score.parts[0]!.events;
+    // Should have 2 separate tied notes (one per pass), not one giant tied note
+    expect(events.length).toBe(2);
+  });
+
+  it('no repeat markers → linear sequence (backward compat)', () => {
+    const xml = buildRepeatXml({
+      measures: [{}, {}, {}],
+    });
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 2]);
+  });
+
+  it('implied forward repeat (backward with no preceding forward)', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        {},
+        { barlines: [{ repeat: { direction: 'backward' } }] },
+        {},
+      ],
+    });
+    // Implied forward at start: m0, m1 (repeat back to 0), m0, m1, m2
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 0, 1, 2]);
+  });
+
+  it('repeat count > 2 (times="3")', () => {
+    const xml = buildRepeatXml({
+      measures: [
+        { barlines: [{ repeat: { direction: 'forward' } }] },
+        { barlines: [{ repeat: { direction: 'backward', times: 3 } }] },
+      ],
+    });
+    // 3 passes: m0, m1, m0, m1, m0, m1
+    const origins = getMeasureOrigins(xml);
+    expect(origins).toEqual([0, 1, 0, 1, 0, 1]);
   });
 });

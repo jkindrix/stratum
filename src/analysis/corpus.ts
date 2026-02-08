@@ -17,7 +17,7 @@ import { detectKey } from './key-detection.js';
 // ---------------------------------------------------------------------------
 
 /** Supported input format for corpus loading. */
-export type CorpusFormat = 'midi' | 'musicxml' | 'kern' | 'abc' | 'mei' | 'json' | 'score';
+export type CorpusFormat = 'midi' | 'musicxml' | 'mxl' | 'kern' | 'abc' | 'mei' | 'json' | 'score';
 
 /** Metadata associated with a corpus entry. */
 export interface CorpusMetadata {
@@ -118,8 +118,14 @@ function parseInput(input: CorpusInput): Score {
       return midiToScore(data);
     }
     case 'musicxml': {
-      if (typeof data !== 'string') {
-        throw new RangeError('MusicXML format requires string data');
+      if (typeof data !== 'string' && !(data instanceof Uint8Array)) {
+        throw new RangeError('MusicXML format requires string or Uint8Array data');
+      }
+      return musicXmlToScore(data).score;
+    }
+    case 'mxl': {
+      if (!(data instanceof Uint8Array)) {
+        throw new RangeError('.mxl format requires Uint8Array data');
       }
       return musicXmlToScore(data).score;
     }

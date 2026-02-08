@@ -181,7 +181,7 @@ export {
 
 // I/O
 export type { ScoreJSON, SclDegree, SclData, KbmData, XmlElement, XmlSerializeOptions, MusicXmlWarning, MusicXmlImportResult, MusicXmlExportOptions, KernImportResult, KernWarning, AbcImportResult, AbcWarning, MeiImportResult, MeiWarning, LilyPondExportOptions, JamsObservation, JamsAnnotation, JamsDocument, RomanTextChord, RomanTextMeasure, RomanTextAnalysis } from './io/index.js';
-export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON, parseScl, parseKbm, tuningFromScl, sclToString, kbmToString, parseXml, serializeXml, createElement, findChild, findChildren, textContent, childText, childInt, musicXmlToScore, scoreToMusicXML, kernToScore, abcToScore, meiToScore, scoreToLilyPond, toJAMS, toRomanText, fromRomanText } from './io/index.js';
+export { midiToScore, scoreToMidi, scoreToJSON, scoreFromJSON, parseScl, parseKbm, tuningFromScl, sclToString, kbmToString, parseXml, serializeXml, createElement, findChild, findChildren, textContent, childText, childInt, musicXmlToScore, scoreToMusicXML, kernToScore, abcToScore, meiToScore, scoreToLilyPond, toJAMS, toRomanText, fromRomanText, inflate, unzip, isMxl } from './io/index.js';
 
 // Rendering
 export type {

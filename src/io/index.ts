@@ -7,6 +7,7 @@ export type { XmlElement, XmlSerializeOptions } from './xml.js';
 export { parseXml, serializeXml, createElement, findChild, findChildren, textContent, childText, childInt } from './xml.js';
 export type { MusicXmlWarning, MusicXmlImportResult, MusicXmlExportOptions } from './musicxml.js';
 export { musicXmlToScore, scoreToMusicXML } from './musicxml.js';
+export { inflate, unzip, isMxl } from './zip.js';
 export type { KernImportResult, KernWarning } from './kern.js';
 export { kernToScore } from './kern.js';
 export type { AbcImportResult, AbcWarning } from './abc.js';

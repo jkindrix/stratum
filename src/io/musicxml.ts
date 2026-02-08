@@ -16,6 +16,7 @@ import {
   childText,
   childInt,
 } from './xml.js';
+import { unzip, isMxl } from './zip.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,17 +89,34 @@ const NOTE_TYPE_QUARTERS: readonly [string, number][] = [
 /**
  * Parse a MusicXML 4.0 (score-partwise) file into a Score.
  *
+ * - Accepts MusicXML as a string, or a .mxl container as Uint8Array.
+ * - If a Uint8Array is provided, it is checked for ZIP magic bytes — if found
+ *   it is treated as .mxl; otherwise it is decoded as UTF-8 plain XML.
  * - Supports notes, rests, chords, ties, multiple voices, tuplets,
  *   grace notes, pickup measures, transposing instruments, dynamics,
  *   articulations, key/time/tempo changes, and multi-part scores.
+ * - Expands repeat barlines, endings, D.C., D.S., al Fine, and al Coda.
  * - Returns warnings for non-fatal issues (e.g., unknown elements).
  * - Throws on malformed XML or unsupported format (score-timewise).
  *
- * @param text - MusicXML source string.
+ * @param input - MusicXML source string, or .mxl Uint8Array.
  * @returns Import result with score and any warnings.
  * @throws {RangeError} If the XML is malformed or uses score-timewise format.
  */
-export function musicXmlToScore(text: string): MusicXmlImportResult {
+export function musicXmlToScore(input: string | Uint8Array): MusicXmlImportResult {
+  let text: string;
+  if (input instanceof Uint8Array) {
+    if (isMxl(input)) {
+      text = extractMxlRootfile(input);
+    } else {
+      // Plain XML in Uint8Array form
+      text = new TextDecoder('utf-8').decode(input);
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+    }
+  } else {
+    text = input;
+  }
+
   const root = parseXml(text);
   const warnings: MusicXmlWarning[] = [];
 
@@ -196,6 +214,12 @@ export function musicXmlToScore(text: string): MusicXmlImportResult {
       midiChannel: info.midiChannel,
     });
 
+    const rawMeasures = findChildren(partEl, 'measure');
+
+    // Parse repeat/marker structure and compute expanded sequence
+    const parsedMeasures = parseMeasureStructure(rawMeasures);
+    const expandedSeq = expandMeasureSequence(parsedMeasures);
+
     let currentDivisions = globalDivisions;
     let currentTick = 0;
     let currentTranspose = 0;
@@ -203,292 +227,45 @@ export function musicXmlToScore(text: string): MusicXmlImportResult {
     const voiceMap = new Map<string, number>();
     let nextVoice = 0;
 
-    // Tie tracking: key = `${voice}:${midi}`, value = {onset, velocity, articulation}
     interface PendingTie { onset: number; duration: number; velocity: number; articulation?: Articulation }
     const pendingTies = new Map<string, PendingTie>();
 
     let measureNumber = 0;
+    let lastProcessedIdx = -1;
 
-    for (const measureEl of findChildren(partEl, 'measure')) {
+    for (const seqIdx of expandedSeq) {
+      const measureEl = rawMeasures[seqIdx];
+      if (!measureEl) continue;
+
+      // Flush pending ties at repeat boundaries (when we jump backward)
+      if (seqIdx <= lastProcessedIdx) {
+        flushPendingTies(pendingTies, measureNumber, partId, part, score, warnings);
+      }
+      lastProcessedIdx = seqIdx;
+
       measureNumber++;
       const mNumAttr = measureEl.attrs['number'];
       const mNum = mNumAttr !== undefined ? parseInt(mNumAttr, 10) : measureNumber;
-      if (!Number.isNaN(mNum)) measureNumber = mNum;
 
-      // Detect pickup measure
-      const implicitAttr = measureEl.attrs['implicit'];
-      const isImplicit = implicitAttr === 'yes' || measureNumber === 0;
-
-      let prevNoteDuration = 0;
-      let prevNoteOnset = currentTick;
-
-      for (const child of measureEl.children) {
-        if (typeof child === 'string') continue;
-
-        // --- <attributes> ---
-        if (child.tag === 'attributes') {
-          const div = childInt(child, 'divisions');
-          if (div !== undefined && div > 0) currentDivisions = div;
-
-          // Key signature
-          const keyEl = findChild(child, 'key');
-          if (keyEl) {
-            const fifths = childInt(keyEl, 'fifths') ?? 0;
-            const modeStr = childText(keyEl, 'mode') ?? 'major';
-            const majorTonic = ((fifths * 7) % 12 + 12) % 12;
-            const tonic = modeStr === 'minor' ? (majorTonic + 9) % 12 : majorTonic;
-            score.keyCenters.push({
-              tonic,
-              mode: modeStr === 'minor' ? 'minor' : 'major',
-              atTick: currentTick,
-            });
-          }
-
-          // Time signature
-          const timeEl = findChild(child, 'time');
-          if (timeEl) {
-            const num = childInt(timeEl, 'beats') ?? 4;
-            const den = childInt(timeEl, 'beat-type') ?? 4;
-            if (!addedTimeSig || !score.timeSignatures.some(
-              ts => ts.atTick === currentTick && ts.numerator === num && ts.denominator === den)) {
-              score.timeSignatures.push({ numerator: num, denominator: den, atTick: currentTick });
-              addedTimeSig = true;
-            }
-          }
-
-          // Transpose
-          const transposeEl = findChild(child, 'transpose');
-          if (transposeEl) {
-            currentTranspose = childInt(transposeEl, 'chromatic') ?? 0;
-          }
-
-          // Clef (informational only, but we parse it to prevent unknown-element warnings)
-          continue;
-        }
-
-        // --- <direction> (tempo, dynamics) ---
-        if (child.tag === 'direction') {
-          // Tempo
-          const sound = findChild(child, 'sound');
-          if (sound && sound.attrs['tempo']) {
-            const bpm = parseFloat(sound.attrs['tempo']);
-            if (Number.isFinite(bpm) && bpm > 0) {
-              if (!addedTempo || !score.tempoChanges.some(tc => tc.atTick === currentTick && tc.bpm === bpm)) {
-                score.tempoChanges.push({ bpm, atTick: currentTick });
-                addedTempo = true;
-              }
-            }
-          }
-
-          // Dynamics
-          const dirType = findChild(child, 'direction-type');
-          if (dirType) {
-            const dynEl = findChild(dirType, 'dynamics');
-            if (dynEl) {
-              for (const dynChild of dynEl.children) {
-                if (typeof dynChild === 'string') continue;
-                const vel = DYNAMICS_VELOCITY[dynChild.tag];
-                if (vel !== undefined) {
-                  currentVelocity = vel;
-                  break;
-                }
-              }
-            }
-          }
-          continue;
-        }
-
-        // --- <forward> ---
-        if (child.tag === 'forward') {
-          const dur = childInt(child, 'duration') ?? 0;
-          currentTick += scaleTicks(dur, currentDivisions, globalDivisions);
-          continue;
-        }
-
-        // --- <backup> ---
-        if (child.tag === 'backup') {
-          const dur = childInt(child, 'duration') ?? 0;
-          currentTick -= scaleTicks(dur, currentDivisions, globalDivisions);
-          if (currentTick < 0) currentTick = 0;
-          continue;
-        }
-
-        // --- <note> ---
-        if (child.tag === 'note') {
-          const isRest = findChild(child, 'rest') !== undefined;
-          const isGrace = findChild(child, 'grace') !== undefined;
-          const isChord = findChild(child, 'chord') !== undefined;
-
-          // Duration
-          const rawDuration = childInt(child, 'duration') ?? 0;
-          let noteDuration: number;
-          if (isGrace) {
-            noteDuration = 0;
-          } else {
-            noteDuration = scaleTicks(rawDuration, currentDivisions, globalDivisions);
-          }
-
-          // Time modification (tuplets)
-          const timeMod = findChild(child, 'time-modification');
-          if (timeMod && !isGrace) {
-            const actualNotes = childInt(timeMod, 'actual-notes') ?? 1;
-            const normalNotes = childInt(timeMod, 'normal-notes') ?? 1;
-            if (actualNotes > 0) {
-              noteDuration = Math.round(noteDuration * normalNotes / actualNotes);
-            }
-          }
-
-          // Chord: don't advance tick, use previous note's onset
-          let noteOnset: number;
-          if (isChord) {
-            noteOnset = prevNoteOnset;
-          } else {
-            noteOnset = currentTick;
-          }
-
-          // Voice
-          const voiceStr = childText(child, 'voice') ?? '1';
-          if (!voiceMap.has(voiceStr)) {
-            voiceMap.set(voiceStr, nextVoice++);
-          }
-          const voice = voiceMap.get(voiceStr)!;
-
-          if (isRest) {
-            // Advance tick for rests (unless chord, which shouldn't happen)
-            if (!isChord && !isGrace) {
-              prevNoteOnset = currentTick;
-              prevNoteDuration = noteDuration;
-              currentTick += noteDuration;
-            }
-            continue;
-          }
-
-          // Pitch
-          const pitchEl = findChild(child, 'pitch');
-          if (!pitchEl) {
-            if (!isChord && !isGrace) {
-              prevNoteOnset = currentTick;
-              prevNoteDuration = noteDuration;
-              currentTick += noteDuration;
-            }
-            continue;
-          }
-
-          const step = childText(pitchEl, 'step') ?? 'C';
-          const octave = childInt(pitchEl, 'octave') ?? 4;
-          const alter = childInt(pitchEl, 'alter') ?? 0;
-          const stepSemitone = STEP_SEMITONE[step] ?? 0;
-          const midi = Math.max(0, Math.min(127, (octave + 1) * 12 + stepSemitone + alter + currentTranspose));
-
-          // Articulations
-          let articulation: Articulation | undefined;
-          const notations = findChild(child, 'notations');
-          if (notations) {
-            // Fermata (directly under notations)
-            if (findChild(notations, 'fermata')) {
-              articulation = 'fermata';
-            }
-
-            const artics = findChild(notations, 'articulations');
-            if (artics) {
-              for (const artChild of artics.children) {
-                if (typeof artChild === 'string') continue;
-                const mapped = ARTICULATION_MAP[artChild.tag];
-                if (mapped) {
-                  articulation = mapped;
-                  break;
-                }
-              }
-            }
-          }
-
-          // Tie handling
-          let tieStart = false;
-          let tieStop = false;
-          // Check <tie> elements (separate from <tied> in notations)
-          for (const tieChild of child.children) {
-            if (typeof tieChild === 'string') continue;
-            if (tieChild.tag === 'tie') {
-              if (tieChild.attrs['type'] === 'start') tieStart = true;
-              if (tieChild.attrs['type'] === 'stop') tieStop = true;
-            }
-          }
-
-          const tieKey = `${voice}:${midi}`;
-
-          if (tieStop) {
-            const pending = pendingTies.get(tieKey);
-            if (pending) {
-              pending.duration += noteDuration;
-              if (!tieStart) {
-                // End of tie chain — create the merged note
-                addNote(score, part, {
-                  midi,
-                  onset: pending.onset,
-                  duration: Math.max(1, pending.duration),
-                  velocity: pending.velocity,
-                  voice,
-                  articulation: pending.articulation,
-                });
-                pendingTies.delete(tieKey);
-              }
-              // If tieStart also set, keep extending
-            } else {
-              // Tie stop without matching start — just create the note
-              warnings.push({ measure: measureNumber, partId, message: `Tie stop without matching start for MIDI ${midi}` });
-              if (!tieStart) {
-                if (noteDuration > 0) {
-                  addNote(score, part, {
-                    midi, onset: noteOnset, duration: noteDuration,
-                    velocity: currentVelocity, voice, articulation,
-                  });
-                }
-              } else {
-                pendingTies.set(tieKey, {
-                  onset: noteOnset, duration: noteDuration,
-                  velocity: currentVelocity, articulation,
-                });
-              }
-            }
-          } else if (tieStart) {
-            pendingTies.set(tieKey, {
-              onset: noteOnset, duration: noteDuration,
-              velocity: currentVelocity, articulation,
-            });
-          } else {
-            // No tie — regular note
-            if (noteDuration > 0 || isGrace) {
-              addNote(score, part, {
-                midi, onset: noteOnset,
-                duration: isGrace && noteDuration === 0 ? 1 : noteDuration,
-                velocity: currentVelocity, voice, articulation,
-              });
-            }
-          }
-
-          // Advance tick
-          if (!isChord && !isGrace) {
-            prevNoteOnset = currentTick;
-            prevNoteDuration = noteDuration;
-            currentTick += noteDuration;
-          }
-        }
-      }
+      processMeasureContent(
+        measureEl, score, part, partId, mNum, warnings,
+        { currentDivisions, currentTick, currentTranspose, currentVelocity },
+        voiceMap, { nextVoice }, pendingTies, globalDivisions,
+        { addedTimeSig, addedTempo },
+        (state) => {
+          currentDivisions = state.currentDivisions;
+          currentTick = state.currentTick;
+          currentTranspose = state.currentTranspose;
+          currentVelocity = state.currentVelocity;
+          nextVoice = state.nextVoice;
+          addedTimeSig = state.addedTimeSig;
+          addedTempo = state.addedTempo;
+        },
+      );
     }
 
     // Flush remaining pending ties
-    for (const [tieKey, pending] of pendingTies) {
-      const parts = tieKey.split(':');
-      const voice = parseInt(parts[0] ?? '0', 10);
-      const midi = parseInt(parts[1] ?? '60', 10);
-      warnings.push({ measure: measureNumber, partId, message: `Unterminated tie for MIDI ${midi}` });
-      addNote(score, part, {
-        midi, onset: pending.onset,
-        duration: Math.max(1, pending.duration),
-        velocity: pending.velocity,
-        voice, articulation: pending.articulation,
-      });
-    }
+    flushPendingTies(pendingTies, measureNumber, partId, part, score, warnings);
   }
 
   // Ensure defaults if nothing was found
@@ -508,6 +285,616 @@ export function musicXmlToScore(text: string): MusicXmlImportResult {
     score,
     warnings: Object.freeze(warnings.map(w => Object.freeze(w))),
   });
+}
+
+// ---------------------------------------------------------------------------
+// .mxl container extraction
+// ---------------------------------------------------------------------------
+
+function extractMxlRootfile(data: Uint8Array): string {
+  const files = unzip(data);
+
+  // Try META-INF/container.xml first
+  const containerXml = files.get('META-INF/container.xml');
+  if (containerXml) {
+    const containerText = new TextDecoder('utf-8').decode(containerXml);
+    const containerRoot = parseXml(containerText);
+    // Look for <rootfile full-path="..."/>
+    const rootfiles = findChild(containerRoot, 'rootfiles');
+    if (rootfiles) {
+      const rootfile = findChild(rootfiles, 'rootfile');
+      if (rootfile) {
+        const fullPath = rootfile.attrs['full-path'];
+        if (fullPath) {
+          const fileData = files.get(fullPath);
+          if (fileData) {
+            let text = new TextDecoder('utf-8').decode(fileData);
+            if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+            return text;
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback: find first .musicxml or .xml file (skip META-INF/)
+  for (const [name, content] of files) {
+    if (name.startsWith('META-INF/')) continue;
+    if (name.endsWith('.musicxml') || name.endsWith('.xml')) {
+      let text = new TextDecoder('utf-8').decode(content);
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      return text;
+    }
+  }
+
+  throw new RangeError('No MusicXML rootfile found in .mxl container');
+}
+
+// ---------------------------------------------------------------------------
+// Repeat expansion — structure parsing
+// ---------------------------------------------------------------------------
+
+interface ParsedMeasure {
+  measureIndex: number;
+  repeatForward: boolean;
+  repeatBackward: boolean;
+  repeatTimes: number;
+  endings: number[];
+  endingType: 'start' | 'stop' | 'discontinue' | undefined;
+  segno: string | undefined;
+  coda: string | undefined;
+  fine: boolean;
+  dacapo: boolean;
+  dalsegno: string | undefined;
+  tocoda: string | undefined;
+}
+
+function parseMeasureStructure(measures: readonly XmlElement[]): ParsedMeasure[] {
+  const result: ParsedMeasure[] = [];
+
+  for (let i = 0; i < measures.length; i++) {
+    const m = measures[i]!;
+    const pm: ParsedMeasure = {
+      measureIndex: i,
+      repeatForward: false,
+      repeatBackward: false,
+      repeatTimes: 2,
+      endings: [],
+      endingType: undefined,
+      segno: undefined,
+      coda: undefined,
+      fine: false,
+      dacapo: false,
+      dalsegno: undefined,
+      tocoda: undefined,
+    };
+
+    for (const child of m.children) {
+      if (typeof child === 'string') continue;
+
+      if (child.tag === 'barline') {
+        const repeatEl = findChild(child, 'repeat');
+        if (repeatEl) {
+          const dir = repeatEl.attrs['direction'];
+          if (dir === 'forward') pm.repeatForward = true;
+          if (dir === 'backward') {
+            pm.repeatBackward = true;
+            const times = repeatEl.attrs['times'];
+            if (times) {
+              const t = parseInt(times, 10);
+              if (Number.isFinite(t) && t > 0) pm.repeatTimes = t;
+            }
+          }
+        }
+        const endingEl = findChild(child, 'ending');
+        if (endingEl) {
+          const num = endingEl.attrs['number'];
+          const type = endingEl.attrs['type'] as 'start' | 'stop' | 'discontinue' | undefined;
+          if (num && type === 'start') {
+            pm.endings = num.split(/[,\s]+/).map(s => parseInt(s, 10)).filter(n => !Number.isNaN(n));
+            pm.endingType = 'start';
+          } else if ((type === 'stop' || type === 'discontinue') && pm.endingType !== 'start') {
+            // Only set stop/discontinue if we haven't seen a start on this measure
+            pm.endingType = type;
+          }
+        }
+      }
+
+      if (child.tag === 'direction') {
+        const sound = findChild(child, 'sound');
+        if (sound) {
+          if (sound.attrs['segno']) pm.segno = sound.attrs['segno'] || 'segno';
+          if (sound.attrs['coda']) pm.coda = sound.attrs['coda'] || 'coda';
+          if (sound.attrs['fine'] === 'yes') pm.fine = true;
+          if (sound.attrs['dacapo'] === 'yes') pm.dacapo = true;
+          if (sound.attrs['dalsegno']) pm.dalsegno = sound.attrs['dalsegno'] || 'segno';
+          if (sound.attrs['tocoda']) pm.tocoda = sound.attrs['tocoda'] || 'coda';
+        }
+        // Also check direction-type for segno/coda markers
+        const dirType = findChild(child, 'direction-type');
+        if (dirType) {
+          if (findChild(dirType, 'segno') && !pm.segno) pm.segno = 'segno';
+          if (findChild(dirType, 'coda') && !pm.coda) pm.coda = 'coda';
+        }
+      }
+    }
+
+    result.push(pm);
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Repeat expansion — state machine
+// ---------------------------------------------------------------------------
+
+function expandMeasureSequence(measures: readonly ParsedMeasure[]): number[] {
+  if (measures.length === 0) return [];
+
+  // Check if there are any repeat/jump markers at all
+  const hasRepeats = measures.some(m =>
+    m.repeatForward || m.repeatBackward || m.endings.length > 0 ||
+    m.dacapo || m.dalsegno !== undefined || m.fine ||
+    m.segno !== undefined || m.coda !== undefined || m.tocoda !== undefined,
+  );
+  if (!hasRepeats) {
+    return measures.map((_, i) => i);
+  }
+
+  // Pre-compute ending bracket ranges: for each measure, which ending numbers it belongs to
+  const endingNumbers = new Map<number, number[]>();
+  let curEndNums: number[] | undefined;
+  for (const m of measures) {
+    if (m.endingType === 'start' && m.endings.length > 0) {
+      curEndNums = m.endings;
+    }
+    if (curEndNums) {
+      endingNumbers.set(m.measureIndex, curEndNums);
+    }
+    if (m.endingType === 'stop' || m.endingType === 'discontinue') {
+      curEndNums = undefined;
+    }
+    if (m.repeatBackward && curEndNums) {
+      curEndNums = undefined;
+    }
+  }
+
+  // Find the backward repeat measure for a given position (searching forward)
+  function findBackwardRepeat(from: number): number {
+    for (let i = from; i < measures.length; i++) {
+      if (measures[i]!.repeatBackward) return i;
+    }
+    return -1;
+  }
+
+  const result: number[] = [];
+  const maxOutput = measures.length * 50;
+  let pos = 0;
+  let repeatStart = 0;
+  let repeatPass = 1;
+  let jumpedBack = false;
+  let skipInnerRepeats = false;
+  let dcDsProcessed = false; // prevent re-processing D.C./D.S. on the second pass
+
+  while (pos < measures.length && result.length < maxOutput) {
+    const m = measures[pos]!;
+
+    // Forward repeat sets the repeat start position (only reset pass if entering a new section)
+    if (m.repeatForward && !skipInnerRepeats) {
+      if (repeatStart !== pos) {
+        repeatStart = pos;
+        repeatPass = 1;
+      }
+    }
+
+    // Check ending brackets — skip measures not matching current pass
+    const endNums = endingNumbers.get(pos);
+    if (endNums && !skipInnerRepeats) {
+      if (!endNums.includes(repeatPass)) {
+        // Skip past this ending to the next ending start or backward repeat
+        let skip = pos + 1;
+        while (skip < measures.length) {
+          const sm = measures[skip]!;
+          // If next ending starts, jump there (it will be checked next iteration)
+          if (sm.endingType === 'start') { pos = skip; break; }
+          // If backward repeat, process it (don't skip the repeat logic)
+          if (sm.repeatBackward) {
+            // Process backward repeat from here
+            if (repeatPass < sm.repeatTimes) {
+              repeatPass++;
+              pos = repeatStart;
+            } else {
+              repeatPass = 1;
+              repeatStart = skip + 1;
+              pos = skip + 1;
+            }
+            break;
+          }
+          if (sm.endingType === 'stop' || sm.endingType === 'discontinue') {
+            pos = skip + 1;
+            break;
+          }
+          skip++;
+        }
+        if (skip >= measures.length) pos = measures.length;
+        continue;
+      }
+    }
+
+    // Emit this measure
+    result.push(pos);
+
+    // Fine check
+    if (m.fine && jumpedBack) break;
+
+    // To-coda jump (only on jumped-back pass)
+    if (m.tocoda && jumpedBack) {
+      const codaIdx = findMarker(measures, 'coda', m.tocoda);
+      if (codaIdx >= 0) {
+        pos = codaIdx;
+        jumpedBack = false;
+        skipInnerRepeats = false;
+        dcDsProcessed = false;
+        continue;
+      }
+    }
+
+    // D.C. jump (only once)
+    if (m.dacapo && !dcDsProcessed) {
+      jumpedBack = true;
+      skipInnerRepeats = true;
+      dcDsProcessed = true;
+      pos = 0;
+      repeatStart = 0;
+      repeatPass = 1;
+      continue;
+    }
+
+    // D.S. jump (only once)
+    if (m.dalsegno !== undefined && !dcDsProcessed) {
+      const segnoIdx = findMarker(measures, 'segno', m.dalsegno);
+      if (segnoIdx >= 0) {
+        jumpedBack = true;
+        skipInnerRepeats = true;
+        dcDsProcessed = true;
+        pos = segnoIdx;
+        repeatStart = segnoIdx;
+        repeatPass = 1;
+        continue;
+      }
+    }
+
+    // Backward repeat: jump back if we haven't exhausted all passes
+    if (m.repeatBackward && !skipInnerRepeats) {
+      if (repeatPass < m.repeatTimes) {
+        repeatPass++;
+        pos = repeatStart;
+        continue;
+      }
+      // Done with this repeat section — reset for next section
+      repeatPass = 1;
+      repeatStart = pos + 1;
+    }
+
+    pos++;
+  }
+
+  return result;
+}
+
+function findMarker(measures: readonly ParsedMeasure[], type: 'segno' | 'coda', name: string): number {
+  for (const m of measures) {
+    if (type === 'segno' && m.segno === name) return m.measureIndex;
+    if (type === 'coda' && m.coda === name) return m.measureIndex;
+  }
+  // Try without name match (some files just use generic markers)
+  for (const m of measures) {
+    if (type === 'segno' && m.segno !== undefined) return m.measureIndex;
+    if (type === 'coda' && m.coda !== undefined) return m.measureIndex;
+  }
+  return -1;
+}
+
+// ---------------------------------------------------------------------------
+// Measure content processing (extracted for repeat expansion)
+// ---------------------------------------------------------------------------
+
+interface MeasureState {
+  currentDivisions: number;
+  currentTick: number;
+  currentTranspose: number;
+  currentVelocity: number;
+}
+
+interface MutableCounters {
+  nextVoice: number;
+}
+
+interface MutableFlags {
+  addedTimeSig: boolean;
+  addedTempo: boolean;
+}
+
+function processMeasureContent(
+  measureEl: XmlElement,
+  score: Score,
+  part: Part,
+  partId: string,
+  measureNumber: number,
+  warnings: MusicXmlWarning[],
+  state: MeasureState,
+  voiceMap: Map<string, number>,
+  counters: MutableCounters,
+  pendingTies: Map<string, { onset: number; duration: number; velocity: number; articulation?: Articulation }>,
+  globalDivisions: number,
+  flags: MutableFlags,
+  commit: (state: {
+    currentDivisions: number; currentTick: number;
+    currentTranspose: number; currentVelocity: number;
+    nextVoice: number; addedTimeSig: boolean; addedTempo: boolean;
+  }) => void,
+): void {
+  let { currentDivisions, currentTick, currentTranspose, currentVelocity } = state;
+  let { nextVoice } = counters;
+  let { addedTimeSig, addedTempo } = flags;
+
+  let prevNoteDuration = 0;
+  let prevNoteOnset = currentTick;
+
+  for (const child of measureEl.children) {
+    if (typeof child === 'string') continue;
+
+    // --- <attributes> ---
+    if (child.tag === 'attributes') {
+      const div = childInt(child, 'divisions');
+      if (div !== undefined && div > 0) currentDivisions = div;
+
+      const keyEl = findChild(child, 'key');
+      if (keyEl) {
+        const fifths = childInt(keyEl, 'fifths') ?? 0;
+        const modeStr = childText(keyEl, 'mode') ?? 'major';
+        const majorTonic = ((fifths * 7) % 12 + 12) % 12;
+        const tonic = modeStr === 'minor' ? (majorTonic + 9) % 12 : majorTonic;
+        score.keyCenters.push({
+          tonic,
+          mode: modeStr === 'minor' ? 'minor' : 'major',
+          atTick: currentTick,
+        });
+      }
+
+      const timeEl = findChild(child, 'time');
+      if (timeEl) {
+        const num = childInt(timeEl, 'beats') ?? 4;
+        const den = childInt(timeEl, 'beat-type') ?? 4;
+        if (!addedTimeSig || !score.timeSignatures.some(
+          ts => ts.atTick === currentTick && ts.numerator === num && ts.denominator === den)) {
+          score.timeSignatures.push({ numerator: num, denominator: den, atTick: currentTick });
+          addedTimeSig = true;
+        }
+      }
+
+      const transposeEl = findChild(child, 'transpose');
+      if (transposeEl) {
+        currentTranspose = childInt(transposeEl, 'chromatic') ?? 0;
+      }
+      continue;
+    }
+
+    // --- <direction> (tempo, dynamics) ---
+    if (child.tag === 'direction') {
+      const sound = findChild(child, 'sound');
+      if (sound && sound.attrs['tempo']) {
+        const bpm = parseFloat(sound.attrs['tempo']);
+        if (Number.isFinite(bpm) && bpm > 0) {
+          if (!addedTempo || !score.tempoChanges.some(tc => tc.atTick === currentTick && tc.bpm === bpm)) {
+            score.tempoChanges.push({ bpm, atTick: currentTick });
+            addedTempo = true;
+          }
+        }
+      }
+
+      const dirType = findChild(child, 'direction-type');
+      if (dirType) {
+        const dynEl = findChild(dirType, 'dynamics');
+        if (dynEl) {
+          for (const dynChild of dynEl.children) {
+            if (typeof dynChild === 'string') continue;
+            const vel = DYNAMICS_VELOCITY[dynChild.tag];
+            if (vel !== undefined) {
+              currentVelocity = vel;
+              break;
+            }
+          }
+        }
+      }
+      continue;
+    }
+
+    // --- <forward> ---
+    if (child.tag === 'forward') {
+      const dur = childInt(child, 'duration') ?? 0;
+      currentTick += scaleTicks(dur, currentDivisions, globalDivisions);
+      continue;
+    }
+
+    // --- <backup> ---
+    if (child.tag === 'backup') {
+      const dur = childInt(child, 'duration') ?? 0;
+      currentTick -= scaleTicks(dur, currentDivisions, globalDivisions);
+      if (currentTick < 0) currentTick = 0;
+      continue;
+    }
+
+    // --- <note> ---
+    if (child.tag === 'note') {
+      const isRest = findChild(child, 'rest') !== undefined;
+      const isGrace = findChild(child, 'grace') !== undefined;
+      const isChord = findChild(child, 'chord') !== undefined;
+
+      const rawDuration = childInt(child, 'duration') ?? 0;
+      let noteDuration: number;
+      if (isGrace) {
+        noteDuration = 0;
+      } else {
+        noteDuration = scaleTicks(rawDuration, currentDivisions, globalDivisions);
+      }
+
+      const timeMod = findChild(child, 'time-modification');
+      if (timeMod && !isGrace) {
+        const actualNotes = childInt(timeMod, 'actual-notes') ?? 1;
+        const normalNotes = childInt(timeMod, 'normal-notes') ?? 1;
+        if (actualNotes > 0) {
+          noteDuration = Math.round(noteDuration * normalNotes / actualNotes);
+        }
+      }
+
+      let noteOnset: number;
+      if (isChord) {
+        noteOnset = prevNoteOnset;
+      } else {
+        noteOnset = currentTick;
+      }
+
+      const voiceStr = childText(child, 'voice') ?? '1';
+      if (!voiceMap.has(voiceStr)) {
+        voiceMap.set(voiceStr, nextVoice++);
+      }
+      const voice = voiceMap.get(voiceStr)!;
+
+      if (isRest) {
+        if (!isChord && !isGrace) {
+          prevNoteOnset = currentTick;
+          prevNoteDuration = noteDuration;
+          currentTick += noteDuration;
+        }
+        continue;
+      }
+
+      const pitchEl = findChild(child, 'pitch');
+      if (!pitchEl) {
+        if (!isChord && !isGrace) {
+          prevNoteOnset = currentTick;
+          prevNoteDuration = noteDuration;
+          currentTick += noteDuration;
+        }
+        continue;
+      }
+
+      const step = childText(pitchEl, 'step') ?? 'C';
+      const octave = childInt(pitchEl, 'octave') ?? 4;
+      const alter = childInt(pitchEl, 'alter') ?? 0;
+      const stepSemitone = STEP_SEMITONE[step] ?? 0;
+      const midi = Math.max(0, Math.min(127, (octave + 1) * 12 + stepSemitone + alter + currentTranspose));
+
+      let articulation: Articulation | undefined;
+      const notations = findChild(child, 'notations');
+      if (notations) {
+        if (findChild(notations, 'fermata')) articulation = 'fermata';
+        const artics = findChild(notations, 'articulations');
+        if (artics) {
+          for (const artChild of artics.children) {
+            if (typeof artChild === 'string') continue;
+            const mapped = ARTICULATION_MAP[artChild.tag];
+            if (mapped) { articulation = mapped; break; }
+          }
+        }
+      }
+
+      let tieStart = false;
+      let tieStop = false;
+      for (const tieChild of child.children) {
+        if (typeof tieChild === 'string') continue;
+        if (tieChild.tag === 'tie') {
+          if (tieChild.attrs['type'] === 'start') tieStart = true;
+          if (tieChild.attrs['type'] === 'stop') tieStop = true;
+        }
+      }
+
+      const tieKey = `${voice}:${midi}`;
+
+      if (tieStop) {
+        const pending = pendingTies.get(tieKey);
+        if (pending) {
+          pending.duration += noteDuration;
+          if (!tieStart) {
+            addNote(score, part, {
+              midi,
+              onset: pending.onset,
+              duration: Math.max(1, pending.duration),
+              velocity: pending.velocity,
+              voice,
+              articulation: pending.articulation,
+            });
+            pendingTies.delete(tieKey);
+          }
+        } else {
+          warnings.push({ measure: measureNumber, partId, message: `Tie stop without matching start for MIDI ${midi}` });
+          if (!tieStart) {
+            if (noteDuration > 0) {
+              addNote(score, part, {
+                midi, onset: noteOnset, duration: noteDuration,
+                velocity: currentVelocity, voice, articulation,
+              });
+            }
+          } else {
+            pendingTies.set(tieKey, {
+              onset: noteOnset, duration: noteDuration,
+              velocity: currentVelocity, articulation,
+            });
+          }
+        }
+      } else if (tieStart) {
+        pendingTies.set(tieKey, {
+          onset: noteOnset, duration: noteDuration,
+          velocity: currentVelocity, articulation,
+        });
+      } else {
+        if (noteDuration > 0 || isGrace) {
+          addNote(score, part, {
+            midi, onset: noteOnset,
+            duration: isGrace && noteDuration === 0 ? 1 : noteDuration,
+            velocity: currentVelocity, voice, articulation,
+          });
+        }
+      }
+
+      if (!isChord && !isGrace) {
+        prevNoteOnset = currentTick;
+        prevNoteDuration = noteDuration;
+        currentTick += noteDuration;
+      }
+    }
+  }
+
+  commit({
+    currentDivisions, currentTick, currentTranspose, currentVelocity,
+    nextVoice, addedTimeSig, addedTempo,
+  });
+}
+
+/** Flush all pending ties, emitting notes and warnings. */
+function flushPendingTies(
+  pendingTies: Map<string, { onset: number; duration: number; velocity: number; articulation?: Articulation }>,
+  measureNumber: number,
+  partId: string,
+  part: Part,
+  score: Score,
+  warnings: MusicXmlWarning[],
+): void {
+  for (const [tieKey, pending] of pendingTies) {
+    const parts = tieKey.split(':');
+    const voice = parseInt(parts[0] ?? '0', 10);
+    const midi = parseInt(parts[1] ?? '60', 10);
+    warnings.push({ measure: measureNumber, partId, message: `Unterminated tie for MIDI ${midi}` });
+    addNote(score, part, {
+      midi, onset: pending.onset,
+      duration: Math.max(1, pending.duration),
+      velocity: pending.velocity,
+      voice, articulation: pending.articulation,
+    });
+  }
+  pendingTies.clear();
 }
 
 /** Scale ticks from one divisions base to another. */

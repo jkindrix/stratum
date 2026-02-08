@@ -478,7 +478,7 @@
 ### 5.4 MusicXML Import
 
 - [x] Parse MusicXML 4.0 (.musicxml, .xml) files
-- [ ] Parse compressed MusicXML (.mxl) containers
+- [x] Parse compressed MusicXML (.mxl) containers
 - [x] Extract: notes (pitch, duration, onset, voice, staff)
 - [x] Extract: rests
 - [x] Extract: time signatures
@@ -491,7 +491,7 @@
 - [x] Extract: measure numbers and barlines
 - [x] Handle: multiple voices per staff
 - [x] Handle: transposing instruments (concert pitch conversion)
-- [ ] Handle: repeat barlines and da capo/dal segno (expand repeats to linear form)
+- [x] Handle: repeat barlines and da capo/dal segno (expand repeats to linear form)
 - [x] Handle: grace notes (as zero-duration or short-duration events)
 - [x] Handle: tuplets (correct duration calculation)
 - [x] Handle: pickup measures (incomplete first measures)
