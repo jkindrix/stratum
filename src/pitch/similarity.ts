@@ -111,25 +111,48 @@ export function zRelation(a: PitchClassSet, b: PitchClassSet): boolean {
 }
 
 /**
+ * A function that computes the ground distance between two pitch classes.
+ * Used as a custom distance metric for Earth Mover's Distance.
+ *
+ * @param from - Source pitch class (0-11).
+ * @param to - Target pitch class (0-11).
+ * @returns Non-negative distance.
+ */
+export type GroundDistance = (from: number, to: number) => number;
+
+/**
  * Earth Mover's Distance (EMD) between two pitch-class distributions on the chroma circle.
  *
  * Computes the minimum cost of transforming distribution `a` into distribution `b`,
  * where cost is the circular semitone distance on the 12-element pitch-class ring.
- * Uses the efficient 1D circular EMD algorithm.
+ * Uses the efficient 1D circular EMD algorithm when no custom ground distance is provided.
  *
  * @param a - First pitch-class distribution (12-element array of non-negative weights).
  * @param b - Second pitch-class distribution (12-element array of non-negative weights).
+ * @param groundDistance - Optional custom ground distance function. When omitted,
+ *   uses circular semitone distance (min of clockwise/counterclockwise on the pitch-class ring).
  * @returns The Earth Mover's Distance (non-negative). 0 if distributions are identical.
- * @throws {Error} If inputs are not 12-element arrays or contain negative values.
+ * @throws {RangeError} If inputs are not 12-element arrays or contain negative values.
  *
  * @example
  * ```ts
  * const cMajor = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]; // C D E F G A B
  * const gMajor = [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]; // G A B C D E F#
  * earthMoversDistance(cMajor, gMajor); // small value (closely related keys)
+ *
+ * // Circle-of-fifths distance
+ * const fifthsDist = (a: number, b: number) => {
+ *   const steps = Math.abs(((a * 7) % 12) - ((b * 7) % 12));
+ *   return Math.min(steps, 12 - steps);
+ * };
+ * earthMoversDistance(cMajor, gMajor, fifthsDist);
  * ```
  */
-export function earthMoversDistance(a: readonly number[], b: readonly number[]): number {
+export function earthMoversDistance(
+  a: readonly number[],
+  b: readonly number[],
+  groundDistance?: GroundDistance,
+): number {
   if (a.length !== 12 || b.length !== 12) {
     throw new RangeError('Both distributions must have exactly 12 elements');
   }
@@ -151,36 +174,257 @@ export function earthMoversDistance(a: readonly number[], b: readonly number[]):
   const normA = a.map(v => v / sumA);
   const normB = b.map(v => v / sumB);
 
-  // 1D circular EMD via cumulative difference
-  // For circular distributions, EMD = min over rotations of the linear EMD
-  // We use the efficient O(n) algorithm: compute prefix sum of differences,
-  // then EMD = sum of |prefix[i] - median(prefix)|
+  if (groundDistance) {
+    return generalEMD(normA, normB, groundDistance);
+  }
+  return circularEMD(normA, normB);
+}
+
+// ---- Internal Helpers ----
+
+/** Efficient O(n) circular EMD for the default semitone ground distance. */
+function circularEMD(normA: number[], normB: number[]): number {
   const diff = new Array<number>(12);
   for (let i = 0; i < 12; i++) {
     diff[i] = normA[i]! - normB[i]!;
   }
 
-  // Cumulative sum
   const cumSum = new Array<number>(12);
   cumSum[0] = diff[0]!;
   for (let i = 1; i < 12; i++) {
     cumSum[i] = cumSum[i - 1]! + diff[i]!;
   }
 
-  // For circular EMD, find the offset that minimizes total work
-  // This is equivalent to finding the median of cumulative sums
   const sorted = [...cumSum].sort((x, y) => x - y);
-  const median = sorted[6]!; // median of 12 values
+  const median = sorted[6]!;
 
   let emd = 0;
   for (let i = 0; i < 12; i++) {
     emd += Math.abs(cumSum[i]! - median);
   }
-
   return emd;
 }
 
-// ---- Internal Helpers ----
+/**
+ * General EMD using the transportation simplex method for arbitrary ground distances.
+ * Solves the optimal transport problem for N=12 supply/demand nodes.
+ */
+function generalEMD(
+  supply: number[],
+  demand: number[],
+  distFn: GroundDistance,
+): number {
+  const N = 12;
+  const EPS = 1e-12;
+
+  // Build cost matrix
+  const cost: number[][] = [];
+  for (let i = 0; i < N; i++) {
+    cost[i] = [];
+    for (let j = 0; j < N; j++) {
+      cost[i]![j] = distFn(i, j);
+    }
+  }
+
+  // Filter to non-zero supply and demand indices for efficiency
+  const sIdx: number[] = [];
+  const dIdx: number[] = [];
+  const s: number[] = [];
+  const d: number[] = [];
+  for (let i = 0; i < N; i++) {
+    if (supply[i]! > EPS) { sIdx.push(i); s.push(supply[i]!); }
+    if (demand[i]! > EPS) { dIdx.push(i); d.push(demand[i]!); }
+  }
+
+  const m = s.length;
+  const n = d.length;
+  if (m === 0 || n === 0) return 0;
+
+  // Allocate flow matrix using Northwest Corner Method
+  const flow: number[][] = [];
+  for (let i = 0; i < m; i++) {
+    flow[i] = new Array<number>(n).fill(0);
+  }
+
+  const remS = [...s];
+  const remD = [...d];
+  let si = 0;
+  let di = 0;
+  while (si < m && di < n) {
+    const amt = Math.min(remS[si]!, remD[di]!);
+    flow[si]![di] = amt;
+    remS[si]! -= amt;
+    remD[di]! -= amt;
+    if (remS[si]! < EPS) si++;
+    if (remD[di]! < EPS) di++;
+  }
+
+  // Track basis cells
+  const inBasis: boolean[][] = [];
+  for (let i = 0; i < m; i++) {
+    inBasis[i] = new Array<boolean>(n).fill(false);
+  }
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (flow[i]![j]! > EPS) inBasis[i]![j] = true;
+    }
+  }
+
+  // Ensure basis has m + n - 1 cells (add degenerate cells if needed)
+  let basisCount = 0;
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (inBasis[i]![j]) basisCount++;
+    }
+  }
+  // Add degenerate cells along the diagonal if needed
+  for (let i = 0; i < m && basisCount < m + n - 1; i++) {
+    for (let j = 0; j < n && basisCount < m + n - 1; j++) {
+      if (!inBasis[i]![j]) {
+        inBasis[i]![j] = true;
+        flow[i]![j] = 0;
+        basisCount++;
+      }
+    }
+  }
+
+  // MODI method: iterate until optimal
+  const MAX_ITER = 200;
+  for (let iter = 0; iter < MAX_ITER; iter++) {
+    // Compute dual variables u, v via basis cells: u[i] + v[j] = cost[sIdx[i]][dIdx[j]]
+    const u = new Array<number>(m).fill(NaN);
+    const v = new Array<number>(n).fill(NaN);
+    u[0] = 0;
+    let assigned = 1;
+    let changed = true;
+    while (changed && assigned < m + n) {
+      changed = false;
+      for (let i = 0; i < m; i++) {
+        for (let j = 0; j < n; j++) {
+          if (!inBasis[i]![j]) continue;
+          const c = cost[sIdx[i]!]![dIdx[j]!]!;
+          if (!isNaN(u[i]!) && isNaN(v[j]!)) {
+            v[j] = c - u[i]!;
+            assigned++;
+            changed = true;
+          } else if (isNaN(u[i]!) && !isNaN(v[j]!)) {
+            u[i] = c - v[j]!;
+            assigned++;
+            changed = true;
+          }
+        }
+      }
+    }
+
+    // Find most negative reduced cost among non-basis cells
+    let minRC = -EPS;
+    let enterI = -1;
+    let enterJ = -1;
+    for (let i = 0; i < m; i++) {
+      for (let j = 0; j < n; j++) {
+        if (inBasis[i]![j]) continue;
+        const rc = cost[sIdx[i]!]![dIdx[j]!]! - (u[i] ?? 0) - (v[j] ?? 0);
+        if (rc < minRC) {
+          minRC = rc;
+          enterI = i;
+          enterJ = j;
+        }
+      }
+    }
+
+    if (enterI === -1) break; // Optimal
+
+    // Find loop through basis cells starting/ending at (enterI, enterJ)
+    const loop = findLoop(inBasis, m, n, enterI, enterJ);
+    if (loop.length === 0) break;
+
+    // Find minimum flow on negative arcs (odd-indexed cells in loop)
+    let minFlow = Infinity;
+    for (let k = 1; k < loop.length; k += 2) {
+      const [li, lj] = loop[k]!;
+      const f = flow[li!]![lj!]!;
+      if (f < minFlow) minFlow = f;
+    }
+
+    // Adjust flow along loop
+    for (let k = 0; k < loop.length; k++) {
+      const [li, lj] = loop[k]!;
+      if (k % 2 === 0) {
+        flow[li!]![lj!]! += minFlow;
+      } else {
+        flow[li!]![lj!]! -= minFlow;
+      }
+    }
+
+    // Update basis: add entering cell, remove one leaving cell
+    inBasis[enterI]![enterJ] = true;
+    for (let k = 1; k < loop.length; k += 2) {
+      const [li, lj] = loop[k]!;
+      if (flow[li!]![lj!]! < EPS) {
+        flow[li!]![lj!] = 0;
+        inBasis[li!]![lj!] = false;
+        break;
+      }
+    }
+  }
+
+  // Compute total cost
+  let totalCost = 0;
+  for (let i = 0; i < m; i++) {
+    for (let j = 0; j < n; j++) {
+      if (flow[i]![j]! > EPS) {
+        totalCost += flow[i]![j]! * cost[sIdx[i]!]![dIdx[j]!]!;
+      }
+    }
+  }
+  return totalCost;
+}
+
+/**
+ * Find a loop through basis cells for the entering variable at (enterI, enterJ).
+ * Uses BFS alternating between row and column scans.
+ */
+function findLoop(
+  inBasis: boolean[][],
+  m: number,
+  n: number,
+  enterI: number,
+  enterJ: number,
+): [number, number][] {
+  type Step = { i: number; j: number; path: [number, number][] };
+
+  const start: Step = { i: enterI, j: enterJ, path: [[enterI, enterJ]] };
+  const queue: Step[] = [start];
+  const maxLen = 2 * (m + n);
+
+  while (queue.length > 0) {
+    const cur = queue.shift()!;
+    const step = cur.path.length;
+    const isRowStep = step % 2 === 1;
+
+    if (isRowStep) {
+      for (let j = 0; j < n; j++) {
+        if (j === cur.j) continue;
+        if (!inBasis[cur.i]![j]) continue;
+        const newPath: [number, number][] = [...cur.path, [cur.i, j]];
+        if (newPath.length > maxLen) continue;
+        queue.push({ i: cur.i, j, path: newPath });
+      }
+    } else {
+      for (let i = 0; i < m; i++) {
+        if (i === cur.i) continue;
+        if (!inBasis[i]![cur.j]) continue;
+        if (i === enterI && step >= 3) {
+          return [...cur.path, [i, cur.j]];
+        }
+        const newPath: [number, number][] = [...cur.path, [i, cur.j]];
+        if (newPath.length > maxLen) continue;
+        queue.push({ i, j: cur.j, path: newPath });
+      }
+    }
+  }
+  return [];
+}
 
 function pearson6(
   x: [number, number, number, number, number, number],

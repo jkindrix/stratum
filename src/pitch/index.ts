@@ -61,6 +61,7 @@ export {
 } from './tuning.js';
 
 // PCS similarity measures
+export type { GroundDistance } from './similarity.js';
 export {
   icvsim,
   angleSimilarity,

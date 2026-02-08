@@ -160,4 +160,81 @@ describe('Earth Movers Distance', () => {
     const b = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     expect(() => earthMoversDistance(a, b)).toThrow('non-negative');
   });
+
+  describe('custom ground distance', () => {
+    it('no groundDistance matches existing behavior', () => {
+      const a = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1];
+      const b = [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1];
+      const defaultResult = earthMoversDistance(a, b);
+      expect(defaultResult).toBeGreaterThan(0);
+      // Calling without 3rd arg should be the same as always
+      expect(earthMoversDistance(a, b)).toBeCloseTo(defaultResult);
+    });
+
+    it('circle-of-fifths distance changes ranking', () => {
+      // C→G is 1 fifth step; C→F# is 6 fifth steps
+      const fifthsDist = (from: number, to: number) => {
+        const a = ((from * 7) % 12 + 12) % 12;
+        const b = ((to * 7) % 12 + 12) % 12;
+        const diff = Math.abs(a - b);
+        return Math.min(diff, 12 - diff);
+      };
+
+      const allC = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      const allG = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]; // G = pc 7
+      const allFs = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]; // F# = pc 6
+
+      const cToG = earthMoversDistance(allC, allG, fifthsDist);
+      const cToFs = earthMoversDistance(allC, allFs, fifthsDist);
+      // C→G is 1 step on circle of fifths, C→F# is 6 steps
+      expect(cToG).toBeLessThan(cToFs);
+    });
+
+    it('custom uniform distance d(i,j)=1 if i≠j gives known value', () => {
+      // With uniform distance, EMD = total mass that needs to move (any move costs 1)
+      const allC = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // all on C
+      const allG = [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]; // all on G
+      const uniform = (from: number, to: number) => from === to ? 0 : 1;
+      // Move 1 unit of mass from C to G, cost = 1 * 1 = 1
+      expect(earthMoversDistance(allC, allG, uniform)).toBeCloseTo(1);
+    });
+
+    it('custom zero distance returns 0', () => {
+      const a = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1];
+      const b = [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1];
+      const zeroDist = () => 0;
+      expect(earthMoversDistance(a, b, zeroDist)).toBeCloseTo(0);
+    });
+
+    it('symmetry with custom distance', () => {
+      const fifthsDist = (from: number, to: number) => {
+        const a = ((from * 7) % 12 + 12) % 12;
+        const b = ((to * 7) % 12 + 12) % 12;
+        const diff = Math.abs(a - b);
+        return Math.min(diff, 12 - diff);
+      };
+      const a = [1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1]; // C major
+      const b = [1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1]; // G major
+      expect(earthMoversDistance(a, b, fifthsDist))
+        .toBeCloseTo(earthMoversDistance(b, a, fifthsDist));
+    });
+
+    it('custom distance called with correct args', () => {
+      const calls: [number, number][] = [];
+      const tracker = (from: number, to: number) => {
+        calls.push([from, to]);
+        const diff = Math.abs(from - to);
+        return Math.min(diff, 12 - diff);
+      };
+      const a = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      const b = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      earthMoversDistance(a, b, tracker);
+      // Cost matrix built with all 144 pairs (0..11)×(0..11)
+      expect(calls.length).toBe(144);
+      // Verify some specific calls
+      expect(calls).toContainEqual([0, 0]);
+      expect(calls).toContainEqual([0, 1]);
+      expect(calls).toContainEqual([11, 11]);
+    });
+  });
 });

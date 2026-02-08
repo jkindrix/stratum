@@ -78,6 +78,42 @@ function useFlats(key?: SpellingKeyContext): boolean {
   return FLAT_KEYS.has(key.tonic);
 }
 
+// Enharmonic alternatives for chromatic pitch classes (those with sharp/flat options).
+// Maps PC → [sharp letter, sharp accidental, flat letter, flat accidental].
+const ENHARMONIC_ALTERNATIVES: ReadonlyMap<number, readonly [string, string, string, string]> = new Map([
+  [1,  ['C', '#', 'D', 'b']],
+  [3,  ['D', '#', 'E', 'b']],
+  [6,  ['F', '#', 'G', 'b']],
+  [8,  ['G', '#', 'A', 'b']],
+  [10, ['A', '#', 'B', 'b']],
+]);
+
+function findDirectionalSpelling(
+  pc: number,
+  key: SpellingKeyContext | undefined,
+  direction: number,
+): [string, string] {
+  // Diatonic notes always use diatonic spelling regardless of direction
+  if (key) {
+    const scalePcs = key.mode === 'minor'
+      ? minorScalePcs(key.tonic)
+      : majorScalePcs(key.tonic);
+    if (scalePcs.includes(pc)) {
+      return findBestSpelling(pc, key);
+    }
+  }
+
+  // Chromatic notes: apply directional preference
+  const alt = ENHARMONIC_ALTERNATIVES.get(pc);
+  if (alt && direction !== 0) {
+    if (direction > 0) return [alt[0], alt[1]]; // ascending → sharps
+    return [alt[2], alt[3]]; // descending → flats
+  }
+
+  // No direction or non-chromatic: fall back to key-based spelling
+  return findBestSpelling(pc, key);
+}
+
 function findBestSpelling(pc: number, key?: SpellingKeyContext): [string, string] {
   if (!key) {
     // No key context: prefer sharps
@@ -182,5 +218,17 @@ export function spellPitchSequence(
   midiNotes: readonly number[],
   key?: SpellingKeyContext,
 ): SpelledPitch[] {
-  return midiNotes.map(midi => spellPitch(midi, key));
+  const result: SpelledPitch[] = [];
+  for (let i = 0; i < midiNotes.length; i++) {
+    const midi = midiNotes[i]!;
+    if (!Number.isInteger(midi) || midi < 0 || midi > 127) {
+      throw new RangeError(`MIDI note must be 0-127 (got ${midi})`);
+    }
+    const pc = midi % 12;
+    const octave = Math.floor(midi / 12) - 1;
+    const direction = i === 0 ? 0 : midi - midiNotes[i - 1]!;
+    const [letter, accidental] = findDirectionalSpelling(pc, key, direction);
+    result.push({ letter, accidental, name: `${letter}${accidental}${octave}`, midi, octave });
+  }
+  return result;
 }

@@ -101,4 +101,59 @@ describe('Pitch Spelling', () => {
       expect(result[0]!.accidental).toBe('#'); // C#
     });
   });
+
+  describe('directional consistency', () => {
+    it('ascending chromatic uses sharps: C→C#→D', () => {
+      const result = spellPitchSequence([60, 61, 62]);
+      expect(result.map(r => r.name)).toEqual(['C4', 'C#4', 'D4']);
+    });
+
+    it('descending chromatic uses flats: D→Db→C', () => {
+      const result = spellPitchSequence([62, 61, 60]);
+      expect(result.map(r => r.name)).toEqual(['D4', 'Db4', 'C4']);
+    });
+
+    it('diatonic Db stays Db in Ab major even when ascending', () => {
+      const key = { tonic: 8, mode: 'major' as const }; // Ab major: Ab Bb C Db Eb F G
+      // Ascending through Db (MIDI 61): should stay Db because it's diatonic
+      const result = spellPitchSequence([60, 61, 63], key);
+      expect(result[1]!.letter).toBe('D');
+      expect(result[1]!.accidental).toBe('b');
+    });
+
+    it('diatonic C# stays C# in A major even when descending', () => {
+      const key = { tonic: 9, mode: 'major' as const }; // A major: A B C# D E F# G#
+      // Descending through C# (MIDI 61): should stay C# because it's diatonic
+      const result = spellPitchSequence([62, 61, 60], key);
+      expect(result[1]!.letter).toBe('C');
+      expect(result[1]!.accidental).toBe('#');
+    });
+
+    it('mixed direction: [60,61,62,61,60] → C,C#,D,Db,C', () => {
+      const result = spellPitchSequence([60, 61, 62, 61, 60]);
+      expect(result.map(r => r.name)).toEqual(['C4', 'C#4', 'D4', 'Db4', 'C4']);
+    });
+
+    it('first note uses key-based spelling (no direction)', () => {
+      const keyFlat = { tonic: 5, mode: 'major' as const }; // F major (flat key)
+      const result = spellPitchSequence([70], keyFlat); // Bb
+      expect(result[0]!.letter).toBe('B');
+      expect(result[0]!.accidental).toBe('b');
+    });
+
+    it('large ascending leap uses sharp for chromatic note', () => {
+      // C4 → G#4 (ascending by 8 semitones)
+      const result = spellPitchSequence([60, 68]);
+      expect(result[1]!.letter).toBe('G');
+      expect(result[1]!.accidental).toBe('#');
+    });
+
+    it('unison repeated note keeps key-based spelling', () => {
+      const key = { tonic: 8, mode: 'major' as const }; // Ab major
+      // Db repeated: direction = 0, falls back to key-based (Db in Ab major)
+      const result = spellPitchSequence([61, 61], key);
+      expect(result[0]!.name).toBe('Db4');
+      expect(result[1]!.name).toBe('Db4');
+    });
+  });
 });
