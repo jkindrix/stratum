@@ -66,6 +66,12 @@ function getScaleDegree(pc: number, tonic: number, scale: readonly number[]): nu
   return idx >= 0 ? idx + 1 : null;
 }
 
+/**
+ * Derive a chord quality string from a chord symbol.
+ *
+ * @param symbol - Chord symbol string (e.g., "Cmaj7", "Ddim", "Eaug", "Fmin").
+ * @returns Quality string: 'diminished', 'augmented', 'dominant', 'minor', or 'major'.
+ */
 export function chordQualityFromSymbol(symbol: string): string {
   const s = symbol.toLowerCase();
   if (s.includes('dim')) return 'diminished';

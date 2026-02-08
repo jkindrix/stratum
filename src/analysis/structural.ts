@@ -225,7 +225,13 @@ export function chromaticFeature(events: readonly NoteEvent[]): readonly number[
   return Object.freeze(normalized);
 }
 
-/** Cosine similarity between two vectors, clamped to [0, 1]. */
+/**
+ * Compute cosine similarity between two vectors, clamped to [0, 1].
+ *
+ * @param a - First feature vector.
+ * @param b - Second feature vector.
+ * @returns Similarity value in [0, 1] where 1 means identical direction.
+ */
 export function cosineSimilarity(a: readonly number[], b: readonly number[]): number {
   let dot = 0, normA = 0, normB = 0;
   const len = Math.min(a.length, b.length);
@@ -242,8 +248,11 @@ export function cosineSimilarity(a: readonly number[], b: readonly number[]): nu
 }
 
 /**
- * Euclidean similarity between two vectors: 1 / (1 + euclidean_distance).
- * Returns a value in [0, 1] where 1 means identical.
+ * Compute Euclidean similarity between two vectors as 1 / (1 + distance).
+ *
+ * @param a - First feature vector.
+ * @param b - Second feature vector.
+ * @returns Similarity value in [0, 1] where 1 means identical.
  */
 export function euclideanSimilarity(a: readonly number[], b: readonly number[]): number {
   let sum = 0;
@@ -256,8 +265,11 @@ export function euclideanSimilarity(a: readonly number[], b: readonly number[]):
 }
 
 /**
- * Pearson correlation similarity: (r + 1) / 2 mapped to [0, 1].
- * Returns 0.5 for uncorrelated, 1 for perfectly correlated, 0 for perfectly anticorrelated.
+ * Compute Pearson correlation similarity mapped to [0, 1] via (r + 1) / 2.
+ *
+ * @param a - First feature vector.
+ * @param b - Second feature vector.
+ * @returns Similarity value where 0.5 = uncorrelated, 1 = perfectly correlated, 0 = perfectly anticorrelated.
  */
 export function correlationSimilarity(a: readonly number[], b: readonly number[]): number {
   const len = Math.min(a.length, b.length);

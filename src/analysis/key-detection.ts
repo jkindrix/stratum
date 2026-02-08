@@ -80,6 +80,13 @@ const FLAT_MINOR_TONICS = new Set([0, 1, 3, 5, 7, 8, 10]); // C, Db, Eb, F, G, A
 
 // ---- Internal Helpers ----
 
+/**
+ * Return the conventional human-readable name for a key.
+ *
+ * @param tonic - Tonic pitch class (0-11).
+ * @param mode - Key mode ('major' or 'minor').
+ * @returns Key name string (e.g., "C major", "F# minor", "Bb major").
+ */
 export function keyName(tonic: number, mode: 'major' | 'minor'): string {
   const useFlats = mode === 'major'
     ? FLAT_MAJOR_TONICS.has(tonic)
@@ -117,6 +124,13 @@ function resolveProfile(opt: KeyDetectionOptions['profile']): KeyProfile {
   return opt;
 }
 
+/**
+ * Compute a 12-element pitch-class distribution from note events.
+ *
+ * @param events - Note events to aggregate.
+ * @param weightByDuration - If true, weight each pitch class by note duration; otherwise count occurrences.
+ * @returns Array of 12 numbers representing pitch-class weights (index 0 = C through 11 = B).
+ */
 export function pcDistribution(events: readonly NoteEvent[], weightByDuration: boolean): number[] {
   const dist = new Array<number>(12).fill(0);
   for (const e of events) {

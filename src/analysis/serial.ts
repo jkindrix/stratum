@@ -518,28 +518,40 @@ function hexCombinatorialCheck(
 }
 
 /**
- * Test P-combinatoriality: ∃n where first hexachord of P(0) ∪ first hexachord of P(n) = aggregate.
+ * Test P-combinatoriality: exists n where first hexachord of P(0) union first hexachord of P(n) = aggregate.
+ *
+ * @param row - A twelve-tone row.
+ * @returns True if the row is P-combinatorial.
  */
 export function isHexachordallyCombinatorialP(row: TwelveToneRow): boolean {
   return hexCombinatorialCheck(row, 'P');
 }
 
 /**
- * Test I-combinatoriality: ∃n where first hexachord of P(0) ∪ first hexachord of I(n) = aggregate.
+ * Test I-combinatoriality: exists n where first hexachord of P(0) union first hexachord of I(n) = aggregate.
+ *
+ * @param row - A twelve-tone row.
+ * @returns True if the row is I-combinatorial.
  */
 export function isHexachordallyCombinatorialI(row: TwelveToneRow): boolean {
   return hexCombinatorialCheck(row, 'I');
 }
 
 /**
- * Test R-combinatoriality: ∃n where first hexachord of P(0) ∪ first hexachord of R(n) = aggregate.
+ * Test R-combinatoriality: exists n where first hexachord of P(0) union first hexachord of R(n) = aggregate.
+ *
+ * @param row - A twelve-tone row.
+ * @returns True if the row is R-combinatorial.
  */
 export function isHexachordallyCombinatorialR(row: TwelveToneRow): boolean {
   return hexCombinatorialCheck(row, 'R');
 }
 
 /**
- * Test RI-combinatoriality: ∃n where first hexachord of P(0) ∪ first hexachord of RI(n) = aggregate.
+ * Test RI-combinatoriality: exists n where first hexachord of P(0) union first hexachord of RI(n) = aggregate.
+ *
+ * @param row - A twelve-tone row.
+ * @returns True if the row is RI-combinatorial.
  */
 export function isHexachordallyCombinatorialRI(row: TwelveToneRow): boolean {
   return hexCombinatorialCheck(row, 'RI');

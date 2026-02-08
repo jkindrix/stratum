@@ -154,6 +154,10 @@ function intervalsToFigures(intervals: readonly FBInterval[]): string {
  * - `"4/3"` → seventh 2nd inversion [6,4,3]
  * - `"4/2"` or `"2"` → seventh 3rd inversion [6,4,2]
  * - Accidentals: `"#6"`, `"b"`, `"#"` modify intervals
+ *
+ * @param figures - Figured bass string to parse (e.g. "", "6", "7", "#6/4")
+ * @returns Parsed representation with raw input and structured intervals
+ * @throws {RangeError} If a token contains an invalid interval number.
  */
 export function parseFiguredBass(figures: string): ParsedFiguredBass {
   const raw = figures.trim();

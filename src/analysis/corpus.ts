@@ -236,6 +236,9 @@ function substringMatch(haystack: string, needle: string): boolean {
 
 /**
  * Create a corpus from pre-built entries.
+ *
+ * @param entries - Array of corpus entries to include
+ * @returns Frozen corpus containing the provided entries
  * @throws {RangeError} If duplicate IDs exist.
  */
 export function createCorpus(entries: readonly CorpusEntry[]): Corpus {
@@ -255,6 +258,10 @@ export function createCorpus(entries: readonly CorpusEntry[]): Corpus {
 
 /**
  * Load multiple inputs into a corpus, automatically parsing and extracting metadata.
+ *
+ * @param inputs - Array of input descriptors specifying data, format, and optional metadata
+ * @param options - Optional settings such as automatic key detection
+ * @returns Frozen corpus with parsed scores and extracted metadata
  * @throws {RangeError} If inputs is empty or format/data mismatch.
  */
 export function loadCorpus(
@@ -282,7 +289,12 @@ export function loadCorpus(
 
 /**
  * Search a corpus by metadata fields (AND logic, case-insensitive substring match).
+ *
  * Empty query returns all entries.
+ *
+ * @param corpus - The corpus to search
+ * @param query - Metadata field filters to apply (all must match)
+ * @returns New corpus containing only matching entries
  */
 export function corpusSearch(corpus: Corpus, query: CorpusQuery): Corpus {
   const fields: Array<{ key: keyof CorpusMetadata; value: string }> = [];
@@ -307,6 +319,10 @@ export function corpusSearch(corpus: Corpus, query: CorpusQuery): Corpus {
 
 /**
  * Filter corpus entries by a predicate function.
+ *
+ * @param corpus - The corpus to filter
+ * @param predicate - Function returning true for entries to keep
+ * @returns New corpus containing only entries passing the predicate
  */
 export function corpusFilter(
   corpus: Corpus,
@@ -318,6 +334,10 @@ export function corpusFilter(
 
 /**
  * Run an analysis function on every entry and collect results.
+ *
+ * @param corpus - The corpus to analyze
+ * @param analysisFn - Function to apply to each entry's score
+ * @returns Frozen array of batch results pairing entry IDs with analysis output
  */
 export function batchAnalyze<T>(
   corpus: Corpus,
@@ -334,6 +354,10 @@ export function batchAnalyze<T>(
 
 /**
  * Compute descriptive statistics for a numeric feature across the corpus.
+ *
+ * @param corpus - The corpus to compute statistics over
+ * @param featureFn - Function extracting a numeric value from each entry
+ * @returns Descriptive statistics including mean, stdDev, median, min, and max
  * @throws {RangeError} If corpus is empty.
  */
 export function corpusStatistics(
@@ -383,6 +407,11 @@ export function corpusStatistics(
  *
  * **Targeted mode** (pattern provided): search for that specific interval sequence.
  * **Discovery mode** (pattern omitted): find all shared interval n-grams.
+ *
+ * @param corpus - The corpus to search across
+ * @param pattern - Optional specific interval pattern to find; omit for discovery mode
+ * @param options - Optional constraints on minimum works, n-gram length bounds
+ * @returns Frozen array of cross-work matches sorted by occurrence count (descending)
  */
 export function crossWorkSearch(
   corpus: Corpus,

@@ -1297,8 +1297,8 @@
 - [x] JSDoc on every exported type and interface
 - [x] JSDoc on every public method of PitchClassSet
 - [x] Document algorithm limitations in JSDoc
-- [ ] JSDoc on all v2+ exported functions
-- [ ] JSDoc on all v3+ exported functions
+- [x] JSDoc on all v2+ exported functions
+- [x] JSDoc on all v3+ exported functions
 
 ### 10.3 Examples
 
@@ -1537,7 +1537,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] All Section 9.23 visualization tests passing
 - [x] All Section 9.25-9.27 tests passing (pitch spelling, EMD, cent/ratio/EDO)
 - [ ] README updated with v2 examples
-- [ ] JSDoc on all v2 exports
+- [x] JSDoc on all v2 exports
 
 ### v3.0 — Feature-Complete Platform
 
@@ -1591,7 +1591,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] All Section 9.19-9.24 tests passing
 - [ ] All Section 9.25-9.37 tests passing (new feature tests)
 - [ ] README updated with v3 examples
-- [ ] JSDoc on all v3 exports
+- [x] JSDoc on all v3 exports
 - [x] Subpath exports updated for all new modules
 - [x] Zero runtime dependencies maintained
 

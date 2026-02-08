@@ -41,6 +41,11 @@ export interface GIS<S = number> {
  *
  * T-arrow consistency: `(nodes[from] + n) % 12 === nodes[to]`
  * I-arrow consistency: `(n - nodes[from] + 12) % 12 === nodes[to]`
+ *
+ * @param nodes - Array of pitch classes (integers 0-11) forming the network nodes
+ * @param arrows - Array of T/I arrows connecting the nodes
+ * @returns Frozen K-net with validated nodes and arrows
+ * @throws {RangeError} If nodes are outside 0-11, arrow indices are out of range, or T/I operations are inconsistent.
  */
 export function buildKNet(
   nodes: readonly number[],
@@ -103,6 +108,11 @@ export function buildKNet(
  * - **Strong isography**: positive isography with constant = 0.
  * - **Negative isography**: all T-labels complementary `(a.n + b.n) % 12 === 0`;
  *   all I-label sums `(a.n + b.n) % 12` are a constant.
+ *
+ * @param a - First K-net
+ * @param b - Second K-net (must share the same graph topology as a)
+ * @returns Isography result indicating positive, negative, and strong relations
+ * @throws {RangeError} If the two K-nets differ in node count, arrow count, or graph topology.
  */
 export function kNetIsography(a: KNet, b: KNet): IsographyResult {
   if (a.nodes.length !== b.nodes.length) {
@@ -198,6 +208,11 @@ export function kNetIsography(a: KNet, b: KNet): IsographyResult {
  *
  * A GIS consists of a set of elements and an interval function that maps
  * pairs of elements to an interval group.
+ *
+ * @param elements - The set of elements in the GIS
+ * @param intervalFn - Function computing the interval between two elements
+ * @returns Frozen GIS instance
+ * @throws {RangeError} If elements is empty.
  */
 export function buildGIS<S>(
   elements: readonly S[],
@@ -215,16 +230,23 @@ export function buildGIS<S>(
 
 /**
  * Compute the interval between two elements in a GIS.
+ *
+ * @param gis - The generalized interval system to use
+ * @param a - Source element
+ * @param b - Target element
+ * @returns The interval from a to b as defined by the GIS interval function
  */
 export function gisInterval<S>(gis: GIS<S>, a: S, b: S): number {
   return gis.intervalFn(a, b);
 }
 
 /**
- * Create a standard pitch-class GIS (Z₁₂).
+ * Create a standard pitch-class GIS (Z12).
  *
  * Elements: [0, 1, ..., 11]
  * Interval: `(b - a + 12) % 12`
+ *
+ * @returns Frozen pitch-class GIS with mod-12 interval function
  */
 export function pitchClassGIS(): GIS<number> {
   const elements = Array.from({ length: 12 }, (_, i) => i);
@@ -236,6 +258,11 @@ export function pitchClassGIS(): GIS<number> {
  *
  * Elements: integers from `low` to `high` (inclusive)
  * Interval: `b - a` (signed directed interval in semitones)
+ *
+ * @param low - Lower bound of MIDI range (default 0)
+ * @param high - Upper bound of MIDI range (default 127)
+ * @returns Frozen pitch GIS with signed semitone interval function
+ * @throws {RangeError} If low or high are not integers, or low exceeds high.
  */
 export function pitchGIS(low = 0, high = 127): GIS<number> {
   if (!Number.isInteger(low) || !Number.isInteger(high)) {
@@ -254,6 +281,10 @@ export function pitchGIS(low = 0, high = 127): GIS<number> {
  *
  * Elements: the provided durations
  * Interval: `b / a` (ratio)
+ *
+ * @param durations - Array of positive duration values
+ * @returns Frozen duration GIS with ratio-based interval function
+ * @throws {RangeError} If any duration is not positive.
  */
 export function durationGIS(durations: readonly number[]): GIS<number> {
   for (let i = 0; i < durations.length; i++) {
