@@ -330,6 +330,19 @@ export type {
   KNet,
   IsographyResult,
   GIS,
+  // Corpus
+  CorpusFormat,
+  CorpusMetadata,
+  CorpusEntry,
+  Corpus,
+  CorpusInput,
+  LoadCorpusOptions,
+  CorpusQuery,
+  BatchResult,
+  CorpusFeatureStats,
+  CrossWorkOccurrence,
+  CrossWorkMatch,
+  CrossWorkSearchOptions,
 } from './analysis/index.js';
 export {
   identifyChord,
@@ -480,6 +493,14 @@ export {
   pitchClassGIS,
   pitchGIS,
   durationGIS,
+  // Corpus tools
+  createCorpus,
+  loadCorpus,
+  corpusSearch,
+  corpusFilter,
+  batchAnalyze,
+  corpusStatistics,
+  crossWorkSearch,
 } from './analysis/index.js';
 
 // Composition

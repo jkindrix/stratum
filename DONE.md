@@ -915,14 +915,14 @@
 
 ### 7.13 Corpus Tools
 
-- [ ] `Corpus` class — collection of scores with metadata for batch analysis
-- [ ] `loadCorpus(paths, options?)` — batch load multiple score files (MIDI, MusicXML, kern, ABC)
-- [ ] `corpusSearch(corpus, query)` — search across works by metadata (composer, key, time signature, date)
-- [ ] `corpusFilter(corpus, predicate)` — filter works by analytical criteria (e.g., all pieces in minor keys)
-- [ ] `batchAnalyze(corpus, analysisFn)` — apply an analysis function to every score and collect results
-- [ ] `corpusStatistics(corpus, featureFn)` — aggregate statistics across corpus (mean, std dev, distributions)
-- [ ] `crossWorkSearch(corpus, pattern)` — find melodic/harmonic patterns across multiple works
-- [ ] Support metadata fields: title, composer, date, genre, instrumentation, key, meter
+- [x] `Corpus` class — collection of scores with metadata for batch analysis
+- [x] `loadCorpus(paths, options?)` — batch load multiple score files (MIDI, MusicXML, kern, ABC)
+- [x] `corpusSearch(corpus, query)` — search across works by metadata (composer, key, time signature, date)
+- [x] `corpusFilter(corpus, predicate)` — filter works by analytical criteria (e.g., all pieces in minor keys)
+- [x] `batchAnalyze(corpus, analysisFn)` — apply an analysis function to every score and collect results
+- [x] `corpusStatistics(corpus, featureFn)` — aggregate statistics across corpus (mean, std dev, distributions)
+- [x] `crossWorkSearch(corpus, pattern)` — find melodic/harmonic patterns across multiple works
+- [x] Support metadata fields: title, composer, date, genre, instrumentation, key, meter
 
 ### 7.14 Evaluation Metrics
 
@@ -1246,10 +1246,10 @@
 
 ### 9.33 Corpus Tool Tests
 
-- [ ] Load multiple MIDI files into corpus
-- [ ] Corpus search by metadata returns correct subset
-- [ ] Batch analysis produces one result per score
-- [ ] Cross-work pattern search finds shared motives
+- [x] Load multiple MIDI files into corpus
+- [x] Corpus search by metadata returns correct subset
+- [x] Batch analysis produces one result per score
+- [x] Cross-work pattern search finds shared motives
 
 ### 9.34 Evaluation Metric Tests
 
@@ -1553,7 +1553,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 7.9: Counterpoint analysis
 - [x] Section 7.10: Textural analysis
 - [x] Section 7.12: Harmonic network analysis
-- [ ] Section 7.13: Corpus tools
+- [x] Section 7.13: Corpus tools
 - [x] Section 7.14: Evaluation metrics (mir_eval-style)
 - [x] Section 7.15: Figured bass realization
 - [x] Section 7.16: Klumpenhouwer networks and GIS
@@ -1679,7 +1679,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 | 7.10 Textural Analysis | — | ✅ 100% | — |
 | 7.11 Statistical Analysis | — | ✅ 100% | — |
 | 7.12 Harmonic Networks | — | ✅ 100% | — |
-| 7.13 Corpus Tools | — | — | 0% |
+| 7.13 Corpus Tools | ✅ | 49 tests | 100% |
 | 7.14 Evaluation Metrics | — | ✅ 100% | — |
 | 7.15 Figured Bass | — | ✅ 100% | — |
 | 7.16 Klumpenhouwer / GIS | — | ✅ 100% | — |

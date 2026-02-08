@@ -238,3 +238,28 @@ export {
   pitchGIS,
   durationGIS,
 } from './knet-gis.js';
+
+// Corpus tools
+export type {
+  CorpusFormat,
+  CorpusMetadata,
+  CorpusEntry,
+  Corpus,
+  CorpusInput,
+  LoadCorpusOptions,
+  CorpusQuery,
+  BatchResult,
+  CorpusFeatureStats,
+  CrossWorkOccurrence,
+  CrossWorkMatch,
+  CrossWorkSearchOptions,
+} from './corpus.js';
+export {
+  createCorpus,
+  loadCorpus,
+  corpusSearch,
+  corpusFilter,
+  batchAnalyze,
+  corpusStatistics,
+  crossWorkSearch,
+} from './corpus.js';
