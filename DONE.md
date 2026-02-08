@@ -1289,7 +1289,7 @@
 - [x] Installation instructions (npm)
 - [x] Quick start example (load MIDI → analyze → render)
 - [x] Module-by-module API overview with code examples
-- [ ] Updated with all new modules and examples (v2+)
+- [x] Updated with all new modules and examples (v2+)
 
 ### 10.2 API Documentation
 
@@ -1308,19 +1308,19 @@
 - [x] Example: Render a chromatic staff SVG from MIDI
 - [x] Example: Identify chords and scales in a passage
 - [x] Example: Compare tuning systems
-- [ ] Example: Load MusicXML, detect key, perform Roman numeral analysis
-- [ ] Example: Neo-Riemannian analysis of a chromatic chord progression
-- [ ] Example: Generate twelve-tone matrix and identify row forms
-- [ ] Example: Compute self-similarity matrix and find structural boundaries
-- [ ] Example: Compute TIV-based tension curve alongside Plomp-Levelt roughness
-- [ ] Example: Separate voices in a piano MIDI and analyze counterpoint
-- [ ] Example: Statistical style comparison of two MIDI files
-- [ ] Example: Load Scala tuning, build MOS scale, render chromatic staff
-- [ ] Example: Generate Markov chain progression and export to MIDI
-- [ ] Example: Render Tonnetz path for a chord sequence
-- [ ] Example: Corpus analysis — compare style fingerprints across multiple works
-- [ ] Example: Figured bass realization of a Baroque bass line
-- [ ] Example: Render JI lattice for a 5-limit tuning
+- [x] Example: Load MusicXML, detect key, perform Roman numeral analysis
+- [x] Example: Neo-Riemannian analysis of a chromatic chord progression
+- [x] Example: Generate twelve-tone matrix and identify row forms
+- [x] Example: Compute self-similarity matrix and find structural boundaries
+- [x] Example: Compute TIV-based tension curve alongside Plomp-Levelt roughness
+- [x] Example: Separate voices in a piano MIDI and analyze counterpoint
+- [x] Example: Statistical style comparison of two MIDI files
+- [x] Example: Load Scala tuning, build MOS scale, render chromatic staff
+- [x] Example: Generate Markov chain progression and export to MIDI
+- [x] Example: Render Tonnetz path for a chord sequence
+- [x] Example: Corpus analysis — compare style fingerprints across multiple works
+- [x] Example: Figured bass realization of a Baroque bass line
+- [x] Example: Render JI lattice for a 5-limit tuning
 - [ ] Example: Export analysis results as OSC messages
 
 ---
@@ -1536,7 +1536,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] All Section 9.3-9.18 tests passing
 - [x] All Section 9.23 visualization tests passing
 - [x] All Section 9.25-9.27 tests passing (pitch spelling, EMD, cent/ratio/EDO)
-- [ ] README updated with v2 examples
+- [x] README updated with v2 examples
 - [x] JSDoc on all v2 exports
 
 ### v3.0 — Feature-Complete Platform
@@ -1590,7 +1590,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 **Tests, docs, build:**
 - [x] All Section 9.19-9.24 tests passing
 - [ ] All Section 9.25-9.37 tests passing (new feature tests)
-- [ ] README updated with v3 examples
+- [x] README updated with v3 examples
 - [x] JSDoc on all v3 exports
 - [x] Subpath exports updated for all new modules
 - [x] Zero runtime dependencies maintained
