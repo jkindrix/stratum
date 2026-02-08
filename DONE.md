@@ -572,36 +572,36 @@
 
 ### 5.12 Web MIDI API Integration
 
-- [ ] `webMidiAccess(options?)` — request MIDI access via Web MIDI API (browser environments)
-- [ ] `listMidiInputs()` — enumerate available MIDI input devices
-- [ ] `listMidiOutputs()` — enumerate available MIDI output devices
-- [ ] `onMidiMessage(input, callback)` — subscribe to real-time MIDI messages from an input
-- [ ] `sendMidiMessage(output, message)` — send MIDI messages to an output device
-- [ ] Convert incoming MIDI messages to NoteEvent format
-- [ ] Environment detection: graceful no-op in Node.js (browser-only API)
+- [x] `webMidiAccess(options?)` — request MIDI access via Web MIDI API (browser environments)
+- [x] `listMidiInputs()` — enumerate available MIDI input devices
+- [x] `listMidiOutputs()` — enumerate available MIDI output devices
+- [x] `onMidiMessage(input, callback)` — subscribe to real-time MIDI messages from an input
+- [x] `sendMidiMessage(output, message)` — send MIDI messages to an output device
+- [x] Convert incoming MIDI messages to NoteEvent format
+- [x] Environment detection: graceful no-op in Node.js (browser-only API)
 
 ### 5.13 MIDI Extensions
 
-- [ ] MPE (MIDI Polyphonic Expression) awareness:
-  - [ ] Detect MPE configuration messages (MCM — MIDI Channel Mode)
-  - [ ] Parse per-note pitch bend (channel-per-note model)
-  - [ ] Parse per-note pressure (channel aftertouch per note)
-  - [ ] Parse per-note slide (CC74 per note)
-  - [ ] Map MPE channels to voice assignments
-- [ ] MIDI 2.0 awareness:
-  - [ ] Parse UMP (Universal MIDI Packet) header format
-  - [ ] Parse MIDI 2.0 note-on with per-note attributes (velocity 16-bit, pitch 7.9 fixed-point)
-  - [ ] Detect and report MIDI 2.0 property exchange capabilities
-  - [ ] Fallback: convert MIDI 2.0 to MIDI 1.0 semantics for analysis pipeline compatibility
+- [x] MPE (MIDI Polyphonic Expression) awareness:
+  - [x] Detect MPE configuration messages (MCM — MIDI Channel Mode)
+  - [x] Parse per-note pitch bend (channel-per-note model)
+  - [x] Parse per-note pressure (channel aftertouch per note)
+  - [x] Parse per-note slide (CC74 per note)
+  - [x] Map MPE channels to voice assignments
+- [x] MIDI 2.0 awareness:
+  - [x] Parse UMP (Universal MIDI Packet) header format
+  - [x] Parse MIDI 2.0 note-on with per-note attributes (velocity 16-bit, pitch 7.9 fixed-point)
+  - [x] Detect and report MIDI 2.0 property exchange capabilities
+  - [x] Fallback: convert MIDI 2.0 to MIDI 1.0 semantics for analysis pipeline compatibility
 
 ### 5.14 OSC Output
 
-- [ ] `analysisToOsc(results, options?)` — serialize analysis results as OSC messages
-- [ ] Support OSC address patterns: `/stratum/tension`, `/stratum/key`, `/stratum/chord`, `/stratum/beat`
-- [ ] Support OSC types: float32 for continuous values, string for labels, int32 for tick positions
-- [ ] `oscBundle(messages, timetag?)` — group multiple messages into an OSC bundle
-- [ ] `oscToBuffer(message)` — serialize OSC message to binary buffer (UDP-ready)
-- [ ] Configurable: output address prefix, message rate limiting
+- [x] `analysisToOsc(results, options?)` — serialize analysis results as OSC messages
+- [x] Support OSC address patterns: `/stratum/tension`, `/stratum/key`, `/stratum/chord`, `/stratum/beat`
+- [x] Support OSC types: float32 for continuous values, string for labels, int32 for tick positions
+- [x] `oscBundle(messages, timetag?)` — group multiple messages into an OSC bundle
+- [x] `oscToBuffer(message)` — serialize OSC message to binary buffer (UDP-ready)
+- [x] Configurable: output address prefix, message rate limiting
 
 ---
 
@@ -1226,16 +1226,16 @@
 
 ### 9.30 Web MIDI / MPE / MIDI 2.0 Tests
 
-- [ ] Web MIDI: graceful no-op in Node.js environment
-- [ ] MPE: per-note pitch bend parsed from channel model
-- [ ] MIDI 2.0: UMP header parsed correctly
-- [ ] MIDI 2.0 → MIDI 1.0 fallback produces valid MIDI 1.0 events
+- [x] Web MIDI: graceful no-op in Node.js environment
+- [x] MPE: per-note pitch bend parsed from channel model
+- [x] MIDI 2.0: UMP header parsed correctly
+- [x] MIDI 2.0 → MIDI 1.0 fallback produces valid MIDI 1.0 events
 
 ### 9.31 OSC Output Tests
 
-- [ ] OSC message serialization matches OSC 1.0 binary format
-- [ ] OSC bundle contains correct timetag and message count
-- [ ] Address patterns follow `/stratum/` namespace convention
+- [x] OSC message serialization matches OSC 1.0 binary format
+- [x] OSC bundle contains correct timetag and message count
+- [x] Address patterns follow `/stratum/` namespace convention
 
 ### 9.32 JI Lattice / Wavescape / Form Diagram Tests
 
@@ -1321,7 +1321,7 @@
 - [x] Example: Corpus analysis — compare style fingerprints across multiple works
 - [x] Example: Figured bass realization of a Baroque bass line
 - [x] Example: Render JI lattice for a 5-limit tuning
-- [ ] Example: Export analysis results as OSC messages
+- [x] Example: Export analysis results as OSC messages
 
 ---
 
@@ -1563,9 +1563,9 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 5.7: ABC notation import
 - [x] Section 5.10: MEI import
 - [x] Section 5.11: LilyPond export
-- [ ] Section 5.12: Web MIDI API integration
-- [ ] Section 5.13: MIDI extensions (MPE, MIDI 2.0)
-- [ ] Section 5.14: OSC output
+- [x] Section 5.12: Web MIDI API integration
+- [x] Section 5.13: MIDI extensions (MPE, MIDI 2.0)
+- [x] Section 5.14: OSC output
 
 **Tuning (advanced):**
 - [x] Section 2.8.2: Rank-2 temperaments and MOS scales
@@ -1589,7 +1589,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 
 **Tests, docs, build:**
 - [x] All Section 9.19-9.24 tests passing
-- [ ] All Section 9.25-9.37 tests passing (new feature tests)
+- [x] All Section 9.25-9.37 tests passing (new feature tests)
 - [x] README updated with v3 examples
 - [x] JSDoc on all v3 exports
 - [x] Subpath exports updated for all new modules
