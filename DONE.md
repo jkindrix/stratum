@@ -1389,9 +1389,9 @@
 - [x] MIDI parser handles files up to 10MB without hanging
 - [x] SVG renderer handles scores up to 10,000 events without hanging
 - [x] No accidental O(n³) or worse in hot paths
-- [ ] SIA algorithm O(n² log n) — verified with profiling on 10,000-note inputs
-- [ ] SSM computation handles 1,000+ window segments without hanging
-- [ ] MusicXML parser handles files up to 5MB without hanging
+- [x] SIA algorithm O(n² log n) — verified with profiling on 10,000-note inputs
+- [x] SSM computation handles 1,000+ window segments without hanging
+- [x] MusicXML parser handles files up to 5MB without hanging
 
 ### 12.4 Zero Dependencies
 
@@ -1533,9 +1533,9 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 2.8.1: Scala .scl/.kbm support
 
 **Tests and docs:**
-- [ ] All Section 9.3-9.18 tests passing
+- [x] All Section 9.3-9.18 tests passing
 - [x] All Section 9.23 visualization tests passing
-- [ ] All Section 9.25-9.27 tests passing (pitch spelling, EMD, cent/ratio/EDO)
+- [x] All Section 9.25-9.27 tests passing (pitch spelling, EMD, cent/ratio/EDO)
 - [ ] README updated with v2 examples
 - [ ] JSDoc on all v2 exports
 
@@ -1588,7 +1588,7 @@ All 156 tests passing. Zero dependencies. Full Forte catalog. Plomp-Levelt rough
 - [x] Section 6.12: Pitch-space plots
 
 **Tests, docs, build:**
-- [ ] All Section 9.19-9.24 tests passing
+- [x] All Section 9.19-9.24 tests passing
 - [ ] All Section 9.25-9.37 tests passing (new feature tests)
 - [ ] README updated with v3 examples
 - [ ] JSDoc on all v3 exports
